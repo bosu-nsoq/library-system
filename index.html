@@ -282,38 +282,44 @@
 
       // 🔄 Bridge Polyfill: รองรับทั้งบน Google Apps Script และ GitHub Pages อัตโนมัติ
       if (typeof google === 'undefined' || !google.script || !google.script.run) {
+         function createRunner(successCb, failureCb) {
+            return new Proxy({}, {
+               get: function(target, actionName) {
+                  if (actionName === 'withSuccessHandler') {
+                     return (cb) => createRunner(cb, failureCb);
+                  }
+                  if (actionName === 'withFailureHandler') {
+                     return (cb) => createRunner(successCb, cb);
+                  }
+                  return function(...args) {
+                     if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_APPS_SCRIPT_WEB_APP_URL")) {
+                        alert("⚠️ กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ของไฟล์ index.html ก่อนใช้งานครับ");
+                        if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+                        if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                        return;
+                     }
+                     fetch(GAS_WEB_APP_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: actionName, args: args })
+                     })
+                     .then(res => res.json())
+                     .then(data => {
+                        if (successCb) successCb(data);
+                     })
+                     .catch(err => {
+                        console.error("API Error:", err);
+                        if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+                        if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                        if (failureCb) failureCb(err);
+                        else alert("❌ ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กรุณาตรวจสอบสิทธิ์การ Deploy (Anyone)");
+                     });
+                  };
+               }
+            });
+         }
          window.google = {
             script: {
-               run: {
-                  withSuccessHandler: function(onSuccess) {
-                     return new Proxy({}, {
-                        get: function(target, actionName) {
-                           return function(...args) {
-                              if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec") {
-                                 alert("⚠️ กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ของไฟล์ index.html ก่อนใช้งานครับ");
-                                 if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
-                                 if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
-                                 return;
-                              }
-                              fetch(GAS_WEB_APP_URL, {
-                                 method: "POST",
-                                 body: JSON.stringify({ action: actionName, args: args })
-                              })
-                              .then(res => res.json())
-                              .then(data => {
-                                 if (onSuccess) onSuccess(data);
-                              })
-                              .catch(err => {
-                                 console.error("API Error:", err);
-                                 if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
-                                 if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
-                                 alert("❌ ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กรุณาตรวจสอบสิทธิ์การ Deploy (Anyone)");
-                              });
-                           };
-                        }
-                     });
-                  }
-               }
+               run: createRunner()
             }
          };
       }
