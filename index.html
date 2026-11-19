@@ -278,7 +278,7 @@
 
     <script>
       // ⚙️ [สำคัญสำหรับ GitHub Pages] ใส่ Web App URL ของ Google Apps Script ที่ Deploy ไว้ที่นี่
-      const GAS_WEB_APP_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+      const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec";
 
       // 🔄 Bridge Polyfill: รองรับทั้งบน Google Apps Script และ GitHub Pages อัตโนมัติ
       if (typeof google === 'undefined' || !google.script || !google.script.run) {
@@ -289,7 +289,7 @@
                      return new Proxy({}, {
                         get: function(target, actionName) {
                            return function(...args) {
-                              if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
+                              if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec") {
                                  alert("⚠️ กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ของไฟล์ index.html ก่อนใช้งานครับ");
                                  if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
                                  if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
