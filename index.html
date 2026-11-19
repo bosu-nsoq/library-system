@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <title>WNTK Library System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <!-- โหลดฟอนต์ Prompt และ Sarabun จาก Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+      :root {
+        --primary: #2D6A4F; --accent: #52B788; --bg-glass: rgba(255, 255, 255, 0.92); 
+        --text-main: #1B4332; --text-sub: #748C7E; --danger: #E63946;     
+        --shadow: 0 10px 30px rgba(45, 106, 79, 0.15); --radius: 20px;
+      }
+
+      html, body { 
+        overflow-x: hidden; width: 100%; position: relative; 
+        touch-action: manipulation; font-family: 'Prompt', sans-serif; margin: 0; padding: 10px;
+        background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
+        background-size: cover; background-position: center; background-attachment: fixed;
+        display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; box-sizing: border-box;
+      }
+      
+      .card {
+        background: var(--bg-glass); border-radius: var(--radius); box-shadow: var(--shadow);
+        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.8); width: 95vw; max-width: 460px; padding: 25px; box-sizing: border-box; margin-top: 10px;
+      }
+
+      .school-header { font-size: 16px; color: var(--text-sub); font-weight: 500; text-align: center; margin-bottom: 5px; }
+      
+      /* Login Screen */
+      .login-box { text-align: center; margin-top: 15vh; }
+      .school-logo { width: 85px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+      .pin-input {
+        width: 100%; font-size: 24px; letter-spacing: 12px; text-align: center;
+        border: 2px solid #D8F3DC; padding: 15px; border-radius: 16px; outline: none;
+        background: #FFFFFF; box-sizing: border-box; font-family: 'Prompt', sans-serif;
+      }
+
+      .loader {
+        border: 4px solid #f3f3f3; border-top: 4px solid var(--primary);
+        border-radius: 50%; width: 30px; height: 30px;
+        animation: spin 1s linear infinite; display: none; margin: 20px auto;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      
+      #login-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
+        background-size: cover; z-index: 9999; display: flex; align-items: flex-start; justify-content: center;
+      }
+
+      .app-title { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+      .user-pill { background: #D8F3DC; color: var(--primary); padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; }
+      .menu-row { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 10px; }
+      .icon-btn { 
+        background: white; border: 1px solid #EAEAEA; width: 38px; height: 38px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 16px;
+      }
+
+      .nav-tabs { display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 14px; margin-bottom: 20px; }
+      .nav-btn { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-family: 'Prompt'; font-size: 13px; color: var(--text-sub); cursor: pointer; font-weight: 600; transition:0.2s; }
+      .nav-btn.active { background: white; color: var(--primary); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+      .input-wrapper { position: relative; margin-bottom: 15px; }
+      .modern-input { 
+        width: 100%; padding: 15px; padding-right: 50px; font-size: 16px; text-align: center; 
+        font-family: 'Prompt'; font-weight: 600; border-radius: 16px; border: 2px solid #E9ECEF;
+        background: #F8F9FA; box-sizing: border-box; outline: none; color: var(--text-main);
+      }
+      .cam-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: white; border: 1px solid #E9ECEF; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; color: var(--primary); font-size: 18px; }
+      .add-queue-btn { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); background: #D8F3DC; border: 1px solid #B7E4C7; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; color: var(--primary); font-size: 20px; font-weight: 700; }
+
+      .info-card { background: white; border-radius: 15px; padding: 12px; border-left: 5px solid #E9ECEF; margin-bottom: 10px; text-align: left; transition: 0.3s;}
+      .info-card.active { border-left-color: var(--accent); background: #F0FFF4; }
+
+      /* รายการคิวหนังสือหลายเล่ม */
+      .queue-box { display: none; margin-top: 8px; margin-bottom: 10px; }
+      .queue-item { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1px solid #D8F3DC; border-radius: 12px; padding: 8px 12px; margin-bottom: 6px; font-size: 13px; text-align: left; }
+      
+      .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+      .action-btn { flex: 1; padding: 15px; border: none; border-radius: 15px; font-size: 16px; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+      .btn-borrow { background: var(--accent); } .btn-return { background: var(--danger); }
+      
+      .status-text { font-size: 12px; color: var(--text-sub); text-align: center; margin-top: 10px; font-weight: 500; }
+
+      .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; }
+      .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-sizing: border-box; max-height: 90vh; overflow-y: auto;}
+      .history-list { text-align: left; max-height: 300px; overflow-y: auto; margin-top: 10px; padding-right:5px;}
+      .hist-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #F3F4F6; font-size: 13px; align-items: center; background: #F8F9FA; border-radius: 10px; margin-bottom: 5px; }
+      .section { display: none; } .section.active { display: block; }
+      #lock-msg { color: var(--danger); font-size: 14px; margin-top: 15px; display: none; font-weight: 600; background: rgba(230, 57, 70, 0.1); padding: 10px; border-radius: 12px; }
+
+      /* หน้าต่างโหลด (Loading Overlay) */
+      .tx-loader-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
+        z-index: 3000; align-items: center; justify-content: center; flex-direction: column;
+      }
+      .tx-spinner {
+        border: 6px solid #E9ECEF; border-top: 6px solid var(--primary);
+        border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <!-- หน้าต่างโหลดตอนทำรายการ -->
+    <div id="tx-loader" class="tx-loader-overlay">
+      <div class="tx-spinner"></div>
+      <div id="tx-loader-text" style="margin-top:15px; font-weight:700; color:var(--primary); font-size: 18px;">กำลังประมวลผล...</div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-overlay">
+      <div class="card login-box">
+        <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="school-logo" alt="School Logo">
+        <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+        <div class="app-title" style="justify-content:center; margin-bottom: 15px;">ระบบห้องสมุดดิจิทัล</div>
+        <input type="password" id="login-pin" class="pin-input" inputmode="numeric" maxlength="4" placeholder="กรอกรหัส" oninput="checkPinLogin(this)" autofocus>
+        <div id="login-loader" class="loader"></div>
+        <div id="lock-msg">🔒 ล็อก 5 นาที: <span id="countdown"></span></div>
+      </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="card container" id="main-app" style="display: none;">
+      <div style="text-align:center"><img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px"></div>
+      <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+      
+      <!-- User & Logout -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+         <div class="app-title">📚 ห้องสมุด</div>
+         <div style="display:flex; align-items:center; gap:8px;">
+            <div class="user-pill" id="staff-display">Guest</div>
+            <button onclick="logoutStaff()" title="ออกจากระบบ (Logout)" style="cursor:pointer; display:flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--danger); color:white; border-radius:8px; box-shadow:0 2px 5px rgba(230,57,70,0.3); transition:0.2s; border:none; padding:0;">
+               <svg style="pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+            </button>
+         </div>
+      </div>
+
+      <div class="menu-row">
+        <div class="icon-btn" onclick="showHistory()" title="ประวัติ">🕒</div>
+        <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
+      </div>
+
+      <div class="nav-tabs">
+        <button class="nav-btn active" onclick="switchTab('tab1', this)">ยืม-คืน</button>
+        <button class="nav-btn" onclick="switchTab('tab2', this)">เพิ่มหนังสือ</button>
+        <button class="nav-btn" onclick="switchTab('tab3', this)">แลกของ</button>
+      </div>
+      
+      <div id="tab1" class="section active">
+        <div class="input-wrapper">
+          <input type="tel" id="sid" class="modern-input" placeholder="รหัสนักเรียน" maxlength="4" oninput="validateAndSearch(this, 'borrow')" onkeypress="if(event.key === 'Enter') { event.preventDefault(); document.getElementById('bid').focus(); }">
+          <button class="cam-btn" onclick="startCamera('sid', 'borrow')">📷</button>
+        </div>
+        <div id="box-student" class="info-card"><div style="font-weight:700; color:var(--primary);" id="s-name">รอข้อมูลนักเรียน...</div><div id="s-score" style="font-size:12px; color:var(--text-sub)">-</div></div>
+        
+        <div class="input-wrapper" style="margin-top: 20px;">
+          <button class="add-queue-btn" onclick="addCurrentBookToQueue()" title="เพิ่มหนังสือเข้าคิว">+</button>
+          <input type="tel" id="bid" class="modern-input" style="padding-left:50px;" placeholder="รหัสหนังสือ/บาร์โค้ด" oninput="validateAndSearch(this, 'borrow')" onkeypress="if(event.key === 'Enter') { event.preventDefault(); addCurrentBookToQueue(); }">
+          <button class="cam-btn" onclick="startCamera('bid', 'borrow')">📷</button>
+        </div>
+        <div id="box-book" class="info-card"><div style="font-weight:700; color:var(--primary);" id="b-name">รอข้อมูลหนังสือ...</div><div id="b-status" style="font-size:12px; color:var(--text-sub)">-</div></div>
+        
+        <div id="book-queue-box" class="queue-box"></div>
+
+        <div class="btn-group">
+          <button class="action-btn btn-borrow" onclick="submitAction('borrow')">ยืม</button>
+          <button class="action-btn btn-return" onclick="submitAction('return')">คืน</button>
+        </div>
+      </div>
+
+      <div id="tab2" class="section">
+        <div class="input-wrapper">
+          <input type="tel" id="n-bid" class="modern-input" placeholder="บาร์โค้ดหนังสือใหม่">
+          <button class="cam-btn" onclick="startCamera('n-bid', 'add')">📷</button>
+        </div>
+        <div class="input-wrapper"><input type="text" id="n-name" class="modern-input" style="padding-right:15px;" placeholder="ชื่อหนังสือ"></div>
+        <div class="input-wrapper"><input type="text" id="n-author" class="modern-input" style="padding-right:15px;" placeholder="ชื่อผู้แต่ง"></div>
+        <div class="input-wrapper"><input type="number" id="n-qty" class="modern-input" style="padding-right:15px;" placeholder="จำนวนเล่ม (ค่าเริ่มต้น 1)" min="1" value="1"></div>
+        <button class="action-btn" style="width:100%; background:var(--primary);" onclick="addBook()">บันทึกหนังสือ</button>
+      </div>
+
+      <div id="tab3" class="section">
+        <div class="input-wrapper"><input type="tel" id="r-sid" class="modern-input" placeholder="สแกนรหัสนักเรียน" maxlength="4" oninput="checkScore(this)"></div>
+        <div class="info-card active" style="background:#FFFBEB; border-left-color:#F59E0B; text-align:center;">
+           <div id="rs-name" style="font-weight:700; color:#B45309;">สแกนบัตรเพื่อตรวจสอบ</div>
+           <div id="rs-score" style="font-size:28px; font-weight:800; color:#F59E0B">0 แต้ม</div>
+        </div>
+        <div id="rewards-list" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;"></div>
+      </div>
+      <div id="res-text" class="status-text">พร้อมใช้งาน</div>
+    </div>
+
+    <!-- Modals -->
+    <div id="msgModal" class="modal-overlay"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main);" onclick="closeModal()">ตกลง</button></div></div>
+    
+    <div id="historyModal" class="modal-overlay"><div class="modal-box"><div style="font-weight:700; font-size: 18px; margin-bottom:10px; text-align:left;">🕒 ประวัติล่าสุด</div><div id="hist-content" class="history-list"></div><button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none;" onclick="document.getElementById('historyModal').style.display='none'">ปิด</button></div></div>
+    
+    <div id="printModal" class="modal-overlay">
+       <div class="modal-box">
+          <div style="font-weight:700; font-size: 18px; margin-bottom:15px;">🖨️ กำหนดช่วงเวลาพิมพ์รายงาน</div>
+          
+          <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+             <input type="date" id="print-c-day" class="modern-input" style="padding:10px; font-size:12px; flex:1;">
+             <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--primary); margin:0;" onclick="triggerPrintCustom('day')">พิมพ์รายวัน</button>
+          </div>
+          <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+             <input type="month" id="print-c-month" class="modern-input" style="padding:10px; font-size:12px; flex:1;">
+             <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--accent); margin:0;" onclick="triggerPrintCustom('month')">พิมพ์รายเดือน</button>
+          </div>
+          <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+             <input type="number" id="print-c-year" class="modern-input" placeholder="พิมพ์ปี ค.ศ. (เช่น 2026)" style="padding:10px; font-size:12px; flex:1;">
+             <button class="action-btn" style="padding:10px 15px; font-size:12px; background:#457B9D; margin:0;" onclick="triggerPrintCustom('year')">พิมพ์รายปี</button>
+          </div>
+
+          <button class="action-btn" style="width:100%; margin-top:10px; background:transparent; border:1px solid #EAEAEA; color:var(--text-sub); box-shadow:none;" onclick="document.getElementById('printModal').style.display='none'; document.getElementById('statsModal').style.display='flex'">ย้อนกลับ</button>
+       </div>
+    </div>
+
+    <div id="statsModal" class="modal-overlay">
+       <div class="modal-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+             <div style="font-weight:700; font-size: 18px; text-align:left;">📊 สถิติการใช้งาน</div>
+             <button onclick="document.getElementById('statsModal').style.display='none'; document.getElementById('printModal').style.display='flex'" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Prompt'; font-size:12px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🖨️ พิมพ์รายงาน</button>
+          </div>
+          
+          <div style="display:flex; gap:5px; margin-bottom:10px; background: rgba(0,0,0,0.05); padding:4px; border-radius:14px;" id="stats-nav">
+             <button class="nav-btn active" onclick="loadStats('day', this)">วันนี้</button>
+             <button class="nav-btn" onclick="loadStats('month', this)">เดือนนี้</button>
+             <button class="nav-btn" onclick="loadStats('year', this)">ปีนี้</button>
+             <button class="nav-btn" onclick="loadStats('all', this)">ทั้งหมด</button>
+          </div>
+
+          <div style="display:flex; gap:5px; margin-bottom:15px;">
+             <input type="date" id="st-c-day" class="modern-input" title="เลือกสถิติเฉพาะวัน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_day', value:this.value}, null)">
+             <input type="month" id="st-c-month" class="modern-input" title="เลือกสถิติเฉพาะเดือน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_month', value:this.value}, null)">
+             <input type="number" id="st-c-year" class="modern-input" placeholder="ปี ค.ศ." title="เลือกสถิติเฉพาะปี" style="padding:8px 5px; font-size:11px;" onchange="if(this.value && this.value.length===4) loadStats({type:'custom_year', value:this.value}, null)">
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+             <div style="background:#F0FFF4; padding:15px; border-radius:15px;">
+                 <div style="font-size:12px; color:var(--text-sub);">จำนวนการยืม</div>
+                 <b id="st-borrows" style="font-size:24px; color:var(--primary);">-</b><span style="font-size:12px"> เล่ม</span>
+             </div>
+             <div style="background:#FFF0F0; padding:15px; border-radius:15px;">
+                 <div style="font-size:12px; color:var(--text-sub);">จำนวนการคืน</div>
+                 <b id="st-returns" style="font-size:24px; color:var(--danger);">-</b><span style="font-size:12px"> เล่ม</span>
+             </div>
+          </div>
+          <div style="text-align:left; font-size:14px; font-weight:700; margin-bottom:5px;">🏆 นักอ่านยอดเยี่ยม</div>
+          <div id="st-top-students" class="history-list" style="max-height:110px; margin-bottom:10px;"></div>
+          <div style="text-align:left; font-size:14px; font-weight:700; margin-bottom:5px;">🔥 หนังสือยอดฮิต</div>
+          <div id="st-top-books" class="history-list" style="max-height:110px;"></div>
+          <button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none;" onclick="document.getElementById('statsModal').style.display='none'">ปิดหน้าต่าง</button>
+       </div>
+    </div>
+    
+    <!-- หน้าต่างสแกนบาร์โค้ดแบบเรียลไทม์ (รองรับสแกนต่อเนื่อง) -->
+    <div id="cameraModal" class="modal-overlay">
+       <div style="width:95%; max-width:380px; background:black; border-radius:20px; overflow:hidden; position: relative; padding-bottom: 75px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <!-- ✅ แถบแจ้งเตือนสถานะสแกนต่อเนื่อง -->
+          <div id="scan-continuous-status" style="display:none; position:absolute; top:12px; left:50%; transform:translateX(-50%); background:rgba(45,106,79,0.92); color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; z-index:20; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>
+          
+          <div style="position: relative; width: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center;">
+             <div id="reader" style="width:100%; height:100%;"></div>
+          </div>
+          <div style="position: absolute; bottom: 15px; left: 0; width: 100%; display: flex; justify-content: center; padding: 0 15px; box-sizing: border-box;">
+              <button class="action-btn btn-return" style="width:100%; padding:12px; font-size:14px; border-radius:15px; margin:0; background:#333; border: 1px solid #555;" onclick="stopCamera()">❌ ปิดหน้าต่างสแกน</button>
+          </div>
+       </div>
+    </div>
+
+    <script>
+      // ⚙️ [สำคัญสำหรับ GitHub Pages] ใส่ Web App URL ของ Google Apps Script ที่ Deploy ไว้ที่นี่
+      const GAS_WEB_APP_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+      // 🔄 Bridge Polyfill: รองรับทั้งบน Google Apps Script และ GitHub Pages อัตโนมัติ
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+         window.google = {
+            script: {
+               run: {
+                  withSuccessHandler: function(onSuccess) {
+                     return new Proxy({}, {
+                        get: function(target, actionName) {
+                           return function(...args) {
+                              if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
+                                 alert("⚠️ กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ของไฟล์ index.html ก่อนใช้งานครับ");
+                                 if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+                                 if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                                 return;
+                              }
+                              fetch(GAS_WEB_APP_URL, {
+                                 method: "POST",
+                                 body: JSON.stringify({ action: actionName, args: args })
+                              })
+                              .then(res => res.json())
+                              .then(data => {
+                                 if (onSuccess) onSuccess(data);
+                              })
+                              .catch(err => {
+                                 console.error("API Error:", err);
+                                 if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+                                 if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                                 alert("❌ ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กรุณาตรวจสอบสิทธิ์การ Deploy (Anyone)");
+                              });
+                           };
+                        }
+                     });
+                  }
+               }
+            }
+         };
+      }
+
+      let studentCache = {}; let currentUser = ""; let loginAttempts = 0; let lockoutEnd = 0;
+      let bookQueue = []; // คิวหนังสือสำหรับยืม/คืนหลายเล่ม
+
+      document.addEventListener("DOMContentLoaded", function() {
+         let savedUser = sessionStorage.getItem('library_logged_in_user');
+         if (savedUser) {
+             currentUser = savedUser;
+             document.getElementById('staff-display').innerText = currentUser;
+             document.getElementById('login-overlay').style.display = 'none';
+             document.getElementById('main-app').style.display = 'block';
+             document.getElementById('sid').focus();
+         }
+      });
+
+      function logoutStaff() {
+         if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+             sessionStorage.removeItem('library_logged_in_user');
+             currentUser = "";
+             document.getElementById('main-app').style.display = 'none';
+             document.getElementById('login-overlay').style.display = 'flex';
+             document.getElementById('login-pin').value = "";
+             document.getElementById('login-pin').focus();
+         }
+      }
+
+      function triggerPrintCustom(type) {
+         let val = ""; let rangeText = "";
+         if (type === 'day') { 
+            val = document.getElementById('print-c-day').value; 
+            if(val) { let p = val.split('-'); rangeText = "ประจำวันที่ " + p[2] + "/" + p[1] + "/" + (parseInt(p[0])+543); }
+         }
+         else if (type === 'month') { 
+            val = document.getElementById('print-c-month').value; 
+            if(val) { let p = val.split('-'); rangeText = "ประจำเดือน " + p[1] + "/" + (parseInt(p[0])+543); }
+         }
+         else if (type === 'year') { 
+            val = document.getElementById('print-c-year').value; 
+            if(val) { rangeText = "ประจำปี พ.ศ. " + (parseInt(val)+543); }
+         }
+         
+         if (!val) { alert("⚠️ กรุณาระบุเวลาที่ต้องการพิมพ์ให้ครบถ้วน"); return; }
+         triggerPrint({ type: 'custom_' + type, value: val, text: rangeText });
+      }
+
+      function triggerPrint(range) {
+        document.getElementById('printModal').style.display = 'none';
+        let win = window.open("", "_blank");
+        if (!win) { alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนครับ"); return; }
+        win.document.write("<h3 style='font-family:sans-serif; text-align:center; padding:20px;'>⏳ กำลังดึงข้อมูล...</h3>");
+        
+        let rangeText = typeof range === 'object' ? range.text : 'ทั้งหมด';
+
+        google.script.run.withSuccessHandler(function(data) {
+          if (data.length === 0) { win.document.body.innerHTML = `<h3 style='text-align:center; font-family:sans-serif;'>ไม่มีข้อมูล ${rangeText}</h3>`; return; }
+          
+          let html = `<html><head><title>รายงานห้องสมุด</title>
+          <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;700&family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+          <style>
+             @media print { @page { size: landscape; margin: 1cm; } } 
+             body { font-family: 'Prompt', sans-serif; padding:20px; }
+             table { width:100%; border-collapse:collapse; margin-top:20px; }
+             th, td { border:1px solid #ddd; padding:8px; font-size:14px; text-align:left; }
+             th { background:#2D6A4F; color:#fff; text-align:center; }
+             .header { text-align:center; }
+          </style></head><body>
+          <div class="header">
+             <h2>รายงานการเข้าใช้บริการห้องสมุด (${rangeText})</h2>
+             <h3>โรงเรียนวัดหนองตะเฆ่</h3>
+             <p>พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+          </div>
+          <table>
+             <tr><th>วันที่</th><th>เวลา</th><th>รายการ</th><th>ชื่อ-นามสกุล</th><th>ชื่อหนังสือ</th><th>เจ้าหน้าที่</th></tr>`;
+          
+          data.forEach(r => { 
+             html += `<tr><td style="text-align:center">${r.date}</td><td style="text-align:center">${r.time}</td><td style="text-align:center">${r.action}</td><td>${r.studentName}</td><td>${r.bookName}</td><td style="text-align:center">${r.staff}</td></tr>`; 
+          });
+          
+          html += `</table></body></html>`;
+          win.document.open(); win.document.write(html); win.document.close(); 
+          setTimeout(() => win.print(), 500); 
+        }).getLogsByRange(range);
+      }
+
+      function checkPinLogin(input) {
+        if (input.value.length === 4) {
+          document.getElementById('login-loader').style.display = 'block'; 
+          google.script.run.withSuccessHandler(function(res) {
+            document.getElementById('login-loader').style.display = 'none'; 
+            if (res.status === "success") { 
+               currentUser = res.name; 
+               sessionStorage.setItem('library_logged_in_user', currentUser);
+               document.getElementById('staff-display').innerText = currentUser; 
+               document.getElementById('login-overlay').style.display = 'none'; 
+               document.getElementById('main-app').style.display = 'block'; 
+               showModal("success:✅ เข้าสู่ระบบสำเร็จ\nยินดีต้อนรับคุณ " + currentUser);
+            } else { 
+               loginAttempts++; input.value = ""; 
+               if (loginAttempts >= 3) startLock(); 
+            }
+          }).loginStaff(input.value);
+        }
+      }
+      
+      function startLock() {
+        lockoutEnd = Date.now() + 300000;
+        document.getElementById('login-pin').disabled = true;
+        document.getElementById('lock-msg').style.display = 'block';
+        let timer = setInterval(() => {
+          let left = Math.ceil((lockoutEnd - Date.now()) / 1000);
+          if (left <= 0) { clearInterval(timer); document.getElementById('login-pin').disabled = false; document.getElementById('lock-msg').style.display = 'none'; loginAttempts = 0; }
+          else { document.getElementById('countdown').innerText = Math.floor(left/60) + ":" + (left%60).toString().padStart(2,'0'); }
+        }, 1000);
+      }
+
+      function switchTab(id, btn) { 
+         document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
+         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); 
+         document.getElementById(id).classList.add('active'); btn.classList.add('active'); 
+      }
+      
+      function validateAndSearch(input, mode) {
+        if (input.id === 'sid') {
+            if(input.value.length > 4) input.value = input.value.slice(0, 4);
+            if (input.value.length === 4) { 
+               document.getElementById('s-name').innerText = "🔍 กำลังดึงชื่อนักเรียน..."; 
+               google.script.run.withSuccessHandler(data => { 
+                  if(data.student) { 
+                     document.getElementById('s-name').innerText = data.student.name; 
+                     document.getElementById('box-student').classList.add('active'); 
+                     document.getElementById('s-score').innerText = "แต้มสะสม: " + data.student.score;
+                  } else {
+                     document.getElementById('s-name').innerText = "❌ ไม่พบรหัสนักเรียน";
+                  }
+               }).getNames(input.value, "");
+            }
+        } else if (input.id === 'bid' && input.value.length > 2) {
+           google.script.run.withSuccessHandler(data => { 
+              if(data.book) { 
+                 document.getElementById('b-name').innerText = data.book.name; 
+                 document.getElementById('b-status').innerText = "สถานะ: " + data.book.status; 
+                 document.getElementById('box-book').classList.add('active'); 
+              } 
+           }).getNames("", input.value);
+        }
+      }
+
+      function addCurrentBookToQueue(forcedId, keepCameraOpen) {
+        const bidInput = document.getElementById('bid');
+        const bid = String(forcedId || bidInput.value).trim();
+        if (!bid) return;
+
+        const currentName = document.getElementById('b-name').innerText;
+        const displayName = (!forcedId && currentName && !currentName.includes("รอข้อมูล")) ? currentName : "กำลังดึงชื่อ...";
+        
+        bookQueue.push({ id: bid, name: displayName });
+        renderBookQueue();
+
+        const itemIndex = bookQueue.length - 1;
+        google.script.run.withSuccessHandler(data => {
+          if (data.book && bookQueue[itemIndex] && bookQueue[itemIndex].id === bid) {
+            bookQueue[itemIndex].name = `${data.book.name} (${data.book.status})`;
+            renderBookQueue();
+          }
+        }).getNames("", bid);
+
+        bidInput.value = "";
+        document.getElementById('box-book').classList.remove('active');
+        document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
+        document.getElementById('b-status').innerText = "-";
+        if (!keepCameraOpen) bidInput.focus();
+      }
+
+      function removeBookFromQueue(index) {
+        bookQueue.splice(index, 1);
+        renderBookQueue();
+      }
+
+      function renderBookQueue() {
+        const box = document.getElementById('book-queue-box');
+        if (bookQueue.length === 0) {
+          box.style.display = 'none';
+          box.innerHTML = "";
+          return;
+        }
+        box.style.display = 'block';
+        let html = `<div style="font-size:12px; color:var(--primary); font-weight:700; text-align:left; margin-bottom:5px;">📚 รายการที่เลือก (${bookQueue.length} เล่ม)</div>`;
+        bookQueue.forEach((b, i) => {
+          html += `<div class="queue-item">
+                     <div><b>${i+1}. [${b.id}]</b> ${b.name}</div>
+                     <button onclick="removeBookFromQueue(${i})" style="border:none; background:none; color:var(--danger); cursor:pointer; font-size:16px;">✖</button>
+                   </div>`;
+        });
+        box.innerHTML = html;
+      }
+
+      function submitAction(type) {
+        const sid = document.getElementById('sid').value.trim(); 
+        const currentBid = document.getElementById('bid').value.trim();
+        
+        let bookIds = bookQueue.map(b => b.id);
+        if (currentBid) bookIds.push(currentBid);
+
+        if (!sid || bookIds.length === 0) {
+            showModal("error:❌ กรุณากรอกรหัสนักเรียนและรหัสหนังสือให้ครบ");
+            return;
+        }
+        
+        document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+        document.getElementById('tx-loader').style.display = 'flex';
+        
+        google.script.run.withSuccessHandler(res => { 
+           document.getElementById('tx-loader').style.display = 'none';
+           
+           showModal(res); 
+           bookQueue = [];
+           renderBookQueue();
+           document.getElementById('sid').value = ""; 
+           document.getElementById('bid').value = ""; 
+           document.getElementById('box-student').classList.remove('active'); 
+           document.getElementById('box-book').classList.remove('active'); 
+           document.getElementById('s-name').innerText = "รอข้อมูลนักเรียน..."; 
+           document.getElementById('s-score').innerText = "-";
+           document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ..."; 
+           document.getElementById('b-status').innerText = "-";
+        }).processMultipleTransactions(sid, bookIds, type, currentUser);
+      }
+
+      function addBook() {
+        const id = document.getElementById('n-bid').value.trim(); 
+        const name = document.getElementById('n-name').value.trim(); 
+        const author = document.getElementById('n-author').value.trim();
+        const qty = parseInt(document.getElementById('n-qty').value, 10) || 1;
+        
+        if (id === "" || name === "" || author === "") {
+            showModal("error:❌ กรุณากรอกข้อมูลให้ครบทุกช่องก่อนบันทึกครับ");
+            return;
+        }
+
+        document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+        document.getElementById('tx-loader').style.display = 'flex';
+
+        google.script.run.withSuccessHandler(res => { 
+            document.getElementById('tx-loader').style.display = 'none';
+            showModal(res); 
+            if(res.includes("success")) {
+                document.getElementById('n-bid').value=""; 
+                document.getElementById('n-name').value=""; 
+                document.getElementById('n-author').value=""; 
+                document.getElementById('n-qty').value="1";
+            }
+        }).addNewBook(id, name, author, qty);
+      }
+
+      function checkScore(input) {
+        if(input.value.length > 4) input.value = input.value.slice(0, 4);
+        if (input.value.length === 4) {
+          google.script.run.withSuccessHandler(data => {
+            if(data.error) return; 
+            document.getElementById('rs-name').innerText = data.name; 
+            document.getElementById('rs-score').innerText = data.score + " แต้ม";
+            
+            let html = ""; data.rewards.forEach(r => {
+              let can = data.score >= r.cost;
+              html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 8px 15px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.3s ease;" onclick="${can?`redeem('${input.value}','${r.id}',${r.cost},'${r.name}')`:''}">
+                          <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
+                          <b style="color:var(--text-main); font-size: 14px;">${r.name}</b><br>
+                          <div style="background:${can?'#d8f3dc':'#e9ecef'}; color:${can?'var(--primary)':'#6c757d'}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
+                       </div>`;
+            });
+            document.getElementById('rewards-list').innerHTML = html;
+          }).getStudentScoreAndRewards(input.value);
+        }
+      }
+
+      function redeem(sid, rid, cost, name) { 
+         if(confirm(`แลก ${name}?`)) {
+            document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+            document.getElementById('tx-loader').style.display = 'flex';
+            google.script.run.withSuccessHandler(res => { 
+                document.getElementById('tx-loader').style.display = 'none';
+                showModal(res); 
+                checkScore({value:sid}); 
+            }).processRedemption(sid, rid, cost, name, currentUser); 
+         }
+      }
+
+      function showHistory() { document.getElementById('historyModal').style.display='flex'; google.script.run.withSuccessHandler(data => { let html = ""; data.forEach(h => html += `<div class="hist-item"><div>${h.time} | <b>${h.action}</b><br>${h.studentName}</div><button onclick="deleteLog(${h.rowIndex})" style="border:none;background:none;color:red">🗑️</button></div>`); document.getElementById('hist-content').innerHTML = html || "ไม่มีข้อมูล"; }).getRecentLogs(); }
+      
+      function deleteLog(idx) { 
+         if(confirm("ลบรายการ?")) {
+             document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+             document.getElementById('tx-loader').style.display = 'flex';
+             google.script.run.withSuccessHandler(() => {
+                document.getElementById('tx-loader').style.display = 'none';
+                showHistory();
+             }).deleteSpecificLog(idx); 
+         }
+      }
+      
+      function showStats() { 
+         document.getElementById('statsModal').style.display='flex'; 
+         let btn = document.getElementById('stats-nav').children[0];
+         loadStats('day', btn);
+      }
+
+      function loadStats(range, btnElement) {
+         if(btnElement) {
+            let btns = document.getElementById('stats-nav').querySelectorAll('.nav-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById('st-c-day').value = ""; document.getElementById('st-c-month').value = ""; document.getElementById('st-c-year').value = "";
+         } else {
+            let btns = document.getElementById('stats-nav').querySelectorAll('.nav-btn');
+            btns.forEach(b => b.classList.remove('active'));
+         }
+         
+         document.getElementById('st-borrows').innerText = "...";
+         document.getElementById('st-returns').innerText = "...";
+         document.getElementById('st-top-students').innerHTML = "<div style='text-align:center; color:var(--text-sub);'>กำลังประมวลผล...</div>";
+         document.getElementById('st-top-books').innerHTML = "<div style='text-align:center; color:var(--text-sub);'>กำลังประมวลผล...</div>";
+
+         google.script.run.withSuccessHandler(data => { 
+            document.getElementById('st-borrows').innerText = data.borrows; 
+            document.getElementById('st-returns').innerText = data.returns; 
+            
+            let htmlS = ""; let medals = ["🥇", "🥈", "🥉"];
+            data.topStudents.forEach((s,i) => {
+               htmlS += `<div class="hist-item" style="background:white; margin-bottom:5px;">
+                          <span style="font-weight:600;">${medals[i]||(i+1)+'.'} ${s.name}</span>
+                          <b style="color:var(--primary); font-size:14px;">${s.count} เล่ม</b>
+                        </div>`;
+            }); 
+            document.getElementById('st-top-students').innerHTML = htmlS || "<div style='text-align:center; color:var(--text-sub);'>ไม่มีข้อมูล</div>"; 
+
+            let htmlB = ""; 
+            data.topBooks.forEach((b,i) => {
+               htmlB += `<div class="hist-item" style="background:white; margin-bottom:5px;">
+                          <span style="font-weight:600;">${medals[i]||(i+1)+'.'} ${b.name}</span>
+                          <b style="color:var(--accent); font-size:14px;">${b.count} ครั้ง</b>
+                        </div>`;
+            }); 
+            document.getElementById('st-top-books').innerHTML = htmlB || "<div style='text-align:center; color:var(--text-sub);'>ไม่มีข้อมูล</div>"; 
+         }).getAdvancedStats(range);
+      }
+
+      function showModal(msg) { 
+          const m = document.getElementById('msgModal'); 
+          document.getElementById('m-title').innerText = msg.includes("success") ? "สำเร็จ" : "แจ้งเตือน"; 
+          document.getElementById('m-text').innerText = msg.split(":")[1] || msg; 
+          document.getElementById('m-icon').innerText = msg.includes("success") ? "✅" : "⚠️"; 
+          m.style.display = 'flex'; 
+      }
+      
+      function closeModal() { 
+          document.getElementById('msgModal').style.display = 'none'; 
+          if (document.getElementById('tab1').classList.contains('active')) {
+              document.getElementById('sid').focus();
+          }
+      }
+      
+      function playBeep() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine"; osc.frequency.value = 1200;
+          gain.gain.value = 0.1;
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); setTimeout(() => { osc.stop(); ctx.close(); }, 100);
+        } catch(e) {}
+      }
+
+      // ✅ ระบบ Live Scanner (รองรับสแกนหนังสือแบบต่อเนื่อง)
+      let qr; 
+      let currentScanId = "";
+      let currentScanMode = "";
+      let isScanCooldown = false;
+
+      function startCamera(id, m) { 
+         document.getElementById('cameraModal').style.display = 'flex'; 
+         currentScanId = id;
+         currentScanMode = m;
+         isScanCooldown = false;
+         document.getElementById('reader').innerHTML = ""; 
+
+         const statusEl = document.getElementById('scan-continuous-status');
+         if (id === 'bid') {
+           statusEl.innerText = `📷 โหมดสแกนต่อเนื่อง (เลือกแล้ว ${bookQueue.length} เล่ม)`;
+           statusEl.style.display = 'block';
+         } else {
+           statusEl.style.display = 'none';
+         }
+         
+         if(qr) { try { qr.clear(); } catch(e){} qr = null; }
+         qr = new Html5Qrcode("reader", {
+           experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+         }); 
+         
+         const config = { 
+           fps: 20, 
+           qrbox: { width: 280, height: 130 },
+           disableFlip: false,
+           videoConstraints: {
+             facingMode: "environment",
+             focusMode: "continuous"
+           }
+         };
+         
+         setTimeout(() => {
+             qr.start({ facingMode: "environment" }, config, onScanSuccess)
+               .catch(err => {
+                   Html5Qrcode.getCameras().then(devices => {
+                       if (devices && devices.length > 0) {
+                           let camId = devices[0].id;
+                           let backCam = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('environment'));
+                           if (backCam) camId = backCam.id;
+                           
+                           qr.start(camId, { fps: 20, qrbox: { width: 280, height: 130 } }, onScanSuccess)
+                             .catch(e => showCameraFallbackMsg());
+                       } else {
+                           showCameraFallbackMsg();
+                       }
+                   }).catch(e => showCameraFallbackMsg());
+               });
+         }, 100);
+      }
+      
+      function showCameraFallbackMsg() {
+         document.getElementById('scan-continuous-status').style.display = 'none';
+         document.getElementById('reader').innerHTML = "<div style='color:white; padding: 40px 20px; text-align:center; font-family: Prompt, sans-serif;'>⚠️ ไม่สามารถเปิดกล้องได้<br>เบราว์เซอร์อาจบล็อกสิทธิ์การเข้าถึงกล้องครับ</div>";
+      }
+
+      function onScanSuccess(decodedText) {
+          // ✅ โหมดสแกนต่อเนื่องสำหรับช่องรหัสหนังสือ (ไม่ปิดกล้อง)
+          if (currentScanId === 'bid') {
+              if (isScanCooldown) return;
+              isScanCooldown = true;
+              playBeep();
+              addCurrentBookToQueue(decodedText, true);
+              
+              const statusEl = document.getElementById('scan-continuous-status');
+              statusEl.innerText = `✅ เพิ่มแล้ว: ${decodedText} (รวม ${bookQueue.length} เล่ม)`;
+              statusEl.style.display = 'block';
+              
+              setTimeout(() => { isScanCooldown = false; }, 1500);
+              return;
+          }
+
+          playBeep();
+          stopCamera(); 
+          if (currentScanMode === 'add') {
+              document.getElementById(currentScanId).value = decodedText;
+              document.getElementById('n-name').focus();
+          } else if (currentScanMode === 'redeem' || currentScanId.includes('r-sid')) {
+              document.getElementById(currentScanId).value = decodedText;
+              checkScore(document.getElementById(currentScanId));
+          } else {
+              document.getElementById(currentScanId).value = decodedText;
+              validateAndSearch(document.getElementById(currentScanId), currentScanMode); 
+          }
+      }
+
+      function stopCamera() { 
+         isScanCooldown = false;
+         document.getElementById('scan-continuous-status').style.display = 'none';
+         if(qr) {
+             try { 
+                 qr.stop().then(() => { qr.clear(); qr = null; }).catch(e => { qr.clear(); qr = null; }); 
+             } catch(e) { qr = null; }
+         }
+         document.getElementById('cameraModal').style.display='none'; 
+      }
+    </script>
+  </body>
+</html>
