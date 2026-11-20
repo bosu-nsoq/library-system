@@ -125,7 +125,66 @@ function processTransaction(studentId, bookId, action, staffName) {
   const today = new Date();
   
   if (action == "borrow") {
-    if (available <= 0) return "warning:⚠️ หนังสือไม่ว่าง (ถูกยืมครบแล้ว)";
+    let autoReturnNote = "";
+    if (available <= 0) {
+      // ⚡ หากมีการยืมหนังสือที่ยังไม่ได้ทำการคืน ให้ระบบทำการคืน (คิด/หักคะแนนคนยืมคนแรกก่อน) แล้วค่อยทำรายการยืมสำหรับคนที่สองทีหลัง
+      if (borrowers.indexOf(studentName) !== -1 || borrowers.indexOf(studentId) !== -1) {
+        return "warning:⚠️ นักเรียนคนนี้ (" + studentName + ") กำลังยืมหนังสือเล่มนี้อยู่แล้ว";
+      }
+
+      let prevBorrowerIdent = borrowers.length > 0 ? borrowers[0] : "";
+      let prevStudentId = "";
+      let prevStudentName = prevBorrowerIdent;
+      let prevDueDate = null;
+
+      const lastBorrowLog = findLastBorrowLogOptimized(logSheet, bookId, "");
+      if (lastBorrowLog) {
+        prevDueDate = lastBorrowLog.dueDate ? new Date(lastBorrowLog.dueDate) : null;
+        if (lastBorrowLog.studentId) prevStudentId = lastBorrowLog.studentId;
+        if (lastBorrowLog.studentName) prevStudentName = lastBorrowLog.studentName;
+      }
+
+      let prevSRow = -1;
+      if (prevStudentId) prevSRow = findRow(studentSheet, prevStudentId);
+      if (prevSRow === -1 && prevStudentName) {
+        const sData = studentSheet.getDataRange().getValues();
+        for (let j = 1; j < sData.length; j++) {
+          if (String(sData[j][1]).trim() === prevStudentName) {
+            prevSRow = j + 1;
+            prevStudentId = String(sData[j][0]).trim();
+            break;
+          }
+        }
+      }
+
+      let prevScoreMsg = "";
+      if (prevSRow !== -1) {
+        let prevScore = Number(studentSheet.getRange(prevSRow, 4).getValue()) || 0;
+        if (prevDueDate && !isNaN(prevDueDate.getTime())) {
+          const checkDate = new Date(); checkDate.setHours(0,0,0,0);
+          const dDate = new Date(prevDueDate); dDate.setHours(0,0,0,0);
+          if (checkDate <= dDate) {
+            prevScore += 10;
+            prevScoreMsg = "(+10 คะแนน)";
+          } else {
+            prevScore -= 5;
+            prevScoreMsg = "(คืนช้า หักคะแนน -5)";
+          }
+        } else {
+          prevScore += 10;
+          prevScoreMsg = "(+10 คะแนน)";
+        }
+        studentSheet.getRange(prevSRow, 4).setValue(Math.max(0, prevScore));
+      }
+
+      logSheet.appendRow([today, "คืน", prevStudentId, prevStudentName, bookId, "", "คืนอัตโนมัติ(ส่งต่อ) " + prevScoreMsg, staffName]);
+
+      if (borrowers.length > 0) {
+        borrowers.shift();
+      }
+      autoReturnNote = `[คืนจาก ${prevStudentName || 'ผู้ยืมเดิม'} ${prevScoreMsg}] `;
+    }
+
     if (countHolding(bookSheet, studentId, studentName) >= 3) return "warning:⚠️ ยืมเกินโควตา 3 เล่ม";
     
     // ✅ บันทึกเป็นชื่อผู้ยืมในชีต Books
@@ -137,7 +196,7 @@ function processTransaction(studentId, bookId, action, staffName) {
     const dueDate = new Date(); dueDate.setDate(today.getDate() + 3); 
     logSheet.appendRow([today, "ยืม", studentId, studentName, bookId, dueDate, "", staffName]);
     
-    return "success:✅ ยืมสำเร็จ!";
+    return "success:✅ " + autoReturnNote + "ยืมสำเร็จ!";
     
   } else if (action == "return") {
     const lastLog = findLastBorrowLogOptimized(logSheet, bookId, studentId); 
@@ -436,7 +495,12 @@ function findLastBorrowLogOptimized(sheet, bookId, studentId) {
   for (let i = data.length - 1; i >= 0; i--) { 
     if (String(data[i][4]).trim() == String(bookId).trim() && data[i][1] == "ยืม") {
       if (!studentId || String(data[i][2]).trim() == String(studentId).trim()) {
-        return { dueDate: data[i][5] }; 
+        return { 
+          dueDate: data[i][5],
+          studentId: String(data[i][2]).trim(),
+          studentName: String(data[i][3]).trim(),
+          rowIndex: i + 1
+        }; 
       }
     }
   } 
@@ -838,7 +902,7 @@ function markBookAsReturned(bookId, studentId, borrowerName, staffName) {
     logSheet.appendRow([new Date(), "คืน", sIdForLog, sNameForLog, bookId, "", scoreMsg, staffName]);
   }
 
-  return "success:✅ บันทึกการคืนหนังสือเรียบร้อย " + scoreMsg;
+  return "success:✅ ลบรายการเรียบร้อย " + scoreMsg;
 }
 
 // ฟังก์ชัน API รับ request จากหน้าเว็บภายนอก
