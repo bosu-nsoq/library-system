@@ -20,7 +20,7 @@
     <meta name="twitter:description" content="ระบบจัดการห้องสมุดดิจิทัล โรงเรียนวัดหนองตะเฆ่">
     <meta name="twitter:image" content="https://i.postimg.cc/D0Dw84J1/WNTK.png">
     <!-- โหลดฟอนต์ Mali และ Sarabun จาก Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
       :root {
@@ -69,7 +69,7 @@
         background-size: cover; z-index: 9999; display: flex; align-items: flex-start; justify-content: center;
       }
 
-      .app-title { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+      .app-title { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
       .user-pill { background: #D8F3DC; color: var(--primary); padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; }
       .menu-row { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 10px; }
       .icon-btn { 
@@ -225,7 +225,7 @@
         </div>
         <div class="info-card active" style="background:#FFFBEB; border-left-color:#F59E0B; text-align:center;">
            <div id="rs-name" style="font-weight:700; color:#B45309;">สแกนบัตรเพื่อตรวจสอบ</div>
-           <div id="rs-score" style="font-size:28px; font-weight:800; color:#F59E0B">0 แต้ม</div>
+           <div id="rs-score" style="font-size:28px; font-weight:700; color:#F59E0B">0 แต้ม</div>
         </div>
         <div id="rewards-list" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;"></div>
       </div>
@@ -797,6 +797,35 @@
             showModal("error:❌ กรุณากรอกรหัสนักเรียนและรหัสหนังสือให้ครบ");
             return;
         }
+
+        // ⚠️ แจ้งเตือนเมื่อมีการยืมหนังสือที่ยังไม่ได้ทำการคืน (มีผู้ยืมเดิมอยู่)
+        if (type === 'borrow') {
+          let heldBooks = [];
+          bookIds.forEach(bid => {
+            const queueItem = bookQueue.find(b => b.id === bid);
+            const bookDb = localDB.books ? localDB.books[bid] : null;
+            const bName = (queueItem && queueItem.name && !queueItem.name.includes("กำลังดึง")) 
+                          ? queueItem.name 
+                          : ((bookDb && bookDb.name) || bid);
+            const bStatus = (queueItem && queueItem.status) || (bookDb && bookDb.status) || "";
+            const borrower = (queueItem && queueItem.borrowerName) || (bookDb && bookDb.borrowerName) || "";
+            
+            const isBorrowed = bStatus.includes("ถูกยืม") || bStatus.includes("ยืมแล้ว") || (bookDb && bookDb.available === 0);
+            if (isBorrowed) {
+              const borrowerText = borrower ? ` (ผู้ยืมเดิม: ${borrower})` : ' (มีผู้ยืมอยู่ขณะนี้)';
+              heldBooks.push(`• ${bName}${borrowerText}`);
+            }
+          });
+
+          if (heldBooks.length > 0) {
+            const confirmMsg = `⚠️ พบหนังสือที่ยังไม่ได้คืน ${heldBooks.length} เล่ม:\n` +
+                               heldBooks.join("\n") +
+                               `\n\nระบบจะทำการบันทึกคืนหนังสือ (คิด/หักคะแนนผู้ยืมเดิม) ก่อน แล้วจึงบันทึกการยืมให้นักเรียนคนใหม่ ต้องการดำเนินการต่อหรือไม่?`;
+            if (!confirm(confirmMsg)) {
+              return;
+            }
+          }
+        }
         
         document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
         document.getElementById('tx-loader').style.display = 'flex';
@@ -1036,7 +1065,7 @@
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px dashed #E9ECEF; padding-top: 8px;">
                 <div style="font-size: 11px; color: #888;">${dateStr ? `📅 ${dateStr.replace(' • ', '')}` : ''}</div>
                 <button type="button" style="padding: 5px 12px; font-size: 12px; font-weight: 600; background: #E63946; color: white; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(230,57,70,0.25);" onclick="returnBorrowedBook('${item.bookId}', '${safeStudentId}', '${safeBorrowerName}', '${safeBookName}')">
-                  🗑️ ลบรายการ (คืนแล้ว)
+                  🗑️ ลบรายการ
                 </button>
               </div>
             </div>
@@ -1048,11 +1077,11 @@
       function returnBorrowedBook(bookId, studentId, borrowerName, bookName) {
         const displayTitle = bookName ? `"${bookName}" (${bookId})` : `รหัส ${bookId}`;
         const displayBorrower = (borrowerName && borrowerName !== '-' && borrowerName !== 'ไม่ระบุชื่อ') ? ` โดย ${borrowerName}` : '';
-        if (!confirm(`ยืนยันว่าได้รับหนังสือ ${displayTitle}${displayBorrower} คืนแล้ว และต้องการลบออกจากรายการยืมใช่หรือไม่?`)) {
+        if (!confirm(`ยืนยันว่าต้องการลบรายการหนังสือ ${displayTitle}${displayBorrower} ออกจากรายการยืมใช่หรือไม่?`)) {
           return;
         }
 
-        document.getElementById('tx-loader-text').innerText = "กำลังบันทึกการคืนหนังสือ...";
+        document.getElementById('tx-loader-text').innerText = "กำลังลบรายการ...";
         document.getElementById('tx-loader').style.display = 'flex';
 
         // ปรับปรุงแคชและ UI ทันที
