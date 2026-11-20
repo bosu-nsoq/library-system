@@ -359,6 +359,7 @@ function getNames(studentId, bookId) {
         if (String(sData[i][0]).trim() === targetSid) {
           sInfo = { 
             name: String(sData[i][1] || '').trim(), 
+            grade: String(sData[i][2] || '').trim(), 
             score: Number(sData[i][3]) || 0 
           };
           break;
@@ -561,6 +562,7 @@ function getStudentScoreAndRewards(studentId) {
   
   return { 
     name: String(sRowData[1] || '').trim(), 
+    grade: String(sRowData[2] || '').trim(), 
     score: Number(sRowData[3]) || 0, 
     rewards: rewards 
   };
@@ -581,6 +583,7 @@ function getFullLibraryData() {
       if (id) {
         students[id] = { 
           name: String(sData[i][1] || '').trim(), 
+          grade: String(sData[i][2] || '').trim(), 
           score: Number(sData[i][3]) || 0 
         };
       }
@@ -903,6 +906,24 @@ function markBookAsReturned(bookId, studentId, borrowerName, staffName) {
   }
 
   return "success:✅ ลบรายการเรียบร้อย " + scoreMsg;
+}
+
+// ฟังก์ชันดึงรายชื่อนักเรียนทั้งหมดพร้อมชั้นเรียนสำหรับพิมพ์บัตรสมาชิก
+function getAllStudentsForCards() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sSheet = ss.getSheetByName("Students");
+  if (!sSheet) return [];
+  const sData = sSheet.getDataRange().getValues();
+  let list = [];
+  for (let i = 1; i < sData.length; i++) {
+    let id = String(sData[i][0] || '').trim();
+    let name = String(sData[i][1] || '').trim();
+    let grade = String(sData[i][2] || '').trim();
+    if (id && name) {
+      list.push({ id: id, name: name, grade: grade || '-' });
+    }
+  }
+  return list;
 }
 
 // ฟังก์ชัน API รับ request จากหน้าเว็บภายนอก
