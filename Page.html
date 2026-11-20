@@ -3,7 +3,7 @@
   <head>
     <base target="_top">
     <link rel="icon" type="image/png" href="https://i.postimg.cc/D0Dw84J1/WNTK.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <!-- โหลดฟอนต์ Prompt และ Sarabun จาก Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -16,7 +16,8 @@
 
       html, body { 
         overflow-x: hidden; width: 100%; position: relative; 
-        touch-action: manipulation; font-family: 'Prompt', sans-serif; margin: 0; padding: 10px;
+        overscroll-behavior: none; -webkit-overflow-scrolling: touch; touch-action: pan-y;
+        font-family: 'Prompt', sans-serif; margin: 0; padding: 10px;
         background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
         background-size: cover; background-position: center; background-attachment: fixed;
         display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; box-sizing: border-box;
@@ -26,6 +27,7 @@
         background: var(--bg-glass); border-radius: var(--radius); box-shadow: var(--shadow);
         backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.8); width: 95vw; max-width: 460px; padding: 25px; box-sizing: border-box; margin-top: 10px;
+        overscroll-behavior: contain;
       }
 
       .school-header { font-size: 16px; color: var(--text-sub); font-weight: 500; text-align: center; margin-bottom: 5px; }
@@ -77,8 +79,15 @@
       .info-card.active { border-left-color: var(--accent); background: #F0FFF4; }
 
       /* รายการคิวหนังสือหลายเล่ม */
-      .queue-box { display: none; margin-top: 8px; margin-bottom: 10px; }
-      .queue-item { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1px solid #D8F3DC; border-radius: 12px; padding: 8px 12px; margin-bottom: 6px; font-size: 13px; text-align: left; }
+      .queue-box { display: none; margin-top: 15px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 16px; padding: 12px; border: 1.5px solid #D8F3DC; }
+      .queue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--primary); }
+      .queue-item { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1.5px solid #D8F3DC; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; text-align: left; box-shadow: 0 2px 6px rgba(45, 106, 79, 0.06); }
+      .queue-item-info { flex: 1; padding-right: 8px; }
+      .queue-badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; margin-top: 3px; }
+      .badge-available { background: #D8F3DC; color: var(--primary); }
+      .badge-borrowed { background: #FEE2E2; color: var(--danger); }
+      .queue-del-btn { border: none; background: #FFF0F0; color: var(--danger); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+      .queue-del-btn:hover { background: #FEE2E2; }
       
       .btn-group { display: flex; gap: 10px; margin-top: 15px; }
       .action-btn { flex: 1; padding: 15px; border: none; border-radius: 15px; font-size: 16px; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -181,12 +190,19 @@
         </div>
         <div class="input-wrapper"><input type="text" id="n-name" class="modern-input" style="padding-right:15px;" placeholder="ชื่อหนังสือ"></div>
         <div class="input-wrapper"><input type="text" id="n-author" class="modern-input" style="padding-right:15px;" placeholder="ชื่อผู้แต่ง"></div>
-        <div class="input-wrapper"><input type="number" id="n-qty" class="modern-input" style="padding-right:15px;" placeholder="จำนวนเล่ม (ค่าเริ่มต้น 1)" min="1" value="1"></div>
+        <div class="input-wrapper" style="display:flex; align-items:center; background:#F8F9FA; border:2px solid #E9ECEF; border-radius:16px; padding:6px 15px; box-sizing:border-box;">
+          <span style="font-weight:600; color:var(--text-main); font-size:14px; white-space:nowrap; margin-right:8px;">📚 จำนวนหนังสือ:</span>
+          <input type="number" id="n-qty" class="modern-input" style="border:none; background:transparent; padding:8px 5px; text-align:center; font-size:18px; width:70px; flex:1;" min="1" value="1">
+          <span style="font-weight:700; color:var(--primary); font-size:14px; margin-left:5px;">เล่ม</span>
+        </div>
         <button class="action-btn" style="width:100%; background:var(--primary);" onclick="addBook()">บันทึกหนังสือ</button>
       </div>
 
       <div id="tab3" class="section">
-        <div class="input-wrapper"><input type="tel" id="r-sid" class="modern-input" placeholder="สแกนรหัสนักเรียน" maxlength="4" oninput="checkScore(this)"></div>
+        <div class="input-wrapper">
+          <input type="tel" id="r-sid" class="modern-input" placeholder="สแกนรหัสนักเรียน (4 หลัก)" maxlength="4" oninput="checkScore(this)">
+          <button class="cam-btn" onclick="startCamera('r-sid', 'redeem')">📷</button>
+        </div>
         <div class="info-card active" style="background:#FFFBEB; border-left-color:#F59E0B; text-align:center;">
            <div id="rs-name" style="font-weight:700; color:#B45309;">สแกนบัตรเพื่อตรวจสอบ</div>
            <div id="rs-score" style="font-size:28px; font-weight:800; color:#F59E0B">0 แต้ม</div>
@@ -396,47 +412,109 @@
          document.getElementById(id).classList.add('active'); btn.classList.add('active'); 
       }
       
+      let searchTimeout = null;
+      const dataCache = { student: {}, book: {} };
+
       function validateAndSearch(input, mode) {
+        if (searchTimeout) clearTimeout(searchTimeout);
+
         if (input.id === 'sid') {
-            if(input.value.length > 4) input.value = input.value.slice(0, 4);
-            if (input.value.length === 4) { 
+            if (input.value.length > 4) input.value = input.value.slice(0, 4);
+            const sid = input.value.trim();
+            if (sid.length === 4) { 
+               if (dataCache.student[sid]) {
+                  displayStudentInfo(dataCache.student[sid]);
+                  return;
+               }
                document.getElementById('s-name').innerText = "🔍 กำลังดึงชื่อนักเรียน..."; 
-               google.script.run.withSuccessHandler(data => { 
-                  if(data.student) { 
-                     document.getElementById('s-name').innerText = data.student.name; 
-                     document.getElementById('box-student').classList.add('active'); 
-                     document.getElementById('s-score').innerText = "แต้มสะสม: " + data.student.score;
-                  } else {
-                     document.getElementById('s-name').innerText = "❌ ไม่พบรหัสนักเรียน";
-                  }
-               }).getNames(input.value, "");
+               searchTimeout = setTimeout(() => {
+                  google.script.run.withSuccessHandler(data => { 
+                     if (data && data.student) { 
+                        dataCache.student[sid] = data.student;
+                        displayStudentInfo(data.student);
+                     } else {
+                        document.getElementById('s-name').innerText = "❌ ไม่พบรหัสนักเรียน";
+                        document.getElementById('box-student').classList.remove('active');
+                        document.getElementById('s-score').innerText = "-";
+                     }
+                  }).getNames(sid, "");
+               }, 150);
+            } else {
+               document.getElementById('s-name').innerText = "รอข้อมูลนักเรียน...";
+               document.getElementById('s-score').innerText = "-";
+               document.getElementById('box-student').classList.remove('active');
             }
-        } else if (input.id === 'bid' && input.value.length > 2) {
-           google.script.run.withSuccessHandler(data => { 
-              if(data.book) { 
-                 document.getElementById('b-name').innerText = data.book.name; 
-                 document.getElementById('b-status').innerText = "สถานะ: " + data.book.status; 
-                 document.getElementById('box-book').classList.add('active'); 
-              } 
-           }).getNames("", input.value);
+        } else if (input.id === 'bid') {
+           const bid = input.value.trim();
+           if (bid.length >= 3) {
+              if (dataCache.book[bid]) {
+                 displayBookInfo(dataCache.book[bid]);
+                 return;
+              }
+              document.getElementById('b-name').innerText = "🔍 กำลังดึงข้อมูลหนังสือ...";
+              searchTimeout = setTimeout(() => {
+                 google.script.run.withSuccessHandler(data => { 
+                    if (data && data.book) { 
+                       dataCache.book[bid] = data.book;
+                       displayBookInfo(data.book);
+                    } else {
+                       document.getElementById('b-name').innerText = "❌ ไม่พบรหัสหนังสือ";
+                       document.getElementById('b-status').innerText = "-";
+                       document.getElementById('box-book').classList.remove('active');
+                    }
+                 }).getNames("", bid);
+              }, 250);
+           } else {
+              document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
+              document.getElementById('b-status').innerText = "-";
+              document.getElementById('box-book').classList.remove('active');
+           }
         }
       }
 
-      function addCurrentBookToQueue(forcedId, keepCameraOpen) {
+      function displayStudentInfo(student) {
+        document.getElementById('s-name').innerText = student.name;
+        document.getElementById('box-student').classList.add('active');
+        document.getElementById('s-score').innerText = "แต้มสะสม: " + student.score + " แต้ม";
+      }
+
+      function displayBookInfo(book) {
+        document.getElementById('b-name').innerText = book.name;
+        let statusText = "สถานะ: " + book.status;
+        if (book.borrowDaysText && !book.status.includes(book.borrowDaysText)) {
+          statusText += ` (${book.borrowDaysText})`;
+        }
+        document.getElementById('b-status').innerText = statusText;
+        document.getElementById('box-book').classList.add('active');
+      }
+
+      function addCurrentBookToQueue(forcedId) {
         const bidInput = document.getElementById('bid');
         const bid = String(forcedId || bidInput.value).trim();
         if (!bid) return;
 
+        if (bookQueue.some(b => b.id === bid)) {
+          showModal("warning:⚠️ หนังสือรหัส " + bid + " อยู่ในคิวแล้วครับ");
+          return;
+        }
+
         const currentName = document.getElementById('b-name').innerText;
-        const displayName = (!forcedId && currentName && !currentName.includes("รอข้อมูล")) ? currentName : "กำลังดึงชื่อ...";
+        const currentStatus = document.getElementById('b-status').innerText.replace("สถานะ: ", "");
+        const displayName = (currentName && !currentName.includes("รอข้อมูล") && !currentName.includes("กำลังดึง")) 
+                            ? currentName : "กำลังดึงข้อมูล...";
         
-        bookQueue.push({ id: bid, name: displayName });
+        bookQueue.push({ id: bid, name: displayName, status: currentStatus });
         renderBookQueue();
 
         const itemIndex = bookQueue.length - 1;
         google.script.run.withSuccessHandler(data => {
-          if (data.book && bookQueue[itemIndex] && bookQueue[itemIndex].id === bid) {
-            bookQueue[itemIndex].name = `${data.book.name} (${data.book.status})`;
+          if (data && data.book && bookQueue[itemIndex] && bookQueue[itemIndex].id === bid) {
+            bookQueue[itemIndex].name = data.book.name;
+            let statusText = data.book.status;
+            if (data.book.borrowDaysText && !statusText.includes(data.book.borrowDaysText)) {
+              statusText += ` (${data.book.borrowDaysText})`;
+            }
+            bookQueue[itemIndex].status = statusText;
             renderBookQueue();
           }
         }).getNames("", bid);
@@ -445,12 +523,19 @@
         document.getElementById('box-book').classList.remove('active');
         document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
         document.getElementById('b-status').innerText = "-";
-        if (!keepCameraOpen) bidInput.focus();
+        bidInput.focus();
       }
 
       function removeBookFromQueue(index) {
         bookQueue.splice(index, 1);
         renderBookQueue();
+      }
+
+      function clearBookQueue() {
+        if (bookQueue.length > 0 && confirm("ต้องการล้างคิวหนังสือทั้งหมดหรือไม่?")) {
+          bookQueue = [];
+          renderBookQueue();
+        }
       }
 
       function renderBookQueue() {
@@ -461,12 +546,31 @@
           return;
         }
         box.style.display = 'block';
-        let html = `<div style="font-size:12px; color:var(--primary); font-weight:700; text-align:left; margin-bottom:5px;">📚 รายการที่เลือก (${bookQueue.length} เล่ม)</div>`;
+        let html = `
+          <div class="queue-header">
+            <span>📚 รายการที่เลือก (${bookQueue.length} เล่ม)</span>
+            <button onclick="clearBookQueue()" style="border:none; background:none; color:var(--text-sub); font-size:12px; cursor:pointer; text-decoration:underline;">ล้างคิว</button>
+          </div>
+        `;
         bookQueue.forEach((b, i) => {
-          html += `<div class="queue-item">
-                     <div><b>${i+1}. [${b.id}]</b> ${b.name}</div>
-                     <button onclick="removeBookFromQueue(${i})" style="border:none; background:none; color:var(--danger); cursor:pointer; font-size:16px;">✖</button>
-                   </div>`;
+          const isBorrowed = (b.status && (b.status.includes("ถูกยืม") || b.status.includes("ยืมแล้ว")));
+          const badgeClass = isBorrowed ? "badge-borrowed" : "badge-available";
+          const statusText = (b.status && b.status !== "-") ? b.status : "พร้อมทำรายการ";
+          html += `
+            <div class="queue-item">
+              <div class="queue-item-info">
+                <div style="font-weight:700; color:var(--text-main); font-size:14px;">
+                  <span style="display:inline-block; width:20px; height:20px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:20px; font-size:11px; margin-right:4px;">${i+1}</span>
+                  ${b.name}
+                </div>
+                <div style="font-size:12px; color:var(--text-sub); margin-top:2px;">
+                  รหัส: <b>${b.id}</b>
+                </div>
+                <div class="queue-badge ${badgeClass}">${statusText}</div>
+              </div>
+              <button class="queue-del-btn" onclick="removeBookFromQueue(${i})" title="ลบรายการนี้">🗑️</button>
+            </div>
+          `;
         });
         box.innerHTML = html;
       }
@@ -531,33 +635,51 @@
 
       function checkScore(input) {
         if(input.value.length > 4) input.value = input.value.slice(0, 4);
-        if (input.value.length === 4) {
+        const sid = input.value.trim();
+        if (sid.length === 4) {
+          document.getElementById('rs-name').innerText = "🔍 กำลังดึงข้อมูลนักเรียน..."; 
+          document.getElementById('rs-score').innerText = "...";
           google.script.run.withSuccessHandler(data => {
-            if(data.error) return; 
+            if (!data || data.error) {
+              document.getElementById('rs-name').innerText = (data && data.error) ? data.error : "❌ ไม่พบข้อมูลนักเรียน";
+              document.getElementById('rs-score').innerText = "0 แต้ม";
+              document.getElementById('rewards-list').innerHTML = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ไม่พบข้อมูลนักเรียนหรือของรางวัล</div>";
+              return;
+            }
             document.getElementById('rs-name').innerText = data.name; 
-            document.getElementById('rs-score').innerText = data.score + " แต้ม";
+            document.getElementById('rs-score').innerText = (data.score || 0) + " แต้ม";
             
-            let html = ""; data.rewards.forEach(r => {
-              let can = data.score >= r.cost;
-              html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 8px 15px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.3s ease;" onclick="${can?`redeem('${input.value}','${r.id}',${r.cost},'${r.name}')`:''}">
-                          <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
-                          <b style="color:var(--text-main); font-size: 14px;">${r.name}</b><br>
-                          <div style="background:${can?'#d8f3dc':'#e9ecef'}; color:${can?'var(--primary)':'#6c757d'}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
-                       </div>`;
-            });
+            let html = ""; 
+            if (data.rewards && data.rewards.length > 0) {
+              data.rewards.forEach(r => {
+                let can = (data.score || 0) >= r.cost;
+                let safeName = String(r.name || '').replace(/'/g, "\\'");
+                html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`alert('คะแนนสะสมไม่พอแลกรายการนี้ครับ')`}">
+                            <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
+                            <b style="color:var(--text-main); font-size: 14px;">${r.name}</b><br>
+                            <div style="background:${can?'#d8f3dc':'#e9ecef'}; color:${can?'var(--primary)':'#6c757d'}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
+                         </div>`;
+              });
+            } else {
+              html = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ยังไม่มีรายการของรางวัล</div>";
+            }
             document.getElementById('rewards-list').innerHTML = html;
-          }).getStudentScoreAndRewards(input.value);
+          }).getStudentScoreAndRewards(sid);
+        } else {
+          document.getElementById('rs-name').innerText = "สแกนบัตรเพื่อตรวจสอบ";
+          document.getElementById('rs-score').innerText = "0 แต้ม";
+          document.getElementById('rewards-list').innerHTML = "";
         }
       }
 
       function redeem(sid, rid, cost, name) { 
-         if(confirm(`แลก ${name}?`)) {
-            document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+         if(confirm(`ยืนยันการแลกของรางวัล: ${name} (ใช้ ${cost} แต้ม)?`)) {
+            document.getElementById('tx-loader-text').innerText = "กำลังประมวลผลการแลกของรางวัล...";
             document.getElementById('tx-loader').style.display = 'flex';
             google.script.run.withSuccessHandler(res => { 
                 document.getElementById('tx-loader').style.display = 'none';
                 showModal(res); 
-                checkScore({value:sid}); 
+                checkScore(document.getElementById('r-sid')); 
             }).processRedemption(sid, rid, cost, name, currentUser); 
          }
       }
@@ -709,18 +831,64 @@
       }
 
       function onScanSuccess(decodedText) {
-          // ✅ โหมดสแกนต่อเนื่องสำหรับช่องรหัสหนังสือ (ไม่ปิดกล้อง)
+          // ✅ โหมดสแกนต่อเนื่องสำหรับช่องรหัสหนังสือ (ไม่ปิดกล้อง: ดึงข้อมูลให้เสร็จก่อน ค่อยสแกนเล่มถัดไป)
           if (currentScanId === 'bid') {
               if (isScanCooldown) return;
               isScanCooldown = true;
               playBeep();
-              addCurrentBookToQueue(decodedText, true);
               
               const statusEl = document.getElementById('scan-continuous-status');
-              statusEl.innerText = `✅ เพิ่มแล้ว: ${decodedText} (รวม ${bookQueue.length} เล่ม)`;
+              statusEl.innerText = `⏳ กำลังดึงข้อมูล: ${decodedText}...`;
+              statusEl.style.background = 'rgba(230, 115, 0, 0.95)';
               statusEl.style.display = 'block';
-              
-              setTimeout(() => { isScanCooldown = false; }, 1500);
+
+              // ตรวจสอบว่าอยู่ในคิวแล้วหรือไม่
+              if (bookQueue.some(b => b.id === decodedText)) {
+                statusEl.innerText = `⚠️ รหัส ${decodedText} อยู่ในคิวแล้ว`;
+                statusEl.style.background = 'rgba(230, 57, 70, 0.95)';
+                setTimeout(() => { 
+                  isScanCooldown = false; 
+                  statusEl.innerText = `📷 โหมดสแกนต่อเนื่อง (เลือกแล้ว ${bookQueue.length} เล่ม)`;
+                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
+                }, 1200);
+                return;
+              }
+
+              // ดึงข้อมูลหนังสือ เมื่อดึงข้อมูลเสร็จแล้วค่อยอนุญาตให้สแกนเล่มถัดไป
+              google.script.run.withSuccessHandler(data => {
+                let bookName = "ไม่พบชื่อหนังสือ";
+                let statusText = "-";
+
+                if (data && data.book) {
+                  bookName = data.book.name || "ไม่พบชื่อหนังสือ";
+                  statusText = data.book.status || "-";
+                  if (data.book.borrowDaysText && !statusText.includes(data.book.borrowDaysText)) {
+                    statusText += ` (${data.book.borrowDaysText})`;
+                  }
+                }
+
+                bookQueue.push({ id: decodedText, name: bookName, status: statusText });
+                renderBookQueue();
+
+                statusEl.innerText = `✅ เพิ่มแล้ว: ${bookName}`;
+                statusEl.style.background = 'rgba(45, 106, 79, 0.95)';
+
+                // เมื่อดึงข้อมูลเสร็จแล้ว ค่อยเปิดให้สแกนเล่มต่อไป
+                setTimeout(() => {
+                  isScanCooldown = false;
+                  statusEl.innerText = `📷 พร้อมสแกนเล่มถัดไป (ในคิวมี ${bookQueue.length} เล่ม)`;
+                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
+                }, 1000);
+              }).withFailureHandler(() => {
+                statusEl.innerText = `❌ ดึงข้อมูลไม่สำเร็จ (${decodedText})`;
+                statusEl.style.background = 'rgba(230, 57, 70, 0.95)';
+                setTimeout(() => { 
+                  isScanCooldown = false; 
+                  statusEl.innerText = `📷 โหมดสแกนต่อเนื่อง (เลือกแล้ว ${bookQueue.length} เล่ม)`;
+                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
+                }, 1200);
+              }).getNames("", decodedText);
+
               return;
           }
 
