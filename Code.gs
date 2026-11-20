@@ -245,10 +245,21 @@ function checkDateMatch(rowDate, today, range) {
     if (!rowDate) return false;
     if (typeof range === 'object') {
        if (range.type === 'custom_day') {
-           let parts = range.value.split('-');
-           let y = parseInt(parts[0], 10);
+           let val = String(range.value).trim();
+           let y, m, d;
+           if (val.includes('/')) {
+               let parts = val.split('/');
+               d = parseInt(parts[0], 10);
+               m = parseInt(parts[1], 10) - 1;
+               y = parseInt(parts[2], 10);
+           } else {
+               let parts = val.split('-');
+               y = parseInt(parts[0], 10);
+               m = parseInt(parts[1], 10) - 1;
+               d = parseInt(parts[2], 10);
+           }
            if (y > 2400) y -= 543;
-           return (rowDate.getDate() == parseInt(parts[2], 10) && rowDate.getMonth() == parseInt(parts[1], 10) - 1 && rowDate.getFullYear() == y);
+           return (rowDate.getDate() == d && rowDate.getMonth() == m && rowDate.getFullYear() == y);
        } else if (range.type === 'custom_month') {
            let parts = range.value.split('-');
            let y = parseInt(parts[0], 10);
@@ -508,7 +519,14 @@ function findLastBorrowLogOptimized(sheet, bookId, studentId) {
   return null; 
 }
 
-function formatDate(date) { let d = new Date(date); return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`; }
+function formatDate(date) { 
+  let d = new Date(date); 
+  if (isNaN(d.getTime())) return "";
+  let day = String(d.getDate()).padStart(2, '0');
+  let month = String(d.getMonth() + 1).padStart(2, '0');
+  let year = d.getFullYear() + 543;
+  return `${day}/${month}/${year}`; 
+}
 
 function addNewBook(id, name, author, qty) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Books");
