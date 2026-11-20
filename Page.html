@@ -6,8 +6,8 @@
     <title>WNTK Library System</title>
     <link rel="icon" type="image/png" href="https://i.postimg.cc/D0Dw84J1/WNTK.png">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <!-- โหลดฟอนต์ Prompt และ Sarabun จาก Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- โหลดฟอนต์ Mali และ Sarabun จาก Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
       :root {
@@ -19,7 +19,7 @@
       html, body { 
         overflow-x: hidden; width: 100%; position: relative; 
         overscroll-behavior: none; -webkit-overflow-scrolling: touch; touch-action: pan-y;
-        font-family: 'Prompt', sans-serif; margin: 0; padding: 10px;
+        font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 10px;
         background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
         background-size: cover; background-position: center; background-attachment: fixed;
         display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; box-sizing: border-box;
@@ -40,7 +40,7 @@
       .pin-input {
         width: 100%; font-size: 24px; letter-spacing: 12px; text-align: center;
         border: 2px solid #D8F3DC; padding: 15px; border-radius: 16px; outline: none;
-        background: #FFFFFF; box-sizing: border-box; font-family: 'Prompt', sans-serif;
+        background: #FFFFFF; box-sizing: border-box; font-family: 'Mali', cursive, sans-serif;
       }
 
       .loader {
@@ -65,13 +65,13 @@
       }
 
       .nav-tabs { display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 14px; margin-bottom: 20px; }
-      .nav-btn { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-family: 'Prompt'; font-size: 13px; color: var(--text-sub); cursor: pointer; font-weight: 600; transition:0.2s; }
+      .nav-btn { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-family: 'Mali', cursive, sans-serif; font-size: 13px; color: var(--text-sub); cursor: pointer; font-weight: 600; transition:0.2s; }
       .nav-btn.active { background: white; color: var(--primary); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
       .input-wrapper { position: relative; margin-bottom: 15px; }
       .modern-input { 
         width: 100%; padding: 15px; padding-right: 50px; font-size: 16px; text-align: center; 
-        font-family: 'Prompt'; font-weight: 600; border-radius: 16px; border: 2px solid #E9ECEF;
+        font-family: 'Mali', cursive, sans-serif; font-weight: 600; border-radius: 16px; border: 2px solid #E9ECEF;
         background: #F8F9FA; box-sizing: border-box; outline: none; color: var(--text-main);
       }
       .cam-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: white; border: 1px solid #E9ECEF; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; color: var(--primary); font-size: 18px; }
@@ -273,7 +273,7 @@
        <div class="modal-box">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
              <div style="font-weight:700; font-size: 18px; text-align:left;">📊 สถิติการใช้งาน</div>
-             <button onclick="document.getElementById('statsModal').style.display='none'; document.getElementById('printModal').style.display='flex'" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Prompt'; font-size:12px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🖨️ พิมพ์รายงาน</button>
+             <button onclick="document.getElementById('statsModal').style.display='none'; document.getElementById('printModal').style.display='flex'" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Mali', cursive, sans-serif; font-size:12px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🖨️ พิมพ์รายงาน</button>
           </div>
           
           <div style="display:flex; gap:5px; margin-bottom:10px; background: rgba(0,0,0,0.05); padding:4px; border-radius:14px;" id="stats-nav">
@@ -1216,7 +1216,7 @@
       
       function showCameraFallbackMsg() {
          document.getElementById('scan-continuous-status').style.display = 'none';
-         document.getElementById('reader').innerHTML = "<div style='color:white; padding: 40px 20px; text-align:center; font-family: Prompt, sans-serif;'>⚠️ ไม่สามารถเปิดกล้องได้<br>เบราว์เซอร์อาจบล็อกสิทธิ์การเข้าถึงกล้องครับ</div>";
+         document.getElementById('reader').innerHTML = "<div style='color:white; padding: 40px 20px; text-align:center; font-family: 'Mali', cursive, sans-serif;'>⚠️ ไม่สามารถเปิดกล้องได้<br>เบราว์เซอร์อาจบล็อกสิทธิ์การเข้าถึงกล้องครับ</div>";
       }
 
       function onScanSuccess(decodedText) {
