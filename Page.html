@@ -21,7 +21,8 @@
     <meta name="twitter:image" content="https://i.postimg.cc/D0Dw84J1/WNTK.png">
     <!-- โหลดฟอนต์ Mali และ Sarabun จาก Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>`n    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
       *, *::before, *::after, html, body, button, input, select, textarea, optgroup, option {
         font-family: 'Mali', cursive, sans-serif !important;
@@ -1239,6 +1240,393 @@
           document.getElementById('m-icon').innerText = msg.includes("success") ? "✅" : "⚠️"; 
           m.style.display = 'flex'; 
       }
+
+      // ==========================================
+      // 🪪 ระบบพิมพ์บัตรสมาชิกห้องสมุดพร้อมบาร์โค้ด
+      // ==========================================
+      let cachedCardStudents = [];
+
+      function showCardModal() {
+        const modal = document.getElementById('cardModal');
+        if (modal) modal.style.display = 'flex';
+        
+        const gradeSelect = document.getElementById('card-grade-filter');
+        if (gradeSelect) gradeSelect.value = 'all';
+        const searchInput = document.getElementById('card-search-input');
+        if (searchInput) searchInput.value = '';
+
+        if (cachedCardStudents && cachedCardStudents.length > 0) {
+          populateGradeOptions(cachedCardStudents);
+          filterStudentCards();
+        } else {
+          const listContainer = document.getElementById('card-students-list');
+          if (listContainer) {
+            listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงข้อมูลนักเรียนจากฐานข้อมูล...</div>";
+          }
+        }
+
+        google.script.run
+          .withSuccessHandler(function(data) {
+            if (data && Array.isArray(data) && data.length > 0) {
+              cachedCardStudents = data;
+              if (!localDB.students) localDB.students = {};
+              data.forEach(st => {
+                if (!localDB.students[st.id]) localDB.students[st.id] = {};
+                localDB.students[st.id].name = st.name;
+                localDB.students[st.id].grade = st.grade;
+              });
+              populateGradeOptions(data);
+              filterStudentCards();
+            } else if (!cachedCardStudents || cachedCardStudents.length === 0) {
+              const listContainer = document.getElementById('card-students-list');
+              if (listContainer) {
+                listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>❌ ไม่พบรายชื่อในระบบ</div>";
+              }
+            }
+          })
+          .withFailureHandler(function(err) {
+            console.error("Error loading students for cards:", err);
+            if (!cachedCardStudents || cachedCardStudents.length === 0) {
+              const listContainer = document.getElementById('card-students-list');
+              if (listContainer) {
+                listContainer.innerHTML = "<div style='text-align: center; color: #E63946; padding: 30px;'>❌ เกิดข้อผิดพลาดในการโหลดข้อมูลนักเรียน</div>";
+              }
+            }
+          })
+          .getAllStudentsForCards();
+      }
+
+      function populateGradeOptions(list) {
+        const gradeSelect = document.getElementById('card-grade-filter');
+        if (!gradeSelect) return;
+        let grades = [];
+        list.forEach(st => {
+          if (st.grade && st.grade !== '-' && !grades.includes(st.grade)) {
+            grades.push(st.grade);
+          }
+        });
+        let curVal = gradeSelect.value;
+        let html = '<option value="all">ทุกระดับชั้น</option>';
+        grades.forEach(g => {
+          html += `<option value="${g}">${g}</option>`;
+        });
+        gradeSelect.innerHTML = html;
+        if (curVal && grades.includes(curVal)) {
+          gradeSelect.value = curVal;
+        } else {
+          gradeSelect.value = 'all';
+        }
+      }
+
+      function filterStudentCards() {
+        const gradeEl = document.getElementById('card-grade-filter');
+        const gradeVal = gradeEl ? gradeEl.value : 'all';
+        const qEl = document.getElementById('card-search-input');
+        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+
+        let filtered = (cachedCardStudents || []).filter(st => {
+          const matchGrade = (gradeVal === 'all') || (st.grade === gradeVal);
+          const matchQ = !q || 
+            (st.name && st.name.toLowerCase().includes(q)) || 
+            (st.id && String(st.id).toLowerCase().includes(q)) || 
+            (st.grade && String(st.grade).toLowerCase().includes(q));
+          return matchGrade && matchQ;
+        });
+
+        renderCardStudentsList(filtered);
+      }
+
+      function renderCardStudentsList(list) {
+        const container = document.getElementById('card-students-list');
+        const badge = document.getElementById('card-count-badge');
+        if (badge) badge.innerText = `${list ? list.length : 0} คน`;
+        if (!container) return;
+
+        if (!list || list.length === 0) {
+          container.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>❌ ไม่พบรายชื่อนักเรียน</div>";
+          return;
+        }
+
+        let html = "";
+        list.forEach((st, idx) => {
+          const safeName = String(st.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          const safeGrade = String(st.grade || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          const safeId = String(st.id || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          html += `
+            <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+              <div style="text-align: left;">
+                <div style="font-weight: 700; color: var(--text-main); font-size: 13px;">
+                  <span style="display:inline-block; width:18px; height:18px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:18px; font-size:10px; margin-right:4px;">${idx+1}</span>
+                  ${st.name}
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px;">
+                  รหัส: <b>${st.id}</b> | ชั้น: <b>${st.grade || '-'}</b>
+                </div>
+              </div>
+              <button type="button" class="action-btn" style="padding: 5px 12px; font-size: 11px; font-weight: 600; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')">
+                🖨️ พิมพ์บัตร
+              </button>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      function printFilteredCards() {
+        const gradeEl = document.getElementById('card-grade-filter');
+        const gradeVal = gradeEl ? gradeEl.value : 'all';
+        const qEl = document.getElementById('card-search-input');
+        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+
+        let filtered = (cachedCardStudents || []).filter(st => {
+          const matchGrade = (gradeVal === 'all') || (st.grade === gradeVal);
+          const matchQ = !q || 
+            (st.name && st.name.toLowerCase().includes(q)) || 
+            (st.id && String(st.id).toLowerCase().includes(q)) || 
+            (st.grade && String(st.grade).toLowerCase().includes(q));
+          return matchGrade && matchQ;
+        });
+
+        if (filtered.length === 0) {
+          alert("⚠️ ไม่มีรายชื่อนักเรียนตามตัวกรองที่เลือกครับ");
+          return;
+        }
+
+        const gradeTitle = gradeVal === 'all' ? 'ทุกระดับชั้น' : ('ชั้น ' + gradeVal);
+        generateAndPrintCards(filtered, `บัตรสมาชิกห้องสมุด (${gradeTitle})`);
+      }
+
+      function printSingleCard(id, name, grade) {
+        generateAndPrintCards([{ id: id, name: name, grade: grade }], `บัตรสมาชิกห้องสมุด - ${name}`);
+      }
+
+      function generateAndPrintCards(studentList, docTitle) {
+        if (!studentList || studentList.length === 0) {
+          alert("⚠️ ไม่มีรายชื่อนักเรียนสำหรับพิมพ์บัตรครับ");
+          return;
+        }
+
+        let win = window.open("", "_blank");
+        if (!win) {
+          alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือการเปิดแท็บใหม่ในเบราว์เซอร์ก่อนครับ");
+          return;
+        }
+
+        let cardsHtml = "";
+        studentList.forEach(st => {
+          cardsHtml += `
+          <div class="card-item">
+            <div class="card-header">
+              <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="card-logo" alt="โลโก้โรงเรียน">
+              <div class="card-titles">
+                <div class="card-title">บัตรสมาชิกห้องสมุด</div>
+                <div class="card-school">โรงเรียนวัดหนองตะเฆ่</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-row"><span class="card-label">ชื่อ-สกุล:</span> <span class="card-val">${st.name}</span></div>
+              <div class="card-row"><span class="card-label">ชั้นเรียน:</span> <span class="card-val">${st.grade || '-'}</span></div>
+              <div class="card-row"><span class="card-label">รหัสสมาชิก:</span> <span class="card-val">${st.id}</span></div>
+            </div>
+            <div class="card-barcode-wrap">
+              <svg class="card-barcode-svg" data-barcode="${st.id}"></svg>
+            </div>
+          </div>`;
+        });
+
+        const printPageHtml = `<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>${docTitle || 'บัตรสมาชิกห้องสมุด โรงเรียนวัดหนองตะเฆ่'}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+  <style>
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm 6mm;
+      }
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .card-item {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+      }
+    }
+    * {
+      box-sizing: border-box;
+      font-family: 'Mali', cursive, sans-serif !important;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #F4F6F9;
+      color: #1B4332;
+    }
+    .print-toolbar {
+      text-align: center;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .print-btn {
+      background: #2D6A4F;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(45,106,79,0.25);
+    }
+    .print-hint {
+      font-size: 12px;
+      color: #6C757D;
+      margin-top: 6px;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 9.4cm);
+      grid-gap: 8mm;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .card-item {
+      width: 9.4cm;
+      height: 5.8cm;
+      border: 1.5px dashed #2D6A4F;
+      border-radius: 14px;
+      padding: 10px 14px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1.5px solid #D8F3DC;
+      padding-bottom: 6px;
+    }
+    .card-logo {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+    .card-titles {
+      flex: 1;
+    }
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1B4332;
+      line-height: 1.2;
+    }
+    .card-school {
+      font-size: 11px;
+      color: #2D6A4F;
+      font-weight: 600;
+    }
+    .card-body {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .card-row {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 2px;
+    }
+    .card-label {
+      color: #555;
+      white-space: nowrap;
+      font-weight: 500;
+      font-size: 11px;
+    }
+    .card-val {
+      font-weight: 700;
+      color: #1B4332;
+      font-size: 12px;
+    }
+    .card-barcode-wrap {
+      text-align: center;
+      margin-top: 2px;
+      border-top: 1px dashed #E9ECEF;
+      padding-top: 2px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-barcode-svg {
+      max-width: 100%;
+      height: 44px;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-toolbar no-print">
+    <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์บัตรสมาชิก (${studentList.length} ใบ)</button>
+    <div class="print-hint">กระดาษ A4 พิมพ์ได้หน้าละ 8 ใบ (2 คอลัมน์ x 4 แถว) มีเส้นประสำหรับตัดตามแนว</div>
+  </div>
+  <div class="cards-grid">
+    ${cardsHtml}
+  </div>
+  <script>
+    function renderBarcodes() {
+      if (typeof JsBarcode === 'undefined') {
+        setTimeout(renderBarcodes, 100);
+        return;
+      }
+      document.querySelectorAll('.card-barcode-svg').forEach(function(el) {
+        var code = el.getAttribute('data-barcode');
+        if (code) {
+          try {
+            JsBarcode(el, String(code), {
+              format: "CODE128",
+              width: 1.8,
+              height: 32,
+              displayValue: true,
+              fontSize: 12,
+              font: "Mali",
+              margin: 2
+            });
+          } catch(err) {
+            console.error("Barcode render error for code " + code, err);
+          }
+        }
+      });
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    }
+    window.addEventListener('DOMContentLoaded', renderBarcodes);
+    window.addEventListener('load', renderBarcodes);
+  <\/script>
+</body>
+</html>`;
+
+        win.document.open();
+        win.document.write(printPageHtml);
+        win.document.close();
+      }
+
+
       
       function closeModal() { 
           document.getElementById('msgModal').style.display = 'none'; 
