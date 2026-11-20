@@ -21,8 +21,17 @@
     <meta name="twitter:image" content="https://i.postimg.cc/D0Dw84J1/WNTK.png">
     <!-- โหลดฟอนต์ Mali และ Sarabun จาก Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>`n    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
+      *, *::before, *::after, html, body, button, input, select, textarea, optgroup, option {
+        font-family: 'Mali', cursive, sans-serif !important;
+      }
+      .modal-box, .modal-box *, .action-btn, .nav-btn, .modern-input {
+        font-family: 'Mali', cursive, sans-serif !important;
+      }
+      ::placeholder {
+        font-family: 'Mali', cursive, sans-serif !important;
+      }
       :root {
         --primary: #2D6A4F; --accent: #52B788; --bg-glass: rgba(255, 255, 255, 0.92); 
         --text-main: #1B4332; --text-sub: #748C7E; --danger: #E63946;     
@@ -166,6 +175,7 @@
       </div>
 
       <div class="menu-row">
+        <div class="icon-btn" onclick="showCardModal()" title="พิมพ์บัตรสมาชิกห้องสมุด (พร้อมบาร์โค้ด)">🪪</div>
         <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ">🕒</div>
         <div class="icon-btn" onclick="showBorrowedBooks()" title="หนังสือที่ถูกยืมอยู่ขณะนี้">📚</div>
         <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
@@ -233,9 +243,9 @@
     </div>
 
     <!-- Modals -->
-    <div id="msgModal" class="modal-overlay"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main);" onclick="closeModal()">ตกลง</button></div></div>
+    <div id="msgModal" class="modal-overlay"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main); font-family: 'Mali', cursive, sans-serif !important;" onclick="closeModal()">ตกลง</button></div></div>
     
-    <div id="historyModal" class="modal-overlay"><div class="modal-box"><div style="font-weight:700; font-size: 18px; margin-bottom:10px; text-align:left;">🕒 ประวัติล่าสุด</div><div id="hist-content" class="history-list"></div><button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none;" onclick="document.getElementById('historyModal').style.display='none'">ปิด</button></div></div>
+    <div id="historyModal" class="modal-overlay"><div class="modal-box"><div style="font-weight:700; font-size: 18px; margin-bottom:10px; text-align:left;">🕒 ประวัติล่าสุด</div><div id="hist-content" class="history-list"></div><button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('historyModal').style.display='none'">ปิด</button></div></div>
 
     <!-- Modal รายชื่อหนังสือที่ถูกยืมอยู่ขณะนี้ -->
     <div id="borrowedBooksModal" class="modal-overlay">
@@ -257,7 +267,7 @@
              <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดข้อมูล...</div>
           </div>
 
-          <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="document.getElementById('borrowedBooksModal').style.display='none'">ปิดหน้าต่าง</button>
+          <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('borrowedBooksModal').style.display='none'">ปิดหน้าต่าง</button>
        </div>
     </div>
     
@@ -278,7 +288,7 @@
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:#457B9D; margin:0;" onclick="triggerPrintCustom('year')">พิมพ์รายปี</button>
           </div>
 
-          <button class="action-btn" style="width:100%; margin-top:10px; background:transparent; border:1px solid #EAEAEA; color:var(--text-sub); box-shadow:none;" onclick="document.getElementById('printModal').style.display='none'; document.getElementById('statsModal').style.display='flex'">ย้อนกลับ</button>
+          <button class="action-btn" style="width:100%; margin-top:10px; background:transparent; border:1px solid #EAEAEA; color:var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('printModal').style.display='none'; document.getElementById('statsModal').style.display='flex'">ย้อนกลับ</button>
        </div>
     </div>
 
@@ -316,10 +326,44 @@
           <div id="st-top-students" class="history-list" style="max-height:110px; margin-bottom:10px;"></div>
           <div style="text-align:left; font-size:14px; font-weight:700; margin-bottom:5px;">🔥 หนังสือยอดฮิต</div>
           <div id="st-top-books" class="history-list" style="max-height:110px;"></div>
-          <button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none;" onclick="document.getElementById('statsModal').style.display='none'">ปิดหน้าต่าง</button>
+          <button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('statsModal').style.display='none'">ปิดหน้าต่าง</button>
        </div>
     </div>
     
+    <!-- Modal พิมพ์บัตรสมาชิกห้องสมุดพร้อมบาร์โค้ด -->
+    <div id="cardModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 500px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>🪪</span> พิมพ์บัตรสมาชิกห้องสมุด
+             </div>
+             <div id="card-count-badge" style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+                0 คน
+             </div>
+          </div>
+
+          <!-- ตัวกรองระดับชั้น และปุ่มพิมพ์ -->
+          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+             <select id="card-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterStudentCards()">
+                <option value="all">ทุกระดับชั้น</option>
+             </select>
+             <button class="action-btn" style="padding: 8px 14px; font-size: 13px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; font-family: 'Mali', cursive, sans-serif !important;" onclick="printFilteredCards()">
+                🖨️ สั่งพิมพ์ (A4)
+             </button>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+             <input type="text" id="card-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักเรียน..." oninput="filterStudentCards()">
+          </div>
+
+          <div id="card-students-list" style="flex: 1; overflow-y: auto; max-height: 48vh; padding-right: 2px;">
+             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดรายชื่อนักเรียน...</div>
+          </div>
+
+          <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('cardModal').style.display='none'">ปิดหน้าต่าง</button>
+       </div>
+    </div>
+
     <!-- หน้าต่างสแกนบาร์โค้ดแบบเรียลไทม์ (รองรับสแกนต่อเนื่อง) -->
     <div id="cameraModal" class="modal-overlay">
        <div style="width:95%; max-width:380px; background:black; border-radius:20px; overflow:hidden; position: relative; padding-bottom: 75px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
@@ -330,7 +374,7 @@
              <div id="reader" style="width:100%; height:100%;"></div>
           </div>
           <div style="position: absolute; bottom: 15px; left: 0; width: 100%; display: flex; justify-content: center; padding: 0 15px; box-sizing: border-box;">
-              <button class="action-btn btn-return" style="width:100%; padding:12px; font-size:14px; border-radius:15px; margin:0; background:#333; border: 1px solid #555;" onclick="stopCamera()">❌ ปิดหน้าต่างสแกน</button>
+              <button class="action-btn btn-return" style="width:100%; padding:12px; font-size:14px; border-radius:15px; margin:0; background:#333; border: 1px solid #555; font-family: 'Mali', cursive, sans-serif !important;" onclick="stopCamera()">❌ ปิดหน้าต่างสแกน</button>
           </div>
        </div>
     </div>
@@ -478,6 +522,15 @@
           let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>รายงานการเข้าใช้บริการห้องสมุด</title>
           <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
           <style>
+      *, *::before, *::after, html, body, button, input, select, textarea, optgroup, option {
+        font-family: 'Mali', cursive, sans-serif !important;
+      }
+      .modal-box, .modal-box *, .action-btn, .nav-btn, .modern-input {
+        font-family: 'Mali', cursive, sans-serif !important;
+      }
+      ::placeholder {
+        font-family: 'Mali', cursive, sans-serif !important;
+      }
              @media print { 
                 @page { size: landscape; margin: 1cm; } 
                 thead { display: table-header-group; }
