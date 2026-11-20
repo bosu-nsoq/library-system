@@ -274,26 +274,97 @@ function findRow(sheet, id) { const data = sheet.getDataRange().getValues(); for
 function getAllStudentNames() { const data = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Students").getDataRange().getValues(); let map = {}; for (let i = 1; i < data.length; i++) { map[String(data[i][0]).trim()] = data[i][1]; } return map; }
 
 function getNames(studentId, bookId) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet(); let sInfo = null, bInfo = null;
-  if(studentId) { 
-    const sRow = findRow(ss.getSheetByName("Students"), studentId); 
-    if(sRow != -1) sInfo = { name: ss.getSheetByName("Students").getRange(sRow, 2).getValue(), score: ss.getSheetByName("Students").getRange(sRow, 4).getValue() || 0 }; 
-  }
-  if(bookId) { 
-    const bookSheet = ss.getSheetByName("Books");
-    const bRow = findRow(bookSheet, bookId); 
-    if(bRow != -1) {
-      const bName = bookSheet.getRange(bRow, 2).getValue();
-      const totalQty = Number(bookSheet.getRange(bRow, 6).getValue()) || 1;
-      const borrowersStr = String(bookSheet.getRange(bRow, 5).getValue()).trim();
-      const borrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(s => s !== "") : [];
-      const available = Math.max(0, totalQty - borrowers.length);
-      const statusText = totalQty > 1 
-        ? (available > 0 ? `ว่าง (${available}/${totalQty} เล่ม)` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
-        : (available > 0 ? "ว่าง" : "ถูกยืม");
-      bInfo = { name: bName, status: statusText, available: available, totalQty: totalQty };
+  const ss = SpreadsheetApp.getActiveSpreadsheet(); 
+  let sInfo = null, bInfo = null;
+
+  // 1. ดึงข้อมูลนักเรียน (ประมวลผลบนหน่วยความจำ รวดเร็ว)
+  if (studentId) { 
+    const sSheet = ss.getSheetByName("Students");
+    if (sSheet) {
+      const sData = sSheet.getDataRange().getValues();
+      const targetSid = String(studentId).trim();
+      for (let i = 1; i < sData.length; i++) {
+        if (String(sData[i][0]).trim() === targetSid) {
+          sInfo = { 
+            name: String(sData[i][1] || '').trim(), 
+            score: Number(sData[i][3]) || 0 
+          };
+          break;
+        }
+      }
     }
   }
+
+  // 2. ดึงข้อมูลหนังสือ พร้อมคำนวณจำนวนวันการยืม (เช่น ด.ช.เอ ยืมไปแล้ว 7 วัน)
+  if (bookId) { 
+    const bookSheet = ss.getSheetByName("Books");
+    if (bookSheet) {
+      const bData = bookSheet.getDataRange().getValues();
+      const targetBid = String(bookId).trim();
+      for (let i = 1; i < bData.length; i++) {
+        if (String(bData[i][0]).trim() === targetBid) {
+          const bName = String(bData[i][1] || '').trim();
+          const totalQty = Number(bData[i][5]) || 1;
+          const borrowersStr = String(bData[i][4] || '').trim();
+          const borrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(s => s !== "") : [];
+          const available = Math.max(0, totalQty - borrowers.length);
+
+          let borrowDaysText = "";
+          let borrowerName = "";
+          let borrowDays = 0;
+
+          // คำนวณจำนวนวันที่ยืมจาก Logs
+          if (borrowers.length > 0) {
+            borrowerName = borrowers[borrowers.length - 1];
+            const logSheet = ss.getSheetByName("Logs");
+            if (logSheet) {
+              const logData = logSheet.getDataRange().getValues();
+              for (let j = logData.length - 1; j >= 1; j--) {
+                if (String(logData[j][4]).trim() === targetBid && String(logData[j][1]).trim() === "ยืม") {
+                  const borrowDate = new Date(logData[j][0]);
+                  if (!isNaN(borrowDate.getTime())) {
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    const bDate = new Date(borrowDate);
+                    bDate.setHours(0,0,0,0);
+                    const diffDays = Math.round((today.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24));
+                    borrowDays = Math.max(0, diffDays);
+                    borrowDaysText = borrowDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${borrowDays} วัน`;
+                    if (logData[j][3]) {
+                      borrowerName = String(logData[j][3]).trim();
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+          }
+
+          let statusText = "";
+          if (available > 0) {
+            statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
+          } else {
+            const detailStr = [borrowerName, borrowDaysText].filter(Boolean).join(" ");
+            statusText = totalQty > 1 
+              ? (detailStr ? `ถูกยืมครบแล้ว (${detailStr})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
+              : (detailStr ? `ถูกยืม (${detailStr})` : "ถูกยืม");
+          }
+
+          bInfo = { 
+            name: bName, 
+            status: statusText, 
+            available: available, 
+            totalQty: totalQty,
+            borrowerName: borrowerName,
+            borrowDays: borrowDays,
+            borrowDaysText: borrowDaysText
+          };
+          break;
+        }
+      }
+    }
+  }
+
   return {student: sInfo, book: bInfo};
 }
 
@@ -350,12 +421,38 @@ function addNewBook(id, name, author, qty) {
 }
 
 function getStudentScoreAndRewards(studentId) {
-  const sSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Students");
-  const rSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Rewards");
-  const sRow = findRow(sSheet, studentId);
-  if (sRow == -1) return { error: "❌ ไม่พบนักเรียน" };
-  const rewards = rSheet.getDataRange().getValues().slice(1).map(r => ({ id: r[0], name: r[1], cost: r[2] }));
-  return { name: sSheet.getRange(sRow, 2).getValue(), score: sSheet.getRange(sRow, 4).getValue() || 0, rewards: rewards };
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sSheet = ss.getSheetByName("Students");
+  const rSheet = ss.getSheetByName("Rewards");
+  if (!sSheet || !rSheet) return { error: "❌ ไม่พบ Sheet 'Students' หรือ 'Rewards'" };
+  
+  const targetId = String(studentId).trim();
+  const sData = sSheet.getDataRange().getValues();
+  let sRowData = null;
+  for (let i = 1; i < sData.length; i++) {
+    if (String(sData[i][0]).trim() === targetId) {
+      sRowData = sData[i];
+      break;
+    }
+  }
+  if (!sRowData) return { error: "❌ ไม่พบข้อมูลนักเรียน (" + targetId + ")" };
+  
+  const rData = rSheet.getDataRange().getValues();
+  const rewards = [];
+  for (let j = 1; j < rData.length; j++) {
+    const rId = String(rData[j][0] || '').trim();
+    const rName = String(rData[j][1] || '').trim();
+    const rCost = Number(rData[j][2]) || 0;
+    if (rId && rName) {
+      rewards.push({ id: rId, name: rName, cost: rCost });
+    }
+  }
+  
+  return { 
+    name: String(sRowData[1] || '').trim(), 
+    score: Number(sRowData[3]) || 0, 
+    rewards: rewards 
+  };
 }
 
 // ฟังก์ชัน API รับ request จากหน้าเว็บภายนอก
