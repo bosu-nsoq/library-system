@@ -153,7 +153,8 @@
       </div>
 
       <div class="menu-row">
-        <div class="icon-btn" onclick="showHistory()" title="ประวัติ">🕒</div>
+        <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ">🕒</div>
+        <div class="icon-btn" onclick="showBorrowedBooks()" title="หนังสือที่ถูกยืมอยู่ขณะนี้">📚</div>
         <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
       </div>
 
@@ -175,7 +176,11 @@
           <input type="tel" id="bid" class="modern-input" style="padding-left:50px;" placeholder="รหัสหนังสือ/บาร์โค้ด" oninput="validateAndSearch(this, 'borrow')" onkeypress="if(event.key === 'Enter') { event.preventDefault(); addCurrentBookToQueue(); }">
           <button class="cam-btn" onclick="startCamera('bid', 'borrow')">📷</button>
         </div>
-        <div id="box-book" class="info-card"><div style="font-weight:700; color:var(--primary);" id="b-name">รอข้อมูลหนังสือ...</div><div id="b-status" style="font-size:12px; color:var(--text-sub)">-</div></div>
+        <div id="box-book" class="info-card">
+          <div style="font-weight:700; color:var(--primary);" id="b-name">รอข้อมูลหนังสือ...</div>
+          <div id="b-status" style="font-size:12px; color:var(--text-sub)">-</div>
+          <div id="b-borrower" style="font-size:12px; color:#2D6A4F; font-weight:600; margin-top:2px; display:none;"></div>
+        </div>
         
         <div id="book-queue-box" class="queue-box"></div>
 
@@ -218,6 +223,30 @@
     <div id="msgModal" class="modal-overlay"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main);" onclick="closeModal()">ตกลง</button></div></div>
     
     <div id="historyModal" class="modal-overlay"><div class="modal-box"><div style="font-weight:700; font-size: 18px; margin-bottom:10px; text-align:left;">🕒 ประวัติล่าสุด</div><div id="hist-content" class="history-list"></div><button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none;" onclick="document.getElementById('historyModal').style.display='none'">ปิด</button></div></div>
+
+    <!-- Modal รายชื่อหนังสือที่ถูกยืมอยู่ขณะนี้ -->
+    <div id="borrowedBooksModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 480px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>📚</span> หนังสือที่ถูกยืมอยู่ขณะนี้
+             </div>
+             <div id="borrowed-count-badge" style="background: #FFE8D6; color: #D00000; font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+                0 เล่ม
+             </div>
+          </div>
+          
+          <div style="margin-bottom: 10px;">
+             <input type="text" id="borrowed-search" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อหนังสือ / ผู้ยืม..." oninput="filterBorrowedBooks(this.value)">
+          </div>
+
+          <div id="borrowed-books-content" style="flex: 1; overflow-y: auto; max-height: 52vh; padding-right: 2px;">
+             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดข้อมูล...</div>
+          </div>
+
+          <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="document.getElementById('borrowedBooksModal').style.display='none'">ปิดหน้าต่าง</button>
+       </div>
+    </div>
     
     <div id="printModal" class="modal-overlay">
        <div class="modal-box">
@@ -232,7 +261,7 @@
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--accent); margin:0;" onclick="triggerPrintCustom('month')">พิมพ์รายเดือน</button>
           </div>
           <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
-             <input type="number" id="print-c-year" class="modern-input" placeholder="พิมพ์ปี ค.ศ. (เช่น 2026)" style="padding:10px; font-size:12px; flex:1;">
+             <input type="number" id="print-c-year" class="modern-input" placeholder="พิมพ์ปี พ.ศ. (เช่น 2569)" style="padding:10px; font-size:12px; flex:1;">
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:#457B9D; margin:0;" onclick="triggerPrintCustom('year')">พิมพ์รายปี</button>
           </div>
 
@@ -257,7 +286,7 @@
           <div style="display:flex; gap:5px; margin-bottom:15px;">
              <input type="date" id="st-c-day" class="modern-input" title="เลือกสถิติเฉพาะวัน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_day', value:this.value}, null)">
              <input type="month" id="st-c-month" class="modern-input" title="เลือกสถิติเฉพาะเดือน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_month', value:this.value}, null)">
-             <input type="number" id="st-c-year" class="modern-input" placeholder="ปี ค.ศ." title="เลือกสถิติเฉพาะปี" style="padding:8px 5px; font-size:11px;" onchange="if(this.value && this.value.length===4) loadStats({type:'custom_year', value:this.value}, null)">
+             <input type="number" id="st-c-year" class="modern-input" placeholder="ปี พ.ศ." title="เลือกสถิติเฉพาะปี (พ.ศ.)" style="padding:8px 5px; font-size:11px;" onchange="if(this.value && this.value.length===4) { let y = parseInt(this.value, 10); if (y > 2400) y -= 543; loadStats({type:'custom_year', value: y.toString()}, null); }">
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
@@ -385,15 +414,29 @@
          let val = ""; let rangeText = "";
          if (type === 'day') { 
             val = document.getElementById('print-c-day').value; 
-            if(val) { let p = val.split('-'); rangeText = "ประจำวันที่ " + p[2] + "/" + p[1] + "/" + (parseInt(p[0])+543); }
+            if(val) { 
+               let p = val.split('-'); 
+               let y = parseInt(p[0], 10);
+               let yBE = y > 2400 ? y : y + 543;
+               rangeText = "ประจำวันที่ " + p[2] + "/" + p[1] + "/" + yBE; 
+            }
          }
          else if (type === 'month') { 
             val = document.getElementById('print-c-month').value; 
-            if(val) { let p = val.split('-'); rangeText = "ประจำเดือน " + p[1] + "/" + (parseInt(p[0])+543); }
+            if(val) { 
+               let p = val.split('-'); 
+               let y = parseInt(p[0], 10);
+               let yBE = y > 2400 ? y : y + 543;
+               rangeText = "ประจำเดือน " + p[1] + "/" + yBE; 
+            }
          }
          else if (type === 'year') { 
             val = document.getElementById('print-c-year').value; 
-            if(val) { rangeText = "ประจำปี พ.ศ. " + (parseInt(val)+543); }
+            if(val) { 
+               let rawY = parseInt(val, 10);
+               let yBE = rawY > 2400 ? rawY : rawY + 543;
+               rangeText = "ประจำปี พ.ศ. " + yBE; 
+            }
          }
          
          if (!val) { alert("⚠️ กรุณาระบุเวลาที่ต้องการพิมพ์ให้ครบถ้วน"); return; }
@@ -404,43 +447,82 @@
         document.getElementById('printModal').style.display = 'none';
         let win = window.open("", "_blank");
         if (!win) { alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนครับ"); return; }
-        win.document.write("<h3 style='font-family:sans-serif; text-align:center; padding:20px;'>⏳ กำลังดึงข้อมูล...</h3>");
+        win.document.write("<h3 style='font-family:Sarabun, sans-serif; text-align:center; padding:20px;'>⏳ กำลังดึงข้อมูล...</h3>");
         
         let rangeText = typeof range === 'object' ? range.text : 'ทั้งหมด';
 
         google.script.run.withSuccessHandler(function(data) {
-          if (data.length === 0) { win.document.body.innerHTML = `<h3 style='text-align:center; font-family:sans-serif;'>ไม่มีข้อมูล ${rangeText}</h3>`; return; }
+          if (data.length === 0) { win.document.body.innerHTML = `<h3 style='text-align:center; font-family:Sarabun, sans-serif;'>ไม่มีข้อมูล ${rangeText}</h3>`; return; }
           
-          let html = `<html><head><title>รายงานห้องสมุด</title>
-          <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;700&family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+          const now = new Date();
+          const thaiYear = now.getFullYear() + 543;
+          const thaiMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+          const thaiDay = now.getDate().toString().padStart(2, '0');
+          const thaiHours = now.getHours().toString().padStart(2, '0');
+          const thaiMinutes = now.getMinutes().toString().padStart(2, '0');
+          const printDateThai = `${thaiDay}/${thaiMonth}/${thaiYear} ${thaiHours}:${thaiMinutes} น.`;
+
+          let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>รายงานการเข้าใช้บริการห้องสมุด</title>
+          <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
           <style>
-             @media print { @page { size: landscape; margin: 1cm; } } 
-             body { font-family: 'Prompt', sans-serif; padding:20px; }
-             table { width:100%; border-collapse:collapse; margin-top:20px; }
-             th, td { border:1px solid #ddd; padding:8px; font-size:14px; text-align:left; }
-             th { background:#2D6A4F; color:#fff; text-align:center; }
-             .header { text-align:center; }
+             @media print { 
+                @page { size: landscape; margin: 1cm; } 
+                thead { display: table-header-group; }
+                tfoot { display: table-footer-group; }
+                tr { page-break-inside: avoid; }
+             } 
+             body { font-family: 'Sarabun', sans-serif; padding: 20px; color: #333; margin: 0; }
+             table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+             thead { display: table-header-group; }
+             th, td { border: 1px solid #bbb; padding: 7px 10px; font-size: 14px; text-align: left; font-family: 'Sarabun', sans-serif; }
+             th { background: #2D6A4F; color: #fff; text-align: center; font-weight: 600; }
+             .header { text-align: center; margin-bottom: 15px; font-family: 'Sarabun', sans-serif; }
+             .header img { height: 75px; margin-bottom: 5px; }
+             .header h2 { margin: 4px 0; font-size: 20px; color: #1B4332; font-family: 'Sarabun', sans-serif; }
+             .header h3 { margin: 2px 0; font-size: 17px; font-weight: 500; color: #2D6A4F; font-family: 'Sarabun', sans-serif; }
+             .header p { margin: 4px 0; font-size: 13px; color: #666; font-family: 'Sarabun', sans-serif; }
           </style></head><body>
           <div class="header">
+             <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" alt="โลโก้โรงเรียน">
              <h2>รายงานการเข้าใช้บริการห้องสมุด (${rangeText})</h2>
-             <h3>โรงเรียนวัดหนองตะเฆ่</h3>
-             <p>พิมพ์เมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+             <h3>โรงเรียนวัดหนองตะเคียน</h3>
+             <p>พิมพ์เมื่อ: ${printDateThai} • ข้อมูลทั้งหมด ${data.length} รายการ</p>
           </div>
           <table>
-             <tr><th>วันที่</th><th>เวลา</th><th>รายการ</th><th>ชื่อ-นามสกุล</th><th>ชื่อหนังสือ</th><th>เจ้าหน้าที่</th></tr>`;
+             <thead>
+                <tr>
+                   <th style="width: 6%;">ลำดับ</th>
+                   <th style="width: 14%;">วันที่ (พ.ศ.)</th>
+                   <th style="width: 10%;">เวลา</th>
+                   <th style="width: 12%;">รายการ</th>
+                   <th style="width: 25%;">ชื่อ-นามสกุล</th>
+                   <th style="width: 21%;">ชื่อหนังสือ</th>
+                   <th style="width: 12%;">เจ้าหน้าที่</th>
+                </tr>
+             </thead>
+             <tbody>`;
           
-          data.forEach(r => { 
-             html += `<tr><td style="text-align:center">${r.date}</td><td style="text-align:center">${r.time}</td><td style="text-align:center">${r.action}</td><td>${r.studentName}</td><td>${r.bookName}</td><td style="text-align:center">${r.staff}</td></tr>`; 
+          data.forEach((r, idx) => { 
+             html += `<tr>
+                <td style="text-align:center">${idx + 1}</td>
+                <td style="text-align:center">${r.date}</td>
+                <td style="text-align:center">${r.time}</td>
+                <td style="text-align:center; font-weight:600;">${r.action}</td>
+                <td>${r.studentName}</td>
+                <td>${r.bookName}</td>
+                <td style="text-align:center">${r.staff}</td>
+             </tr>`; 
           });
           
-          html += `</table></body></html>`;
+          html += `</tbody></table></body></html>`;
           win.document.open(); win.document.write(html); win.document.close(); 
-          setTimeout(() => win.print(), 500); 
+          setTimeout(() => win.print(), 600); 
         }).getLogsByRange(range);
       }
 
       function checkPinLogin(input) {
         if (input.value.length === 4) {
+          input.blur(); // ✅ ย่อคีย์บอร์ดมือถือลงทันทีเมื่อกรอกรหัส PIN ครบ 4 หลัก
           document.getElementById('login-loader').style.display = 'block'; 
           google.script.run.withSuccessHandler(function(res) {
             document.getElementById('login-loader').style.display = 'none'; 
@@ -571,6 +653,17 @@
           statusText += ` (${book.borrowDaysText})`;
         }
         document.getElementById('b-status').innerText = statusText;
+        
+        const borrowerEl = document.getElementById('b-borrower');
+        if (borrowerEl) {
+          if (book.borrowerName) {
+            borrowerEl.innerText = "👤 ผู้ยืมคนล่าสุด: " + book.borrowerName;
+            borrowerEl.style.display = "block";
+          } else {
+            borrowerEl.innerText = "";
+            borrowerEl.style.display = "none";
+          }
+        }
         document.getElementById('box-book').classList.add('active');
       }
 
@@ -591,12 +684,10 @@
           if (b.borrowDaysText && !statusText.includes(b.borrowDaysText)) {
             statusText += ` (${b.borrowDaysText})`;
           }
-          bookQueue.push({ id: bid, name: b.name, status: statusText });
+          bookQueue.push({ id: bid, name: b.name, status: statusText, borrowerName: b.borrowerName });
           renderBookQueue();
           bidInput.value = "";
-          document.getElementById('box-book').classList.remove('active');
-          document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
-          document.getElementById('b-status').innerText = "-";
+          displayBookInfo(b);
           bidInput.focus();
           return;
         }
@@ -606,7 +697,7 @@
         const displayName = (currentName && !currentName.includes("รอข้อมูล") && !currentName.includes("กำลังดึง")) 
                             ? currentName : "กำลังดึงข้อมูล...";
         
-        bookQueue.push({ id: bid, name: displayName, status: currentStatus });
+        bookQueue.push({ id: bid, name: displayName, status: currentStatus, borrowerName: "" });
         renderBookQueue();
 
         const itemIndex = bookQueue.length - 1;
@@ -618,14 +709,13 @@
               statusText += ` (${data.book.borrowDaysText})`;
             }
             bookQueue[itemIndex].status = statusText;
+            bookQueue[itemIndex].borrowerName = data.book.borrowerName || "";
             renderBookQueue();
+            displayBookInfo(data.book);
           }
         }).getNames("", bid);
 
         bidInput.value = "";
-        document.getElementById('box-book').classList.remove('active');
-        document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
-        document.getElementById('b-status').innerText = "-";
         bidInput.focus();
       }
 
@@ -659,6 +749,7 @@
           const isBorrowed = (b.status && (b.status.includes("ถูกยืม") || b.status.includes("ยืมแล้ว")));
           const badgeClass = isBorrowed ? "badge-borrowed" : "badge-available";
           const statusText = (b.status && b.status !== "-") ? b.status : "พร้อมทำรายการ";
+          const borrowerStr = b.borrowerName ? `<div style="font-size:11px; color:#2D6A4F; font-weight:600; margin-top:2px;">👤 ผู้ยืมคนล่าสุด: ${b.borrowerName}</div>` : '';
           html += `
             <div class="queue-item">
               <div class="queue-item-info">
@@ -669,7 +760,8 @@
                 <div style="font-size:12px; color:var(--text-sub); margin-top:2px;">
                   รหัส: <b>${b.id}</b>
                 </div>
-                <div class="queue-badge ${badgeClass}">${statusText}</div>
+                ${borrowerStr}
+                <div class="queue-badge ${badgeClass}" style="margin-top:4px;">${statusText}</div>
               </div>
               <button class="queue-del-btn" onclick="removeBookFromQueue(${i})" title="ลบรายการนี้">🗑️</button>
             </div>
@@ -681,9 +773,12 @@
       function submitAction(type) {
         const sid = document.getElementById('sid').value.trim(); 
         const currentBid = document.getElementById('bid').value.trim();
+        const currentStudentName = document.getElementById('s-name').innerText.replace("รอข้อมูลนักเรียน...", "").trim();
         
         let bookIds = bookQueue.map(b => b.id);
-        if (currentBid) bookIds.push(currentBid);
+        if (currentBid && !bookIds.includes(currentBid)) {
+          bookIds.push(currentBid);
+        }
 
         if (!sid || bookIds.length === 0) {
             showModal("error:❌ กรุณากรอกรหัสนักเรียนและรหัสหนังสือให้ครบ");
@@ -707,7 +802,31 @@
            document.getElementById('s-score').innerText = "-";
            document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ..."; 
            document.getElementById('b-status').innerText = "-";
+           const borrowerEl = document.getElementById('b-borrower');
+           if (borrowerEl) { borrowerEl.innerText = ""; borrowerEl.style.display = "none"; }
+           
            if (res && res.includes("success")) {
+              dataCache.book = {}; // เคลียร์แคชหนังสือเก่าทันทีเพื่อป้องกันข้อมูลค้าง
+              dataCache.student = {};
+              // อัปเดตสถานะใน localDB ทันที
+              if (localDB.books) {
+                bookIds.forEach(id => {
+                  if (localDB.books[id]) {
+                    if (type === 'borrow') {
+                      localDB.books[id].status = "ถูกยืม";
+                      localDB.books[id].available = Math.max(0, (localDB.books[id].available || 1) - 1);
+                      if (currentStudentName) localDB.books[id].borrowerName = currentStudentName;
+                      localDB.books[id].borrowDaysText = "ยืมวันนี้";
+                      localDB.books[id].borrowDays = 0;
+                    } else if (type === 'return') {
+                      localDB.books[id].status = "ว่าง";
+                      localDB.books[id].available = Math.max(1, (localDB.books[id].available || 0) + 1);
+                      localDB.books[id].borrowDaysText = "";
+                      localDB.books[id].borrowDays = 0;
+                    }
+                  }
+                });
+              }
               syncLibraryData(); // อัปเดตฐานข้อมูลในเครื่องทันทีหลังทำรายการสำเร็จ
            }
         }).processMultipleTransactions(sid, bookIds, type, currentUser);
@@ -814,7 +933,111 @@
          }
       }
 
-      function showHistory() { document.getElementById('historyModal').style.display='flex'; google.script.run.withSuccessHandler(data => { let html = ""; data.forEach(h => html += `<div class="hist-item"><div>${h.time} | <b>${h.action}</b><br>${h.studentName}</div><button onclick="deleteLog(${h.rowIndex})" style="border:none;background:none;color:red">🗑️</button></div>`); document.getElementById('hist-content').innerHTML = html || "ไม่มีข้อมูล"; }).getRecentLogs(); }
+      function showHistory() { 
+        document.getElementById('historyModal').style.display='flex'; 
+        google.script.run.withSuccessHandler(data => { 
+          let html = ""; 
+          data.forEach(h => html += `<div class="hist-item"><div>${h.date ? h.date + ' ' : ''}${h.time} | <b>${h.action}</b><br>${h.studentName}</div><button onclick="deleteLog(${h.rowIndex})" style="border:none;background:none;color:red">🗑️</button></div>`); 
+          document.getElementById('hist-content').innerHTML = html || "ไม่มีข้อมูล"; 
+        }).getRecentLogs(); 
+      }
+
+      let cachedBorrowedBooks = [];
+
+      function showBorrowedBooks() {
+        document.getElementById('borrowedBooksModal').style.display = 'flex';
+        const contentEl = document.getElementById('borrowed-books-content');
+        const badgeEl = document.getElementById('borrowed-count-badge');
+        const searchInput = document.getElementById('borrowed-search');
+        if (searchInput) searchInput.value = "";
+
+        // 1. ดึงจาก localDB มาแสดงทันทีก่อนใน 0.001 วินาที
+        let localList = [];
+        if (localDB.books) {
+          for (let bid in localDB.books) {
+            const b = localDB.books[bid];
+            if (b.status && (b.status.includes("ถูกยืม") || (b.available === 0 && b.totalQty > 0))) {
+              localList.push({
+                bookId: bid,
+                bookName: b.name || bid,
+                studentId: "-",
+                borrowerName: b.borrowerName || "ไม่ระบุชื่อ",
+                days: b.borrowDays || 0,
+                borrowDaysText: b.borrowDaysText || (b.borrowDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${b.borrowDays} วัน`),
+                borrowDateThai: "-"
+              });
+            }
+          }
+        }
+        if (localList.length > 0) {
+          cachedBorrowedBooks = localList;
+          renderBorrowedBooks(localList);
+        } else {
+          contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงข้อมูล...</div>";
+        }
+
+        // 2. ดึงข้อมูลแบบสมบูรณ์จาก Apps Script
+        google.script.run.withSuccessHandler(data => {
+          cachedBorrowedBooks = data || [];
+          renderBorrowedBooks(cachedBorrowedBooks);
+        }).getCurrentlyBorrowedBooks();
+      }
+
+      function renderBorrowedBooks(list) {
+        const contentEl = document.getElementById('borrowed-books-content');
+        const badgeEl = document.getElementById('borrowed-count-badge');
+        badgeEl.innerText = `${list.length} เล่ม`;
+        
+        if (!list || list.length === 0) {
+          contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>✅ ไม่มีหนังสือค้างส่ง (ทุกคนคืนครบแล้ว)</div>";
+          return;
+        }
+
+        let html = "";
+        list.forEach((item, idx) => {
+          const isOverdue = item.days >= 3;
+          const badgeBg = isOverdue ? '#FFE5D9' : '#D8F3DC';
+          const badgeColor = isOverdue ? '#D00000' : '#2D6A4F';
+          const dateStr = item.borrowDateThai && item.borrowDateThai !== '-' ? ` • ยืมเมื่อ: ${item.borrowDateThai}` : '';
+
+          html += `
+            <div style="background: white; border: 1.5px solid ${isOverdue ? '#FFCCD5' : '#E9ECEF'}; border-radius: 14px; padding: 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">
+                  <span style="display:inline-block; width:20px; height:20px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:20px; font-size:11px; margin-right:4px;">${idx+1}</span>
+                  ${item.bookName}
+                </div>
+                <span style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; background: ${badgeBg}; color: ${badgeColor}; white-space: nowrap;">
+                  ${item.borrowDaysText}
+                </span>
+              </div>
+              <div style="font-size: 12px; color: var(--text-sub); margin-top: 3px;">
+                รหัสหนังสือ: <b>${item.bookId}</b>
+              </div>
+              <div style="font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px;">
+                👤 ผู้ยืม: <b>${item.borrowerName}</b> ${item.studentId && item.studentId !== '-' ? `<span style="font-size:11px; color:var(--text-sub);">(${item.studentId})</span>` : ''}
+              </div>
+              ${dateStr ? `<div style="font-size: 11px; color: #888; margin-top: 2px;">📅 ${dateStr.replace(' • ', '')}</div>` : ''}
+            </div>
+          `;
+        });
+        contentEl.innerHTML = html;
+      }
+
+      function filterBorrowedBooks(query) {
+        const q = String(query || '').trim().toLowerCase();
+        if (!q) {
+          renderBorrowedBooks(cachedBorrowedBooks);
+          return;
+        }
+        const filtered = cachedBorrowedBooks.filter(b => 
+          (b.bookName && b.bookName.toLowerCase().includes(q)) ||
+          (b.bookId && b.bookId.toLowerCase().includes(q)) ||
+          (b.borrowerName && b.borrowerName.toLowerCase().includes(q)) ||
+          (b.studentId && b.studentId.toLowerCase().includes(q))
+        );
+        renderBorrowedBooks(filtered);
+      }
       
       function deleteLog(idx) { 
          if(confirm("ลบรายการ?")) {
@@ -914,12 +1137,7 @@
          document.getElementById('reader').innerHTML = ""; 
 
          const statusEl = document.getElementById('scan-continuous-status');
-         if (id === 'bid') {
-           statusEl.innerText = `📷 โหมดสแกนต่อเนื่อง (เลือกแล้ว ${bookQueue.length} เล่ม)`;
-           statusEl.style.display = 'block';
-         } else {
-           statusEl.style.display = 'none';
-         }
+         if (statusEl) statusEl.style.display = 'none';
          
          if(qr) { try { qr.clear(); } catch(e){} qr = null; }
          qr = new Html5Qrcode("reader", {
@@ -961,94 +1179,15 @@
       }
 
       function onScanSuccess(decodedText) {
-          // ✅ โหมดสแกนต่อเนื่องสำหรับช่องรหัสหนังสือ (ไม่ปิดกล้อง: ดึงข้อมูลให้เสร็จก่อน ค่อยสแกนเล่มถัดไป)
+          playBeep();
+          stopCamera(); // ✅ สแกน 1 เล่มแล้วปิดกล้องสแกนทันที หากต้องการสแกนเล่มอื่น ค่อยให้ผู้ใช้กดปุ่มเองทีหลัง
+
           if (currentScanId === 'bid') {
-              if (isScanCooldown) return;
-              isScanCooldown = true;
-              playBeep();
-              
-              const statusEl = document.getElementById('scan-continuous-status');
-              statusEl.innerText = `⏳ กำลังดึงข้อมูล: ${decodedText}...`;
-              statusEl.style.background = 'rgba(230, 115, 0, 0.95)';
-              statusEl.style.display = 'block';
-
-              // ตรวจสอบว่าอยู่ในคิวแล้วหรือไม่
-              if (bookQueue.some(b => b.id === decodedText)) {
-                statusEl.innerText = `⚠️ รหัส ${decodedText} อยู่ในคิวแล้ว`;
-                statusEl.style.background = 'rgba(230, 57, 70, 0.95)';
-                setTimeout(() => { 
-                  isScanCooldown = false; 
-                  statusEl.innerText = `📷 โหมดสแกนต่อเนื่อง (เลือกแล้ว ${bookQueue.length} เล่ม)`;
-                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
-                }, 1200);
-                return;
-              }
-
-              // ⚡ 1. ถ้ามีในหน่วยความจำเครื่อง (localDB) ดึงขึ้นมาทันทีใน 0.001 วินาที!
-              if (localDB.books && localDB.books[decodedText]) {
-                const b = localDB.books[decodedText];
-                let statusText = b.status || "-";
-                if (b.borrowDaysText && !statusText.includes(b.borrowDaysText)) {
-                  statusText += ` (${b.borrowDaysText})`;
-                }
-                const bName = b.name || "ไม่พบชื่อหนังสือ";
-                bookQueue.push({ id: decodedText, name: bName, status: statusText });
-                renderBookQueue();
-
-                statusEl.innerText = `✅ เพิ่มแล้ว: ${bName}`;
-                statusEl.style.background = 'rgba(45, 106, 79, 0.95)';
-
-                // คูลดาวน์สั้นๆ 400ms เพื่อป้องกันการตรวจจับซ้ำจากกล้อง แล้วพร้อมสแกนเล่มถัดไปทันที
-                setTimeout(() => {
-                  isScanCooldown = false;
-                  statusEl.innerText = `📷 พร้อมสแกนเล่มถัดไป (ในคิวมี ${bookQueue.length} เล่ม)`;
-                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
-                }, 400);
-                return;
-              }
-
-              // 2. ถ้ายังไม่มีในเครื่อง ให้ดึงจาก Apps Script (Fallback)
-              google.script.run.withSuccessHandler(data => {
-                let bookName = "ไม่พบชื่อหนังสือ";
-                let statusText = "-";
-
-                if (data && data.book) {
-                  bookName = data.book.name || "ไม่พบชื่อหนังสือ";
-                  statusText = data.book.status || "-";
-                  if (data.book.borrowDaysText && !statusText.includes(data.book.borrowDaysText)) {
-                    statusText += ` (${data.book.borrowDaysText})`;
-                  }
-                  if (!localDB.books) localDB.books = {};
-                  localDB.books[decodedText] = data.book;
-                }
-
-                bookQueue.push({ id: decodedText, name: bookName, status: statusText });
-                renderBookQueue();
-
-                statusEl.innerText = `✅ เพิ่มแล้ว: ${bookName}`;
-                statusEl.style.background = 'rgba(45, 106, 79, 0.95)';
-
-                // เมื่อดึงข้อมูลเสร็จแล้ว ค่อยเปิดให้สแกนเล่มถัดไป
-                setTimeout(() => {
-                  isScanCooldown = false;
-                  statusEl.innerText = `📷 พร้อมสแกนเล่มถัดไป (ในคิวมี ${bookQueue.length} เล่ม)`;
-                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
-                }, 500);
-              }).withFailureHandler(() => {
-                statusEl.innerText = `❌ ดึงข้อมูลไม่สำเร็จ (${decodedText})`;
-                statusEl.style.background = 'rgba(230, 57, 70, 0.95)';
-                setTimeout(() => { 
-                  isScanCooldown = false; 
-                  statusEl.innerText = `📷 โหมดสแกนต่อเนื่อง (เลือกแล้ว ${bookQueue.length} เล่ม)`;
-                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
-                }, 1200);
-              }).getNames("", decodedText);
-
+              document.getElementById('bid').value = decodedText;
+              addCurrentBookToQueue(decodedText);
               return;
           }
 
-          playBeep();
-          stopCamera(); 
           if (currentScanMode === 'add') {
               document.getElementById(currentScanId).value = decodedText;
               document.getElementById('n-name').focus();
