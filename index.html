@@ -159,6 +159,48 @@
         .info-card { padding: 10px 12px !important; }
         .modal-box { padding: 18px 14px !important; width: 95% !important; border-radius: 16px !important; }
       }
+    
+      /* 🪪 ปุ่มพิมพ์บัตรสมาชิกขนาดคงที่เท่ากันทุกใบ สวยงามเป็นระเบียบ */
+      .btn-print-card {
+        flex: 0 0 95px !important;
+        width: 95px !important;
+        min-width: 95px !important;
+        max-width: 95px !important;
+        height: 34px !important;
+        padding: 0 8px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        background: var(--primary) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 9px !important;
+        cursor: pointer !important;
+        margin: 0 !important;
+        box-shadow: 0 2px 6px rgba(45, 106, 79, 0.2) !important;
+        white-space: nowrap !important;
+        font-family: 'Mali', cursive, sans-serif !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+      }
+      .btn-print-card:hover {
+        background: #1B4332 !important;
+      }
+
+      /* 📚 ปรับขนาดช่องกรอกในหน้าเพิ่มหนังสือ ให้ย่อขนาดคำลงและมีระยะห่างด้านบน ไม่โดนตัดสระ/วรรณยุกต์ */
+      .book-input {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        padding-top: 14px !important;
+        padding-bottom: 10px !important;
+        font-size: 13px !important;
+      }
+      .book-input::placeholder {
+        font-size: 12.5px !important;
+        line-height: 1.6 !important;
+      }
+    
     </style>
   </head>
   <body>
@@ -241,8 +283,8 @@
           <input type="tel" id="n-bid" class="modern-input" placeholder="บาร์โค้ดหนังสือใหม่">
           <button class="cam-btn" onclick="startCamera('n-bid', 'add')">📷</button>
         </div>
-        <div class="input-wrapper"><input type="text" id="n-name" class="modern-input" style="padding-left:15px; padding-right:15px;" placeholder="ชื่อหนังสือ"></div>
-        <div class="input-wrapper"><input type="text" id="n-author" class="modern-input" style="padding-left:15px; padding-right:15px;" placeholder="ชื่อผู้แต่ง"></div>
+        <div class="input-wrapper"><input type="text" id="n-name" class="modern-input book-input" placeholder="ชื่อหนังสือ"></div>
+        <div class="input-wrapper"><input type="text" id="n-author" class="modern-input book-input" placeholder="ชื่อผู้แต่ง"></div>
         <div class="input-wrapper" style="display:flex; align-items:center; background:#F8F9FA; border:2px solid #E9ECEF; border-radius:16px; padding:6px 15px; box-sizing:border-box;">
           <span style="font-weight:600; color:var(--text-main); font-size:14px; white-space:nowrap; margin-right:8px;">📚 จำนวนหนังสือ:</span>
           <input type="number" id="n-qty" class="modern-input" style="border:none; background:transparent; padding:8px 5px; text-align:center; font-size:18px; width:70px; flex:1;" min="1" value="1">
@@ -1385,9 +1427,7 @@
                   รหัส: <b>${st.id}</b> | ชั้น: <b>${st.grade || '-'}</b>
                 </div>
               </div>
-              <button type="button" class="action-btn" style="flex-shrink: 0; min-width: 90px; padding: 6px 12px; font-size: 11.5px; font-weight: 600; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')">
-                🖨️ พิมพ์บัตร
-              </button>
+              <button type="button" class="btn-print-card" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')">🖨️ พิมพ์บัตร</button>
             </div>
           `;
         });
