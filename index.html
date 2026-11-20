@@ -485,7 +485,7 @@
           <div class="header">
              <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" alt="โลโก้โรงเรียน">
              <h2>รายงานการเข้าใช้บริการห้องสมุด (${rangeText})</h2>
-             <h3>โรงเรียนวัดหนองตะเคียน</h3>
+             <h3>โรงเรียนวัดหนองตะเฆ่</h3>
              <p>พิมพ์เมื่อ: ${printDateThai} • ข้อมูลทั้งหมด ${data.length} รายการ</p>
           </div>
           <table>
@@ -986,7 +986,7 @@
       function renderBorrowedBooks(list) {
         const contentEl = document.getElementById('borrowed-books-content');
         const badgeEl = document.getElementById('borrowed-count-badge');
-        badgeEl.innerText = `${list.length} เล่ม`;
+        badgeEl.innerText = `${list ? list.length : 0} เล่ม`;
         
         if (!list || list.length === 0) {
           contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>✅ ไม่มีหนังสือค้างส่ง (ทุกคนคืนครบแล้ว)</div>";
@@ -999,6 +999,9 @@
           const badgeBg = isOverdue ? '#FFE5D9' : '#D8F3DC';
           const badgeColor = isOverdue ? '#D00000' : '#2D6A4F';
           const dateStr = item.borrowDateThai && item.borrowDateThai !== '-' ? ` • ยืมเมื่อ: ${item.borrowDateThai}` : '';
+          const safeBookName = String(item.bookName || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const safeBorrowerName = String(item.borrowerName || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const safeStudentId = String(item.studentId || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
           html += `
             <div style="background: white; border: 1.5px solid ${isOverdue ? '#FFCCD5' : '#E9ECEF'}; border-radius: 14px; padding: 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
@@ -1017,11 +1020,49 @@
               <div style="font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px;">
                 👤 ผู้ยืม: <b>${item.borrowerName}</b> ${item.studentId && item.studentId !== '-' ? `<span style="font-size:11px; color:var(--text-sub);">(${item.studentId})</span>` : ''}
               </div>
-              ${dateStr ? `<div style="font-size: 11px; color: #888; margin-top: 2px;">📅 ${dateStr.replace(' • ', '')}</div>` : ''}
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px dashed #E9ECEF; padding-top: 8px;">
+                <div style="font-size: 11px; color: #888;">${dateStr ? `📅 ${dateStr.replace(' • ', '')}` : ''}</div>
+                <button type="button" style="padding: 5px 12px; font-size: 12px; font-weight: 600; background: #E63946; color: white; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(230,57,70,0.25);" onclick="returnBorrowedBook('${item.bookId}', '${safeStudentId}', '${safeBorrowerName}', '${safeBookName}')">
+                  🗑️ ลบรายการ (คืนแล้ว)
+                </button>
+              </div>
             </div>
           `;
         });
         contentEl.innerHTML = html;
+      }
+
+      function returnBorrowedBook(bookId, studentId, borrowerName, bookName) {
+        const displayTitle = bookName ? `"${bookName}" (${bookId})` : `รหัส ${bookId}`;
+        const displayBorrower = (borrowerName && borrowerName !== '-' && borrowerName !== 'ไม่ระบุชื่อ') ? ` โดย ${borrowerName}` : '';
+        if (!confirm(`ยืนยันว่าได้รับหนังสือ ${displayTitle}${displayBorrower} คืนแล้ว และต้องการลบออกจากรายการยืมใช่หรือไม่?`)) {
+          return;
+        }
+
+        document.getElementById('tx-loader-text').innerText = "กำลังบันทึกการคืนหนังสือ...";
+        document.getElementById('tx-loader').style.display = 'flex';
+
+        // ปรับปรุงแคชและ UI ทันที
+        if (localDB.books && localDB.books[bookId]) {
+          localDB.books[bookId].status = "ว่าง";
+          localDB.books[bookId].borrowerName = "";
+          localDB.books[bookId].borrowDays = 0;
+          localDB.books[bookId].borrowDaysText = "";
+          localDB.books[bookId].available = Math.max(1, (localDB.books[bookId].available || 0) + 1);
+        }
+        cachedBorrowedBooks = cachedBorrowedBooks.filter(b => !(b.bookId === bookId && (studentId && studentId !== '-' ? b.studentId === studentId : true)));
+        renderBorrowedBooks(cachedBorrowedBooks);
+
+        google.script.run.withSuccessHandler(res => {
+          document.getElementById('tx-loader').style.display = 'none';
+          showModal(res);
+          showBorrowedBooks();
+          syncLibraryData();
+        }).withFailureHandler(err => {
+          document.getElementById('tx-loader').style.display = 'none';
+          alert("❌ เกิดข้อผิดพลาดในการบันทึกการคืน: " + err);
+          showBorrowedBooks();
+        }).markBookAsReturned(bookId, studentId, borrowerName, currentUser);
       }
 
       function filterBorrowedBooks(query) {
