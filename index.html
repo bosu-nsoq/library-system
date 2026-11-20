@@ -270,6 +270,15 @@
         font-size: 13px !important;
         line-height: 1.6 !important;
       }
+      #print-c-day::-webkit-calendar-picker-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
     </style>
 
   </head>
@@ -542,7 +551,15 @@
 
           <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
 
-             <input type="date" id="print-c-day" class="modern-input" style="padding:10px; font-size:12px; flex:1;">
+             <div style="position:relative; flex:1; display:flex; align-items:center;">
+
+                <input type="text" id="print-c-day-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="padding:10px 38px 10px 10px; font-size:12px; width:100%; cursor:pointer; text-align:center; background:#fff;" onclick="openPrintCalendar()" title="คลิกเพื่อเลือกวันที่จากปฏิทิน">
+
+                <button type="button" class="cal-btn" onclick="openPrintCalendar()" title="เลือกวันที่จากปฏิทิน" style="position:absolute; right:5px; top:50%; transform:translateY(-50%); background:#FFFFFF; border:1px solid #E9ECEF; width:30px; height:30px; border-radius:8px; cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.08); padding:0; color:var(--primary); z-index:2;">📅</button>
+
+                <input type="date" id="print-c-day" style="position:absolute; right:5px; top:50%; transform:translateY(-50%); width:30px; height:30px; opacity:0; cursor:pointer; z-index:3;" onchange="onPrintDateChange(this.value)">
+
+             </div>
 
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--primary); margin:0;" onclick="triggerPrintCustom('day')">พิมพ์รายวัน</button>
 
@@ -550,7 +567,7 @@
 
           <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
 
-             <input type="month" id="print-c-month" class="modern-input" style="padding:10px; font-size:12px; flex:1;">
+             <input type="month" id="print-c-month" class="modern-input" style="padding:10px; font-size:12px; flex:1; cursor:pointer;" onclick="try{this.showPicker()}catch(e){}">
 
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--accent); margin:0;" onclick="triggerPrintCustom('month')">พิมพ์รายเดือน</button>
 
@@ -582,7 +599,7 @@
 
              <div style="font-weight:700; font-size: 18px; text-align:left;">📊 สถิติการใช้งาน</div>
 
-             <button onclick="document.getElementById('statsModal').style.display='none'; document.getElementById('printModal').style.display='flex'" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Mali', cursive, sans-serif; font-size:12px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🖨️ พิมพ์รายงาน</button>
+             <button onclick="document.getElementById('statsModal').style.display='none'; document.getElementById('printModal').style.display='flex'; initPrintDate();" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Mali', cursive, sans-serif; font-size:12px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🖨️ พิมพ์รายงาน</button>
 
           </div>
 
@@ -604,9 +621,9 @@
 
           <div style="display:flex; gap:5px; margin-bottom:15px;">
 
-             <input type="date" id="st-c-day" class="modern-input" title="เลือกสถิติเฉพาะวัน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_day', value:this.value}, null)">
+             <input type="date" id="st-c-day" class="modern-input" title="เลือกสถิติเฉพาะวัน" style="padding:8px 5px; font-size:11px; cursor:pointer;" onchange="if(this.value) loadStats({type:'custom_day', value:this.value}, null)" onclick="try{this.showPicker()}catch(e){}">
 
-             <input type="month" id="st-c-month" class="modern-input" title="เลือกสถิติเฉพาะเดือน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_month', value:this.value}, null)">
+             <input type="month" id="st-c-month" class="modern-input" title="เลือกสถิติเฉพาะเดือน" style="padding:8px 5px; font-size:11px; cursor:pointer;" onchange="if(this.value) loadStats({type:'custom_month', value:this.value}, null)" onclick="try{this.showPicker()}catch(e){}">
 
              <input type="number" id="st-c-year" class="modern-input" placeholder="ปี พ.ศ." title="เลือกสถิติเฉพาะปี (พ.ศ.)" style="padding:8px 5px; font-size:11px;" onchange="if(this.value && this.value.length===4) { let y = parseInt(this.value, 10); if (y > 2400) y -= 543; loadStats({type:'custom_year', value: y.toString()}, null); }">
 
@@ -880,6 +897,8 @@
 
       document.addEventListener("DOMContentLoaded", function() {
 
+         initPrintDate();
+
          let savedUser = sessionStorage.getItem('library_logged_in_user');
 
          if (savedUser) {
@@ -924,6 +943,61 @@
 
 
 
+      function initPrintDate() {
+         const now = new Date();
+         const y = now.getFullYear();
+         const m = (now.getMonth() + 1).toString().padStart(2, '0');
+         const d = now.getDate().toString().padStart(2, '0');
+         const yBE = y + 543;
+         
+         const dayInput = document.getElementById('print-c-day');
+         const dayDisplay = document.getElementById('print-c-day-display');
+         if (dayInput && (!dayInput.value || (dayDisplay && !dayDisplay.value))) {
+            dayInput.value = `${y}-${m}-${d}`;
+            if (dayDisplay) dayDisplay.value = `${d}/${m}/${yBE}`;
+         }
+         
+         const monthInput = document.getElementById('print-c-month');
+         if (monthInput && !monthInput.value) {
+            monthInput.value = `${y}-${m}`;
+         }
+         
+         const yearInput = document.getElementById('print-c-year');
+         if (yearInput && !yearInput.value) {
+            yearInput.value = yBE;
+         }
+      }
+
+      function openPrintCalendar() {
+         const el = document.getElementById('print-c-day');
+         if (el) {
+            if (typeof el.showPicker === 'function') {
+               try {
+                  el.showPicker();
+                  return;
+               } catch(e) {}
+            }
+            el.focus();
+            el.click();
+         }
+      }
+
+      function onPrintDateChange(val) {
+         const dayDisplay = document.getElementById('print-c-day-display');
+         if (!val) {
+            if (dayDisplay) dayDisplay.value = '';
+            return;
+         }
+         const parts = val.split('-');
+         if (parts.length === 3) {
+            let y = parseInt(parts[0], 10);
+            let yBE = y > 2400 ? y : y + 543;
+            let m = parts[1].padStart(2, '0');
+            let d = parts[2].padStart(2, '0');
+            if (dayDisplay) dayDisplay.value = `${d}/${m}/${yBE}`;
+         }
+      }
+
       function triggerPrintCustom(type) {
 
          let val = ""; let rangeText = "";
@@ -931,6 +1005,21 @@
          if (type === 'day') { 
 
             val = document.getElementById('print-c-day').value; 
+
+            if (!val && document.getElementById('print-c-day-display')) {
+               let disp = document.getElementById('print-c-day-display').value.trim();
+               if (disp.includes('/')) {
+                  let p = disp.split('/');
+                  if (p.length === 3) {
+                     let d = p[0].padStart(2, '0');
+                     let m = p[1].padStart(2, '0');
+                     let y = parseInt(p[2], 10);
+                     let yCE = y > 2400 ? y - 543 : y;
+                     val = `${yCE}-${m}-${d}`;
+                     document.getElementById('print-c-day').value = val;
+                  }
+               }
+            }
 
             if(val) { 
 
@@ -940,7 +1029,11 @@
 
                let yBE = y > 2400 ? y : y + 543;
 
-               rangeText = "ประจำวันที่ " + p[2] + "/" + p[1] + "/" + yBE; 
+               let d = p[2].padStart(2, '0');
+
+               let m = p[1].padStart(2, '0');
+
+               rangeText = "ประจำวันที่ " + d + "/" + m + "/" + yBE; 
 
             }
 
