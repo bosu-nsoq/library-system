@@ -151,7 +151,23 @@
 
       .app-title { font-size: 16px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; white-space: nowrap; flex-shrink: 0; }
 
-      .user-pill { background: #D8F3DC; color: var(--primary); padding: 3px 8px; border-radius: 15px; font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; display: inline-block; vertical-align: middle; }
+      .user-pill {
+        background: #D8F3DC; color: var(--primary); padding: 4px 10px; border-radius: 15px;
+        font-size: 13px; font-weight: 600; white-space: nowrap; display: inline-block; vertical-align: middle;
+      }
+      #staff-display {
+        white-space: nowrap; font-size: 13px; padding: 4px 10px; max-width: none; overflow: visible; text-overflow: clip;
+      }
+      @media (max-width: 480px) {
+        .user-pill, #staff-display {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 120px;
+          font-size: 11.5px;
+          padding: 3px 8px;
+        }
+      }
 
       .menu-row { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 10px; }
 
@@ -270,7 +286,8 @@
         font-size: 13px !important;
         line-height: 1.6 !important;
       }
-      #print-c-day::-webkit-calendar-picker-indicator {
+      #print-c-day::-webkit-calendar-picker-indicator,
+      #st-c-day::-webkit-calendar-picker-indicator {
         position: absolute;
         top: 0;
         left: 0;
@@ -338,7 +355,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; gap:6px; flex-wrap:nowrap;">
          <div class="app-title" style="font-size:16px; white-space:nowrap; flex-shrink:0; display:inline-flex; align-items:center; gap:4px;">📚 ห้องสมุด</div>
          <div style="display:flex; align-items:center; gap:6px; min-width:0; flex-shrink:1; justify-content:flex-end;">
-            <div class="user-pill" id="staff-display" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; font-size:11.5px; padding:3px 8px;" title="ผู้ทำรายการ">Guest</div>
+            <div class="user-pill" id="staff-display" title="ผู้ทำรายการ">Guest</div>
             <button onclick="logoutStaff()" title="ออกจากระบบ (Logout)" style="cursor:pointer; display:flex; align-items:center; justify-content:center; width:26px; height:26px; min-width:26px; flex-shrink:0; background:var(--danger); color:white; border-radius:7px; box-shadow:0 2px 5px rgba(230,57,70,0.3); transition:0.2s; border:none; padding:0;">
                <svg style="pointer-events:none;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
             </button>
@@ -553,11 +570,9 @@
 
              <div style="position:relative; flex:1; display:flex; align-items:center;">
 
-                <input type="text" id="print-c-day-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="padding:10px 38px 10px 10px; font-size:12px; width:100%; cursor:pointer; text-align:center; background:#fff;" onclick="openPrintCalendar()" title="คลิกเพื่อเลือกวันที่จากปฏิทิน">
+                <input type="text" id="print-c-day-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="padding:10px; font-size:12px; width:100%; cursor:pointer; text-align:center; background:#fff;" onclick="openPrintCalendar()" title="คลิกเพื่อเลือกวันที่">
 
-                <button type="button" class="cal-btn" onclick="openPrintCalendar()" title="เลือกวันที่จากปฏิทิน" style="position:absolute; right:5px; top:50%; transform:translateY(-50%); background:#FFFFFF; border:1px solid #E9ECEF; width:30px; height:30px; border-radius:8px; cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.08); padding:0; color:var(--primary); z-index:2;">📅</button>
-
-                <input type="date" id="print-c-day" style="position:absolute; right:5px; top:50%; transform:translateY(-50%); width:30px; height:30px; opacity:0; cursor:pointer; z-index:3;" onchange="onPrintDateChange(this.value)">
+                <input type="date" id="print-c-day" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="onPrintDateChange(this.value)">
 
              </div>
 
@@ -621,11 +636,17 @@
 
           <div style="display:flex; gap:5px; margin-bottom:15px;">
 
-             <input type="date" id="st-c-day" class="modern-input" title="เลือกสถิติเฉพาะวัน" style="padding:8px 5px; font-size:11px; cursor:pointer;" onchange="if(this.value) loadStats({type:'custom_day', value:this.value}, null)" onclick="try{this.showPicker()}catch(e){}">
+             <div style="position:relative; flex:1; display:flex; align-items:center;">
 
-             <input type="month" id="st-c-month" class="modern-input" title="เลือกสถิติเฉพาะเดือน" style="padding:8px 5px; font-size:11px; cursor:pointer;" onchange="if(this.value) loadStats({type:'custom_month', value:this.value}, null)" onclick="try{this.showPicker()}catch(e){}">
+                <input type="text" id="st-c-day-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป" style="padding:8px 5px; font-size:11px; width:100%; cursor:pointer; text-align:center; background:#fff;" onclick="openStatsCalendar()" title="เลือกสถิติเฉพาะวัน">
 
-             <input type="number" id="st-c-year" class="modern-input" placeholder="ปี พ.ศ." title="เลือกสถิติเฉพาะปี (พ.ศ.)" style="padding:8px 5px; font-size:11px;" onchange="if(this.value && this.value.length===4) { let y = parseInt(this.value, 10); if (y > 2400) y -= 543; loadStats({type:'custom_year', value: y.toString()}, null); }">
+                <input type="date" id="st-c-day" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="onStatsDateChange(this.value)">
+
+             </div>
+
+             <input type="month" id="st-c-month" class="modern-input" title="เลือกสถิติเฉพาะเดือน" style="padding:8px 5px; font-size:11px; cursor:pointer; flex:1;" onchange="if(this.value) loadStats({type:'custom_month', value:this.value}, null)" onclick="try{this.showPicker()}catch(e){}">
+
+             <input type="number" id="st-c-year" class="modern-input" placeholder="ปี พ.ศ." title="เลือกสถิติเฉพาะปี (พ.ศ.)" style="padding:8px 5px; font-size:11px; flex:1;" onchange="if(this.value && this.value.length===4) { let y = parseInt(this.value, 10); if (y > 2400) y -= 543; loadStats({type:'custom_year', value: y.toString()}, null); }">
 
           </div>
 
@@ -966,6 +987,37 @@
          if (yearInput && !yearInput.value) {
             yearInput.value = yBE;
          }
+      }
+
+      function openStatsCalendar() {
+         const el = document.getElementById('st-c-day');
+         if (el) {
+            if (typeof el.showPicker === 'function') {
+               try {
+                  el.showPicker();
+                  return;
+               } catch(e) {}
+            }
+            el.focus();
+            el.click();
+         }
+      }
+
+      function onStatsDateChange(val) {
+         const dayDisplay = document.getElementById('st-c-day-display');
+         if (!val) {
+            if (dayDisplay) dayDisplay.value = '';
+            return;
+         }
+         const parts = val.split('-');
+         if (parts.length === 3) {
+            let y = parseInt(parts[0], 10);
+            let yBE = y > 2400 ? y : y + 543;
+            let m = parts[1].padStart(2, '0');
+            let d = parts[2].padStart(2, '0');
+            if (dayDisplay) dayDisplay.value = `${d}/${m}/${yBE}`;
+         }
+         loadStats({ type: 'custom_day', value: val }, null);
       }
 
       function openPrintCalendar() {
@@ -2445,7 +2497,7 @@
 
             btnElement.classList.add('active');
 
-            document.getElementById('st-c-day').value = ""; document.getElementById('st-c-month').value = ""; document.getElementById('st-c-year').value = "";
+            document.getElementById('st-c-day').value = ""; if (document.getElementById('st-c-day-display')) document.getElementById('st-c-day-display').value = ""; document.getElementById('st-c-month').value = ""; document.getElementById('st-c-year').value = "";
 
          } else {
 
