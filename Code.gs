@@ -45,8 +45,9 @@ function getRecentLogs() {
   for (let i = 0; i < data.length; i++) {
     let row = data[i];
     let d = new Date(row[0]);
-    let timeStr = d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0');
-    logs.push({ rowIndex: startRow + i, time: timeStr, action: row[1], studentName: row[3], itemName: row[4], note: row[6] });
+    let dateStr = !isNaN(d.getTime()) ? (Utilities.formatDate(d, "GMT+7", "dd/MM/") + (d.getFullYear() + 543)) : "";
+    let timeStr = !isNaN(d.getTime()) ? (d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0')) : "";
+    logs.push({ rowIndex: startRow + i, date: dateStr, time: timeStr, action: row[1], studentName: row[3], itemName: row[4], note: row[6] });
   }
   return logs.reverse();
 }
@@ -186,12 +187,18 @@ function checkDateMatch(rowDate, today, range) {
     if (typeof range === 'object') {
        if (range.type === 'custom_day') {
            let parts = range.value.split('-');
-           return (rowDate.getDate() == parseInt(parts[2], 10) && rowDate.getMonth() == parseInt(parts[1], 10) - 1 && rowDate.getFullYear() == parseInt(parts[0], 10));
+           let y = parseInt(parts[0], 10);
+           if (y > 2400) y -= 543;
+           return (rowDate.getDate() == parseInt(parts[2], 10) && rowDate.getMonth() == parseInt(parts[1], 10) - 1 && rowDate.getFullYear() == y);
        } else if (range.type === 'custom_month') {
            let parts = range.value.split('-');
-           return (rowDate.getMonth() == parseInt(parts[1], 10) - 1 && rowDate.getFullYear() == parseInt(parts[0], 10));
+           let y = parseInt(parts[0], 10);
+           if (y > 2400) y -= 543;
+           return (rowDate.getMonth() == parseInt(parts[1], 10) - 1 && rowDate.getFullYear() == y);
        } else if (range.type === 'custom_year') {
-           return (rowDate.getFullYear() == parseInt(range.value, 10));
+           let y = parseInt(range.value, 10);
+           if (y > 2400) y -= 543;
+           return (rowDate.getFullYear() == y);
        }
     } else {
        if (range === 'day') return (rowDate.getDate()===today.getDate() && rowDate.getMonth()===today.getMonth() && rowDate.getFullYear()===today.getFullYear());
@@ -258,8 +265,10 @@ function getLogsByRange(range) {
 
       if(checkDateMatch(d, today, range)) {
          let bId = String(logData[i][4]).trim();
+         let dBE = d.getFullYear() + 543;
+         let dateBE = Utilities.formatDate(d, "GMT+7", "dd/MM/") + dBE;
          result.push({
-           date: Utilities.formatDate(d, "GMT+7", "dd/MM/yyyy"),
+           date: dateBE,
            time: Utilities.formatDate(d, "GMT+7", "HH:mm"),
            action: logData[i][1],
            studentId: logData[i][2],
@@ -299,7 +308,7 @@ function getNames(studentId, bookId) {
     }
   }
 
-  // 2. ดึงข้อมูลหนังสือ พร้อมคำนวณจำนวนวันการยืม (เช่น ด.ช.เอ ยืมไปแล้ว 7 วัน)
+  // 2. ดึงข้อมูลหนังสือ พร้อมคำนวณจำนวนวันการยืม และผู้ยืมคนล่าสุด
   if (bookId) { 
     const bookSheet = ss.getSheetByName("Books");
     if (bookSheet) {
@@ -308,50 +317,84 @@ function getNames(studentId, bookId) {
       for (let i = 1; i < bData.length; i++) {
         if (String(bData[i][0]).trim() === targetBid) {
           const bName = String(bData[i][1] || '').trim();
-          const totalQty = Number(bData[i][5]) || 1;
+          const sheetStatus = String(bData[i][3] || '').trim();
+          const totalQty = Math.max(1, Number(bData[i][5]) || 1);
           const borrowersStr = String(bData[i][4] || '').trim();
-          const borrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(s => s !== "") : [];
-          const available = Math.max(0, totalQty - borrowers.length);
+          const sheetBorrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(Boolean) : [];
 
-          let borrowDaysText = "";
-          let borrowerName = "";
-          let borrowDays = 0;
+          // ตรวจสอบประวัติจาก Logs ตามลำดับเวลา เพื่อหาสถานะยืมปัจจุบันและผู้ยืมล่าสุด
+          let activeBorrows = [];
+          let latestBorrower = "";
+          let latestBorrowDate = null;
+          const logSheet = ss.getSheetByName("Logs");
+          if (logSheet) {
+            const logData = logSheet.getDataRange().getValues();
+            for (let j = 1; j < logData.length; j++) {
+              if (String(logData[j][4]).trim() === targetBid) {
+                const action = String(logData[j][1] || '').trim();
+                const sId = String(logData[j][2] || '').trim();
+                const sName = String(logData[j][3] || '').trim();
+                const rawDate = logData[j][0];
+                if (sName) latestBorrower = sName;
+                if (rawDate) latestBorrowDate = new Date(rawDate);
 
-          // คำนวณจำนวนวันที่ยืมจาก Logs
-          if (borrowers.length > 0) {
-            borrowerName = borrowers[borrowers.length - 1];
-            const logSheet = ss.getSheetByName("Logs");
-            if (logSheet) {
-              const logData = logSheet.getDataRange().getValues();
-              for (let j = logData.length - 1; j >= 1; j--) {
-                if (String(logData[j][4]).trim() === targetBid && String(logData[j][1]).trim() === "ยืม") {
-                  const borrowDate = new Date(logData[j][0]);
-                  if (!isNaN(borrowDate.getTime())) {
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    const bDate = new Date(borrowDate);
-                    bDate.setHours(0,0,0,0);
-                    const diffDays = Math.round((today.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24));
-                    borrowDays = Math.max(0, diffDays);
-                    borrowDaysText = borrowDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${borrowDays} วัน`;
-                    if (logData[j][3]) {
-                      borrowerName = String(logData[j][3]).trim();
-                    }
-                  }
-                  break;
+                if (action === "ยืม") {
+                  activeBorrows.push({ studentId: sId, studentName: sName, date: new Date(rawDate) });
+                } else if (action === "คืน") {
+                  let idx = activeBorrows.findIndex(b => b.studentId === sId || b.studentName === sName);
+                  if (idx !== -1) activeBorrows.splice(idx, 1);
+                  else if (activeBorrows.length > 0) activeBorrows.shift();
                 }
               }
             }
           }
 
+          if (sheetBorrowers.length > 0) {
+            latestBorrower = sheetBorrowers[sheetBorrowers.length - 1];
+          }
+
+          const isCurrentlyBorrowed = (sheetStatus === "ถูกยืม") || (activeBorrows.length > 0) || (sheetBorrowers.length >= totalQty);
+          let borrowDays = 0;
+          let borrowDaysText = "";
+
+          const today = new Date();
+          today.setHours(0,0,0,0);
+
+          if (activeBorrows.length > 0) {
+            const lastActive = activeBorrows[activeBorrows.length - 1];
+            if (lastActive.studentName) latestBorrower = lastActive.studentName;
+            if (lastActive.date && !isNaN(lastActive.date.getTime())) {
+              const bDate = new Date(lastActive.date);
+              bDate.setHours(0,0,0,0);
+              borrowDays = Math.max(0, Math.round((today.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24)));
+              borrowDaysText = borrowDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${borrowDays} วัน`;
+            }
+          } else if (latestBorrowDate && !isNaN(latestBorrowDate.getTime()) && isCurrentlyBorrowed) {
+            const bDate = new Date(latestBorrowDate);
+            bDate.setHours(0,0,0,0);
+            borrowDays = Math.max(0, Math.round((today.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24)));
+            borrowDaysText = borrowDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${borrowDays} วัน`;
+          }
+
+          let available = 0;
           let statusText = "";
-          if (available > 0) {
-            statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
+
+          if (isCurrentlyBorrowed) {
+            const effectiveCount = Math.max(sheetBorrowers.length, activeBorrows.length, 1);
+            available = Math.max(0, totalQty - effectiveCount);
+            if (totalQty > 1 && available > 0) {
+              const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
+              statusText = `ว่าง (${available}/${totalQty} เล่ม) ${detail ? `[ล่าสุด: ${detail}]` : ''}`.trim();
+            } else {
+              available = 0;
+              const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
+              statusText = totalQty > 1 
+                ? (detail ? `ถูกยืมครบแล้ว (${detail})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
+                : (detail ? `ถูกยืม (${detail})` : "ถูกยืม");
+            }
           } else {
-            const detailStr = [borrowerName, borrowDaysText].filter(Boolean).join(" ");
-            statusText = totalQty > 1 
-              ? (detailStr ? `ถูกยืมครบแล้ว (${detailStr})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
-              : (detailStr ? `ถูกยืม (${detailStr})` : "ถูกยืม");
+            available = totalQty;
+            statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
           }
 
           bInfo = { 
@@ -359,7 +402,7 @@ function getNames(studentId, bookId) {
             status: statusText, 
             available: available, 
             totalQty: totalQty,
-            borrowerName: borrowerName,
+            borrowerName: latestBorrower,
             borrowDays: borrowDays,
             borrowDaysText: borrowDaysText
           };
@@ -480,29 +523,43 @@ function getFullLibraryData() {
     }
   }
 
-  // คำนวณข้อมูลการยืมล่าสุดจาก Logs
-  let lastBorrowMap = {};
+  // ติดตามสถานะยืมปัจจุบันและผู้ยืมล่าสุดจาก Logs (ประมวลผลตามลำดับเวลา)
+  let activeBorrows = {}; // bid -> [{ studentId, studentName, date }]
+  let latestBorrowerMap = {}; // bid -> studentName
+  let latestBorrowDateMap = {}; // bid -> Date
   if (lSheet) {
     const lData = lSheet.getDataRange().getValues();
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    for (let j = lData.length - 1; j >= 1; j--) {
-      const bid = String(lData[j][4] || '').trim();
+    for (let j = 1; j < lData.length; j++) {
       const action = String(lData[j][1] || '').trim();
-      if (bid && action === "ยืม" && !lastBorrowMap[bid]) {
-        const bDate = new Date(lData[j][0]);
-        if (!isNaN(bDate.getTime())) {
-          bDate.setHours(0,0,0,0);
-          const days = Math.max(0, Math.round((today.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24)));
-          lastBorrowMap[bid] = {
-            days: days,
-            borrowDaysText: days === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${days} วัน`,
-            borrowerName: String(lData[j][3] || '').trim()
-          };
+      const sId = String(lData[j][2] || '').trim();
+      const sName = String(lData[j][3] || '').trim();
+      const bid = String(lData[j][4] || '').trim();
+      const rawDate = lData[j][0];
+
+      if (!bid) continue;
+      if (!activeBorrows[bid]) activeBorrows[bid] = [];
+      if (sName) latestBorrowerMap[bid] = sName;
+      if (rawDate) latestBorrowDateMap[bid] = new Date(rawDate);
+
+      if (action === "ยืม") {
+        activeBorrows[bid].push({
+          studentId: sId,
+          studentName: sName,
+          date: new Date(rawDate)
+        });
+      } else if (action === "คืน") {
+        let idx = activeBorrows[bid].findIndex(b => b.studentId === sId || b.studentName === sName);
+        if (idx !== -1) {
+          activeBorrows[bid].splice(idx, 1);
+        } else if (activeBorrows[bid].length > 0) {
+          activeBorrows[bid].shift();
         }
       }
     }
   }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
 
   let books = {};
   if (bSheet) {
@@ -511,28 +568,52 @@ function getFullLibraryData() {
       const bid = String(bData[i][0] || '').trim();
       if (bid) {
         const bName = String(bData[i][1] || '').trim();
-        const totalQty = Number(bData[i][5]) || 1;
+        const sheetStatus = String(bData[i][3] || '').trim();
+        const totalQty = Math.max(1, Number(bData[i][5]) || 1);
         const borrowersStr = String(bData[i][4] || '').trim();
-        const borrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(Boolean) : [];
-        const available = Math.max(0, totalQty - borrowers.length);
+        const sheetBorrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(Boolean) : [];
+        
+        const activeList = activeBorrows[bid] || [];
+        const isCurrentlyBorrowed = (sheetStatus === "ถูกยืม") || (activeList.length > 0) || (sheetBorrowers.length >= totalQty);
 
-        let borrowDaysText = "";
-        let borrowerName = "";
+        let latestBorrower = "";
         let borrowDays = 0;
-        if (borrowers.length > 0 && lastBorrowMap[bid]) {
-          borrowDaysText = lastBorrowMap[bid].borrowDaysText;
-          borrowerName = lastBorrowMap[bid].borrowerName || borrowers[borrowers.length - 1];
-          borrowDays = lastBorrowMap[bid].days;
+        let borrowDaysText = "";
+
+        if (activeList.length > 0) {
+          const lastActive = activeList[activeList.length - 1];
+          latestBorrower = lastActive.studentName || sheetBorrowers[sheetBorrowers.length - 1] || "";
+          if (lastActive.date && !isNaN(lastActive.date.getTime())) {
+            const bDate = new Date(lastActive.date);
+            bDate.setHours(0,0,0,0);
+            borrowDays = Math.max(0, Math.round((today.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24)));
+            borrowDaysText = borrowDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${borrowDays} วัน`;
+          }
+        } else if (sheetBorrowers.length > 0) {
+          latestBorrower = sheetBorrowers[sheetBorrowers.length - 1];
+        } else if (latestBorrowerMap[bid]) {
+          latestBorrower = latestBorrowerMap[bid];
         }
 
+        let available = 0;
         let statusText = "";
-        if (available > 0) {
-          statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
+
+        if (isCurrentlyBorrowed) {
+          const effectiveCount = Math.max(sheetBorrowers.length, activeList.length, 1);
+          available = Math.max(0, totalQty - effectiveCount);
+          if (totalQty > 1 && available > 0) {
+            const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
+            statusText = `ว่าง (${available}/${totalQty} เล่ม) ${detail ? `[ล่าสุด: ${detail}]` : ''}`.trim();
+          } else {
+            available = 0;
+            const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
+            statusText = totalQty > 1 
+              ? (detail ? `ถูกยืมครบแล้ว (${detail})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
+              : (detail ? `ถูกยืม (${detail})` : "ถูกยืม");
+          }
         } else {
-          const detailStr = [borrowerName, borrowDaysText].filter(Boolean).join(" ");
-          statusText = totalQty > 1 
-            ? (detailStr ? `ถูกยืมครบแล้ว (${detailStr})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
-            : (detailStr ? `ถูกยืม (${detailStr})` : "ถูกยืม");
+          available = totalQty;
+          statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
         }
 
         books[bid] = {
@@ -540,7 +621,7 @@ function getFullLibraryData() {
           status: statusText,
           available: available,
           totalQty: totalQty,
-          borrowerName: borrowerName,
+          borrowerName: latestBorrower,
           borrowDays: borrowDays,
           borrowDaysText: borrowDaysText
         };
@@ -563,6 +644,111 @@ function getFullLibraryData() {
   }
 
   return { students: students, books: books, rewards: rewards };
+}
+
+// ฟังก์ชันดึงรายชื่อหนังสือที่ถูกยืมอยู่ขณะนี้ (ยังไม่คืน)
+function getCurrentlyBorrowedBooks() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const bookSheet = ss.getSheetByName("Books");
+  const logSheet = ss.getSheetByName("Logs");
+  
+  let bookMap = {};
+  if (bookSheet) {
+    const bData = bookSheet.getDataRange().getValues();
+    for (let i = 1; i < bData.length; i++) {
+      const bid = String(bData[i][0] || '').trim();
+      if (bid) {
+        bookMap[bid] = {
+          name: String(bData[i][1] || '').trim(),
+          status: String(bData[i][3] || '').trim(),
+          borrowersStr: String(bData[i][4] || '').trim(),
+          totalQty: Math.max(1, Number(bData[i][5]) || 1)
+        };
+      }
+    }
+  }
+
+  let activeBorrows = {}; // bid -> [{ studentId, studentName, date }]
+  if (logSheet) {
+    const lData = logSheet.getDataRange().getValues();
+    for (let j = 1; j < lData.length; j++) {
+      const action = String(lData[j][1] || '').trim();
+      const sId = String(lData[j][2] || '').trim();
+      const sName = String(lData[j][3] || '').trim();
+      const bid = String(lData[j][4] || '').trim();
+      const rawDate = lData[j][0];
+
+      if (!bid) continue;
+      if (!activeBorrows[bid]) activeBorrows[bid] = [];
+
+      if (action === "ยืม") {
+        activeBorrows[bid].push({
+          studentId: sId,
+          studentName: sName,
+          date: new Date(rawDate)
+        });
+      } else if (action === "คืน") {
+        let idx = activeBorrows[bid].findIndex(b => b.studentId === sId || b.studentName === sName);
+        if (idx !== -1) {
+          activeBorrows[bid].splice(idx, 1);
+        } else if (activeBorrows[bid].length > 0) {
+          activeBorrows[bid].shift();
+        }
+      }
+    }
+  }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let result = [];
+
+  for (let bid in activeBorrows) {
+    const list = activeBorrows[bid];
+    for (let k = 0; k < list.length; k++) {
+      const b = list[k];
+      let diffDays = 0;
+      let borrowDateThai = "-";
+      if (b.date && !isNaN(b.date.getTime())) {
+        const d = new Date(b.date);
+        d.setHours(0,0,0,0);
+        diffDays = Math.max(0, Math.round((today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)));
+        const dBE = b.date.getFullYear() + 543;
+        borrowDateThai = Utilities.formatDate(b.date, "GMT+7", "dd/MM/") + dBE;
+      }
+      result.push({
+        bookId: bid,
+        bookName: (bookMap[bid] ? bookMap[bid].name : bid) || bid,
+        studentId: b.studentId || "-",
+        borrowerName: b.studentName || "ไม่ระบุชื่อ",
+        days: diffDays,
+        borrowDaysText: diffDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${diffDays} วัน`,
+        borrowDateThai: borrowDateThai
+      });
+    }
+  }
+
+  // เผื่อมีรายการที่ถูกยืมในชีต Books แต่ยังไม่มี log ให้แสดงด้วย
+  for (let bid in bookMap) {
+    const bInfo = bookMap[bid];
+    const isRecorded = result.some(r => r.bookId === bid);
+    if (!isRecorded && (bInfo.status === "ถูกยืม" || bInfo.borrowersStr !== "")) {
+      const borrowers = bInfo.borrowersStr ? bInfo.borrowersStr.split(",").map(s => s.trim()).filter(Boolean) : ["ไม่ระบุชื่อ"];
+      borrowers.forEach(borrowerName => {
+        result.push({
+          bookId: bid,
+          bookName: bInfo.name || bid,
+          studentId: "-",
+          borrowerName: borrowerName,
+          days: 0,
+          borrowDaysText: "กำลังถูกยืม",
+          borrowDateThai: "-"
+        });
+      });
+    }
+  }
+
+  result.sort((a, b) => b.days - a.days);
+  return result;
 }
 
 // ฟังก์ชัน API รับ request จากหน้าเว็บภายนอก
