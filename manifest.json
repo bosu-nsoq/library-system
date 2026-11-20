@@ -1,0 +1,25 @@
+{
+  "name": "ระบบจัดการห้องสมุด โรงเรียนวัดหนองตะเฆ่",
+  "short_name": "ห้องสมุด WNTK",
+  "description": "ระบบจัดการห้องสมุดดิจิทัล โรงเรียนวัดหนองตะเฆ่",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#2D6A4F",
+  "theme_color": "#2D6A4F",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/D0Dw84J1/WNTK.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.postimg.cc/D0Dw84J1/WNTK.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
