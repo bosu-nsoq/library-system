@@ -22,7 +22,11 @@ function loginStaff(pin) {
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][1]) === String(pin)) {
-      return { status: "success", name: data[i][2] };
+      return { 
+        status: "success", 
+        name: data[i][2],
+        libraryData: getFullLibraryData() // โหลดข้อมูลทั้งหมดลงเครื่องทันทีที่ล็อกอิน
+      };
     }
   }
   return { status: "fail" };
@@ -453,6 +457,112 @@ function getStudentScoreAndRewards(studentId) {
     score: Number(sRowData[3]) || 0, 
     rewards: rewards 
   };
+}
+
+// ฟังก์ชันโหลดข้อมูลทั้งระบบเพื่อทำ In-Memory Cache (ความเร็วระดับ 0.01 วินาที)
+function getFullLibraryData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sSheet = ss.getSheetByName("Students");
+  const bSheet = ss.getSheetByName("Books");
+  const lSheet = ss.getSheetByName("Logs");
+
+  let students = {};
+  if (sSheet) {
+    const sData = sSheet.getDataRange().getValues();
+    for (let i = 1; i < sData.length; i++) {
+      const id = String(sData[i][0] || '').trim();
+      if (id) {
+        students[id] = { 
+          name: String(sData[i][1] || '').trim(), 
+          score: Number(sData[i][3]) || 0 
+        };
+      }
+    }
+  }
+
+  // คำนวณข้อมูลการยืมล่าสุดจาก Logs
+  let lastBorrowMap = {};
+  if (lSheet) {
+    const lData = lSheet.getDataRange().getValues();
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    for (let j = lData.length - 1; j >= 1; j--) {
+      const bid = String(lData[j][4] || '').trim();
+      const action = String(lData[j][1] || '').trim();
+      if (bid && action === "ยืม" && !lastBorrowMap[bid]) {
+        const bDate = new Date(lData[j][0]);
+        if (!isNaN(bDate.getTime())) {
+          bDate.setHours(0,0,0,0);
+          const days = Math.max(0, Math.round((today.getTime() - bDate.getTime()) / (1000 * 60 * 60 * 24)));
+          lastBorrowMap[bid] = {
+            days: days,
+            borrowDaysText: days === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${days} วัน`,
+            borrowerName: String(lData[j][3] || '').trim()
+          };
+        }
+      }
+    }
+  }
+
+  let books = {};
+  if (bSheet) {
+    const bData = bSheet.getDataRange().getValues();
+    for (let i = 1; i < bData.length; i++) {
+      const bid = String(bData[i][0] || '').trim();
+      if (bid) {
+        const bName = String(bData[i][1] || '').trim();
+        const totalQty = Number(bData[i][5]) || 1;
+        const borrowersStr = String(bData[i][4] || '').trim();
+        const borrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(Boolean) : [];
+        const available = Math.max(0, totalQty - borrowers.length);
+
+        let borrowDaysText = "";
+        let borrowerName = "";
+        let borrowDays = 0;
+        if (borrowers.length > 0 && lastBorrowMap[bid]) {
+          borrowDaysText = lastBorrowMap[bid].borrowDaysText;
+          borrowerName = lastBorrowMap[bid].borrowerName || borrowers[borrowers.length - 1];
+          borrowDays = lastBorrowMap[bid].days;
+        }
+
+        let statusText = "";
+        if (available > 0) {
+          statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
+        } else {
+          const detailStr = [borrowerName, borrowDaysText].filter(Boolean).join(" ");
+          statusText = totalQty > 1 
+            ? (detailStr ? `ถูกยืมครบแล้ว (${detailStr})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
+            : (detailStr ? `ถูกยืม (${detailStr})` : "ถูกยืม");
+        }
+
+        books[bid] = {
+          name: bName,
+          status: statusText,
+          available: available,
+          totalQty: totalQty,
+          borrowerName: borrowerName,
+          borrowDays: borrowDays,
+          borrowDaysText: borrowDaysText
+        };
+      }
+    }
+  }
+
+  const rSheet = ss.getSheetByName("Rewards");
+  let rewards = [];
+  if (rSheet) {
+    const rData = rSheet.getDataRange().getValues();
+    for (let j = 1; j < rData.length; j++) {
+      const rId = String(rData[j][0] || '').trim();
+      const rName = String(rData[j][1] || '').trim();
+      const rCost = Number(rData[j][2]) || 0;
+      if (rId && rName) {
+        rewards.push({ id: rId, name: rName, cost: rCost });
+      }
+    }
+  }
+
+  return { students: students, books: books, rewards: rewards };
 }
 
 // ฟังก์ชัน API รับ request จากหน้าเว็บภายนอก
