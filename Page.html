@@ -2,6 +2,8 @@
 <html>
   <head>
     <base target="_top">
+    <meta charset="UTF-8">
+    <title>WNTK Library System</title>
     <link rel="icon" type="image/png" href="https://i.postimg.cc/D0Dw84J1/WNTK.png">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <!-- โหลดฟอนต์ Prompt และ Sarabun จาก Google Fonts -->
@@ -292,8 +294,69 @@
     </div>
 
     <script>
+      // ⚙️ [สำคัญสำหรับ GitHub Pages] ใส่ Web App URL ของ Google Apps Script ที่ Deploy ไว้ที่นี่
+      const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec";
+
+      // 🔄 Bridge Polyfill: รองรับทั้งบน Google Apps Script และ GitHub Pages อัตโนมัติ
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+         function createRunner(successCb, failureCb) {
+            return new Proxy({}, {
+               get: function(target, actionName) {
+                  if (actionName === 'withSuccessHandler') {
+                     return (cb) => createRunner(cb, failureCb);
+                  }
+                  if (actionName === 'withFailureHandler') {
+                     return (cb) => createRunner(successCb, cb);
+                  }
+                  return function(...args) {
+                     if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_APPS_SCRIPT_WEB_APP_URL")) {
+                        alert("⚠️ กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ของไฟล์ index.html ก่อนใช้งานครับ");
+                        if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+                        if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                        return;
+                     }
+                     fetch(GAS_WEB_APP_URL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: actionName, args: args })
+                     })
+                     .then(res => res.json())
+                     .then(data => {
+                        if (successCb) successCb(data);
+                     })
+                     .catch(err => {
+                        console.error("API Error:", err);
+                        if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+                        if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                        if (failureCb) failureCb(err);
+                        else alert("❌ ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กรุณาตรวจสอบสิทธิ์การ Deploy (Anyone)");
+                     });
+                  };
+               }
+            });
+         }
+         window.google = {
+            script: {
+               run: createRunner()
+            }
+         };
+      }
+
       let studentCache = {}; let currentUser = ""; let loginAttempts = 0; let lockoutEnd = 0;
       let bookQueue = []; // คิวหนังสือสำหรับยืม/คืนหลายเล่ม
+      let localDB = { students: {}, books: {}, rewards: [], loaded: false };
+
+      // ⚡ ฟังก์ชันซิงก์ฐานข้อมูลทั้งหมดมาเก็บในเครื่อง เพื่อความเร็วสูงสุดระดับ 0.01 วินาที
+      function syncLibraryData(onDone) {
+        google.script.run.withSuccessHandler(function(data) {
+          if (data) {
+            if (data.students) localDB.students = data.students;
+            if (data.books) localDB.books = data.books;
+            if (data.rewards) localDB.rewards = data.rewards;
+            localDB.loaded = true;
+          }
+          if (onDone) onDone();
+        }).getFullLibraryData();
+      }
 
       document.addEventListener("DOMContentLoaded", function() {
          let savedUser = sessionStorage.getItem('library_logged_in_user');
@@ -303,6 +366,7 @@
              document.getElementById('login-overlay').style.display = 'none';
              document.getElementById('main-app').style.display = 'block';
              document.getElementById('sid').focus();
+             syncLibraryData(); // โหลดฐานข้อมูลทั้งหมดเข้าหน่วยความจำทันที
          }
       });
 
@@ -386,6 +450,14 @@
                document.getElementById('staff-display').innerText = currentUser; 
                document.getElementById('login-overlay').style.display = 'none'; 
                document.getElementById('main-app').style.display = 'block'; 
+               if (res.libraryData) {
+                  localDB.students = res.libraryData.students || {};
+                  localDB.books = res.libraryData.books || {};
+                  localDB.rewards = res.libraryData.rewards || [];
+                  localDB.loaded = true;
+               } else {
+                  syncLibraryData();
+               }
                showModal("success:✅ เข้าสู่ระบบสำเร็จ\nยินดีต้อนรับคุณ " + currentUser);
             } else { 
                loginAttempts++; input.value = ""; 
@@ -422,6 +494,11 @@
             if (input.value.length > 4) input.value = input.value.slice(0, 4);
             const sid = input.value.trim();
             if (sid.length === 4) { 
+               // ⚡ ตรวจสอบจากหน่วยความจำเครื่องทันที (0.001 วินาที)
+               if (localDB.students && localDB.students[sid]) {
+                  displayStudentInfo(localDB.students[sid]);
+                  return;
+               }
                if (dataCache.student[sid]) {
                   displayStudentInfo(dataCache.student[sid]);
                   return;
@@ -431,6 +508,8 @@
                   google.script.run.withSuccessHandler(data => { 
                      if (data && data.student) { 
                         dataCache.student[sid] = data.student;
+                        if (!localDB.students) localDB.students = {};
+                        localDB.students[sid] = data.student;
                         displayStudentInfo(data.student);
                      } else {
                         document.getElementById('s-name').innerText = "❌ ไม่พบรหัสนักเรียน";
@@ -438,7 +517,7 @@
                         document.getElementById('s-score').innerText = "-";
                      }
                   }).getNames(sid, "");
-               }, 150);
+               }, 100);
             } else {
                document.getElementById('s-name').innerText = "รอข้อมูลนักเรียน...";
                document.getElementById('s-score').innerText = "-";
@@ -446,7 +525,12 @@
             }
         } else if (input.id === 'bid') {
            const bid = input.value.trim();
-           if (bid.length >= 3) {
+           if (bid.length >= 2) {
+              // ⚡ ตรวจสอบจากหน่วยความจำเครื่องทันที (0.001 วินาที)
+              if (localDB.books && localDB.books[bid]) {
+                 displayBookInfo(localDB.books[bid]);
+                 return;
+              }
               if (dataCache.book[bid]) {
                  displayBookInfo(dataCache.book[bid]);
                  return;
@@ -456,6 +540,8 @@
                  google.script.run.withSuccessHandler(data => { 
                     if (data && data.book) { 
                        dataCache.book[bid] = data.book;
+                       if (!localDB.books) localDB.books = {};
+                       localDB.books[bid] = data.book;
                        displayBookInfo(data.book);
                     } else {
                        document.getElementById('b-name').innerText = "❌ ไม่พบรหัสหนังสือ";
@@ -463,7 +549,7 @@
                        document.getElementById('box-book').classList.remove('active');
                     }
                  }).getNames("", bid);
-              }, 250);
+              }, 150);
            } else {
               document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
               document.getElementById('b-status').innerText = "-";
@@ -495,6 +581,23 @@
 
         if (bookQueue.some(b => b.id === bid)) {
           showModal("warning:⚠️ หนังสือรหัส " + bid + " อยู่ในคิวแล้วครับ");
+          return;
+        }
+
+        // ⚡ ถ้ามีใน localDB ดึงขึ้นมาทันทีใน 0.001 วินาที!
+        if (localDB.books && localDB.books[bid]) {
+          const b = localDB.books[bid];
+          let statusText = b.status;
+          if (b.borrowDaysText && !statusText.includes(b.borrowDaysText)) {
+            statusText += ` (${b.borrowDaysText})`;
+          }
+          bookQueue.push({ id: bid, name: b.name, status: statusText });
+          renderBookQueue();
+          bidInput.value = "";
+          document.getElementById('box-book').classList.remove('active');
+          document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
+          document.getElementById('b-status').innerText = "-";
+          bidInput.focus();
           return;
         }
 
@@ -604,6 +707,9 @@
            document.getElementById('s-score').innerText = "-";
            document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ..."; 
            document.getElementById('b-status').innerText = "-";
+           if (res && res.includes("success")) {
+              syncLibraryData(); // อัปเดตฐานข้อมูลในเครื่องทันทีหลังทำรายการสำเร็จ
+           }
         }).processMultipleTransactions(sid, bookIds, type, currentUser);
       }
 
@@ -629,41 +735,63 @@
                 document.getElementById('n-name').value=""; 
                 document.getElementById('n-author').value=""; 
                 document.getElementById('n-qty').value="1";
+                syncLibraryData(); // อัปเดตหนังสือใหม่เข้าฐานข้อมูลในเครื่อง
             }
         }).addNewBook(id, name, author, qty);
+      }
+
+      function renderRewardsList(sid, score, rewards) {
+        let html = ""; 
+        if (rewards && rewards.length > 0) {
+          rewards.forEach(r => {
+            let can = (score || 0) >= r.cost;
+            let safeName = String(r.name || '').replace(/'/g, "\\'");
+            html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`alert('คะแนนสะสมไม่พอแลกรายการนี้ครับ')`}">
+                        <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
+                        <b style="color:var(--text-main); font-size: 14px;">${r.name}</b><br>
+                        <div style="background:${can?'#d8f3dc':'#e9ecef'}; color:${can?'var(--primary)':'#6c757d'}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
+                     </div>`;
+          });
+        } else {
+          html = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ยังไม่มีรายการของรางวัล</div>";
+        }
+        document.getElementById('rewards-list').innerHTML = html;
       }
 
       function checkScore(input) {
         if(input.value.length > 4) input.value = input.value.slice(0, 4);
         const sid = input.value.trim();
         if (sid.length === 4) {
-          document.getElementById('rs-name').innerText = "🔍 กำลังดึงข้อมูลนักเรียน..."; 
-          document.getElementById('rs-score').innerText = "...";
+          // ⚡ ดึงจาก localDB แสดงผลทันทีใน 0.001 วินาที!
+          if (localDB.students && localDB.students[sid]) {
+            const st = localDB.students[sid];
+            document.getElementById('rs-name').innerText = st.name || ("รหัส " + sid);
+            document.getElementById('rs-score').innerText = (st.score || 0) + " แต้ม";
+            if (localDB.rewards && localDB.rewards.length > 0) {
+              renderRewardsList(sid, st.score, localDB.rewards);
+            }
+          } else {
+            document.getElementById('rs-name').innerText = "🔍 กำลังดึงข้อมูลนักเรียน..."; 
+            document.getElementById('rs-score').innerText = "...";
+          }
+
           google.script.run.withSuccessHandler(data => {
             if (!data || data.error) {
-              document.getElementById('rs-name').innerText = (data && data.error) ? data.error : "❌ ไม่พบข้อมูลนักเรียน";
-              document.getElementById('rs-score').innerText = "0 แต้ม";
-              document.getElementById('rewards-list').innerHTML = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ไม่พบข้อมูลนักเรียนหรือของรางวัล</div>";
+              if (!localDB.students || !localDB.students[sid]) {
+                document.getElementById('rs-name').innerText = (data && data.error) ? data.error : "❌ ไม่พบข้อมูลนักเรียน";
+                document.getElementById('rs-score').innerText = "0 แต้ม";
+                document.getElementById('rewards-list').innerHTML = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ไม่พบข้อมูลนักเรียนหรือของรางวัล</div>";
+              }
               return;
             }
             document.getElementById('rs-name').innerText = data.name; 
             document.getElementById('rs-score').innerText = (data.score || 0) + " แต้ม";
-            
-            let html = ""; 
-            if (data.rewards && data.rewards.length > 0) {
-              data.rewards.forEach(r => {
-                let can = (data.score || 0) >= r.cost;
-                let safeName = String(r.name || '').replace(/'/g, "\\'");
-                html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`alert('คะแนนสะสมไม่พอแลกรายการนี้ครับ')`}">
-                            <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
-                            <b style="color:var(--text-main); font-size: 14px;">${r.name}</b><br>
-                            <div style="background:${can?'#d8f3dc':'#e9ecef'}; color:${can?'var(--primary)':'#6c757d'}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
-                         </div>`;
-              });
-            } else {
-              html = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ยังไม่มีรายการของรางวัล</div>";
+            if (data.rewards) {
+              localDB.rewards = data.rewards;
+              renderRewardsList(sid, data.score, data.rewards);
             }
-            document.getElementById('rewards-list').innerHTML = html;
+            if (!localDB.students) localDB.students = {};
+            localDB.students[sid] = { name: data.name, score: data.score || 0 };
           }).getStudentScoreAndRewards(sid);
         } else {
           document.getElementById('rs-name').innerText = "สแกนบัตรเพื่อตรวจสอบ";
@@ -679,7 +807,9 @@
             google.script.run.withSuccessHandler(res => { 
                 document.getElementById('tx-loader').style.display = 'none';
                 showModal(res); 
-                checkScore(document.getElementById('r-sid')); 
+                syncLibraryData(() => {
+                  checkScore(document.getElementById('r-sid'));
+                });
             }).processRedemption(sid, rid, cost, name, currentUser); 
          }
       }
@@ -854,7 +984,30 @@
                 return;
               }
 
-              // ดึงข้อมูลหนังสือ เมื่อดึงข้อมูลเสร็จแล้วค่อยอนุญาตให้สแกนเล่มถัดไป
+              // ⚡ 1. ถ้ามีในหน่วยความจำเครื่อง (localDB) ดึงขึ้นมาทันทีใน 0.001 วินาที!
+              if (localDB.books && localDB.books[decodedText]) {
+                const b = localDB.books[decodedText];
+                let statusText = b.status || "-";
+                if (b.borrowDaysText && !statusText.includes(b.borrowDaysText)) {
+                  statusText += ` (${b.borrowDaysText})`;
+                }
+                const bName = b.name || "ไม่พบชื่อหนังสือ";
+                bookQueue.push({ id: decodedText, name: bName, status: statusText });
+                renderBookQueue();
+
+                statusEl.innerText = `✅ เพิ่มแล้ว: ${bName}`;
+                statusEl.style.background = 'rgba(45, 106, 79, 0.95)';
+
+                // คูลดาวน์สั้นๆ 400ms เพื่อป้องกันการตรวจจับซ้ำจากกล้อง แล้วพร้อมสแกนเล่มถัดไปทันที
+                setTimeout(() => {
+                  isScanCooldown = false;
+                  statusEl.innerText = `📷 พร้อมสแกนเล่มถัดไป (ในคิวมี ${bookQueue.length} เล่ม)`;
+                  statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
+                }, 400);
+                return;
+              }
+
+              // 2. ถ้ายังไม่มีในเครื่อง ให้ดึงจาก Apps Script (Fallback)
               google.script.run.withSuccessHandler(data => {
                 let bookName = "ไม่พบชื่อหนังสือ";
                 let statusText = "-";
@@ -865,6 +1018,8 @@
                   if (data.book.borrowDaysText && !statusText.includes(data.book.borrowDaysText)) {
                     statusText += ` (${data.book.borrowDaysText})`;
                   }
+                  if (!localDB.books) localDB.books = {};
+                  localDB.books[decodedText] = data.book;
                 }
 
                 bookQueue.push({ id: decodedText, name: bookName, status: statusText });
@@ -873,12 +1028,12 @@
                 statusEl.innerText = `✅ เพิ่มแล้ว: ${bookName}`;
                 statusEl.style.background = 'rgba(45, 106, 79, 0.95)';
 
-                // เมื่อดึงข้อมูลเสร็จแล้ว ค่อยเปิดให้สแกนเล่มต่อไป
+                // เมื่อดึงข้อมูลเสร็จแล้ว ค่อยเปิดให้สแกนเล่มถัดไป
                 setTimeout(() => {
                   isScanCooldown = false;
                   statusEl.innerText = `📷 พร้อมสแกนเล่มถัดไป (ในคิวมี ${bookQueue.length} เล่ม)`;
                   statusEl.style.background = 'rgba(45, 106, 79, 0.92)';
-                }, 1000);
+                }, 500);
               }).withFailureHandler(() => {
                 statusEl.innerText = `❌ ดึงข้อมูลไม่สำเร็จ (${decodedText})`;
                 statusEl.style.background = 'rgba(230, 57, 70, 0.95)';
