@@ -751,6 +751,96 @@ function getCurrentlyBorrowedBooks() {
   return result;
 }
 
+// ฟังก์ชันลบรายการยืม (บันทึกการคืนหนังสือจากหน้าต่างหนังสือที่ถูกยืม)
+function markBookAsReturned(bookId, studentId, borrowerName, staffName) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const bookSheet = ss.getSheetByName("Books");
+  const studentSheet = ss.getSheetByName("Students");
+  const logSheet = ss.getSheetByName("Logs");
+  
+  bookId = String(bookId || '').trim();
+  studentId = String(studentId || '').trim();
+  borrowerName = String(borrowerName || '').trim();
+  staffName = String(staffName || 'เจ้าหน้าที่').trim();
+
+  if (!bookId) return "error:❌ ไม่พบรหัสหนังสือ";
+
+  // 1. ค้นหาแถวหนังสือในชีต Books
+  let bRow = findRow(bookSheet, bookId);
+  let bookName = bookId;
+  if (bRow !== -1) {
+    bookName = String(bookSheet.getRange(bRow, 2).getValue() || bookId).trim();
+    const totalQty = Math.max(1, Number(bookSheet.getRange(bRow, 6).getValue()) || 1);
+    const borrowersStr = String(bookSheet.getRange(bRow, 5).getValue()).trim();
+    let borrowers = borrowersStr ? borrowersStr.split(",").map(s => s.trim()).filter(s => s !== "") : [];
+    
+    // ลบชื่อหรือรหัสผู้ยืมออกจากรายการผู้ยืม
+    let idx = -1;
+    if (borrowerName && borrowerName !== "-" && borrowerName !== "ไม่ระบุชื่อ") {
+      idx = borrowers.indexOf(borrowerName);
+    }
+    if (idx === -1 && studentId && studentId !== "-") {
+      idx = borrowers.indexOf(studentId);
+    }
+    if (idx !== -1) {
+      borrowers.splice(idx, 1);
+    } else if (borrowers.length > 0) {
+      borrowers.pop();
+    }
+
+    const newAvailable = Math.max(0, totalQty - borrowers.length);
+    bookSheet.getRange(bRow, 4).setValue(newAvailable > 0 ? "ว่าง" : "ถูกยืม");
+    bookSheet.getRange(bRow, 5).setValue(borrowers.join(", "));
+  }
+
+  // 2. ถ้ามีข้อมูลนักเรียน ให้คำนวณคะแนน
+  let sRow = -1;
+  let finalStudentName = borrowerName;
+  if (studentId && studentId !== "-") {
+    sRow = findRow(studentSheet, studentId);
+  }
+  if (sRow === -1 && borrowerName && borrowerName !== "-" && borrowerName !== "ไม่ระบุชื่อ" && studentSheet) {
+    const sData = studentSheet.getDataRange().getValues();
+    for (let i = 1; i < sData.length; i++) {
+      if (String(sData[i][1]).trim() === borrowerName) {
+        sRow = i + 1;
+        studentId = String(sData[i][0]).trim();
+        break;
+      }
+    }
+  }
+
+  let scoreMsg = "";
+  if (sRow !== -1 && studentSheet) {
+    finalStudentName = String(studentSheet.getRange(sRow, 2).getValue()).trim();
+    const lastLog = findLastBorrowLogOptimized(logSheet, bookId, studentId);
+    let newScore = Number(studentSheet.getRange(sRow, 4).getValue()) || 0;
+    if (lastLog && lastLog.dueDate) {
+      const dueDate = new Date(lastLog.dueDate);
+      const checkDate = new Date();
+      checkDate.setHours(0,0,0,0);
+      dueDate.setHours(0,0,0,0);
+      if (checkDate <= dueDate) {
+        newScore += 10;
+        scoreMsg = "(+10 คะแนน)";
+      } else {
+        newScore -= 5;
+        scoreMsg = "(คืนช้า หักคะแนน)";
+      }
+      studentSheet.getRange(sRow, 4).setValue(Math.max(0, newScore));
+    }
+  }
+
+  // 3. บันทึกประวัติการคืนลงในชีต Logs
+  if (logSheet) {
+    const sIdForLog = (studentId && studentId !== "-") ? studentId : "";
+    const sNameForLog = (finalStudentName && finalStudentName !== "-" && finalStudentName !== "ไม่ระบุชื่อ") ? finalStudentName : "ผู้ยืมทั่วไป";
+    logSheet.appendRow([new Date(), "คืน", sIdForLog, sNameForLog, bookId, "", scoreMsg, staffName]);
+  }
+
+  return "success:✅ บันทึกการคืนหนังสือเรียบร้อย " + scoreMsg;
+}
+
 // ฟังก์ชัน API รับ request จากหน้าเว็บภายนอก
 function doPost(e) {
   try {
