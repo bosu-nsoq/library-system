@@ -1,591 +1,1045 @@
 <!DOCTYPE html>
+
 <html>
+
   <head>
+
     <base target="_top">
+
     <meta charset="UTF-8">
+
     <title>WNTK Library System</title>
+
     <link rel="icon" type="image/png" href="https://i.postimg.cc/D0Dw84J1/WNTK.png">
+
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 
+
+
     <!-- ⚙️ [แก้ไขข้อความตอนส่งลิงก์ใน LINE / Facebook ที่นี่] -->
+
     <meta property="og:type" content="website">
+
     <meta property="og:title" content="WNTK Library System">
+
     <meta property="og:description" content="ระบบจัดการห้องสมุดดิจิทัล โรงเรียนวัดหนองตะเฆ่">
+
     <meta property="og:image" content="https://i.postimg.cc/D0Dw84J1/WNTK.png">
+
     <meta property="og:url" content="https://bosu-nsoq.github.io/wntk-library-system/">
 
+
+
     <!-- Twitter Card -->
+
     <meta name="twitter:card" content="summary">
+
     <meta name="twitter:title" content="WNTK Library System">
+
     <meta name="twitter:description" content="ระบบจัดการห้องสมุดดิจิทัล โรงเรียนวัดหนองตะเฆ่">
+
     <meta name="twitter:image" content="https://i.postimg.cc/D0Dw84J1/WNTK.png">
-    <!-- โหลดฟอนต์ Mali จาก Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+    <!-- โหลดฟอนต์ Mali และ Sarabun จาก Google Fonts -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>`n    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
     <style>
       *, *::before, *::after, html, body, button, input, select, textarea, optgroup, option {
         font-family: 'Mali', cursive, sans-serif !important;
       }
-      .modal-box, .modal-box *, .action-btn, .nav-btn, .modern-input { 
-        width: 100%; padding: 11px 15px; padding-right: 50px; font-size: 14.5px; line-height: 1.6; text-align: center; 
-        font-family: 'Mali', cursive, sans-serif !important; font-weight: 600; border-radius: 16px; border: 2px solid #E9ECEF;
-        background: #F8F9FA; box-sizing: border-box; outline: none; color: var(--text-main);
-        min-height: 48px; height: auto;
-      }
-      .modern-input::placeholder {
-        font-size: 13.5px; line-height: 1.6; color: #8C9E93;
+      .modal-box, .modal-box *, .action-btn, .nav-btn, .modern-input {
         font-family: 'Mali', cursive, sans-serif !important;
       }
       ::placeholder {
         font-family: 'Mali', cursive, sans-serif !important;
       }
+
       :root {
+
         --primary: #2D6A4F; --accent: #52B788; --bg-glass: rgba(255, 255, 255, 0.92); 
+
         --text-main: #1B4332; --text-sub: #748C7E; --danger: #E63946;     
+
         --shadow: 0 10px 30px rgba(45, 106, 79, 0.15); --radius: 20px;
+
       }
+
+
 
       html, body { 
+
         overflow-x: hidden; width: 100%; position: relative; 
+
         overscroll-behavior: none; -webkit-overflow-scrolling: touch; touch-action: pan-y;
+
         font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 10px;
+
         background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
+
         background-size: cover; background-position: center; background-attachment: fixed;
+
         display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; box-sizing: border-box;
+
       }
+
       
+
       .card {
+
         background: var(--bg-glass); border-radius: var(--radius); box-shadow: var(--shadow);
+
         backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+
         border: 1px solid rgba(255, 255, 255, 0.8); width: 95vw; max-width: 460px; padding: 25px; box-sizing: border-box; margin-top: 10px;
+
         overscroll-behavior: contain;
+
       }
+
+
 
       .school-header { font-size: 16px; color: var(--text-sub); font-weight: 500; text-align: center; margin-bottom: 5px; }
+
       
+
       /* Login Screen */
+
       .login-box { text-align: center; margin-top: 15vh; }
+
       .school-logo { width: 85px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+
       .pin-input {
+
         width: 100%; font-size: 24px; letter-spacing: 12px; text-align: center;
+
         border: 2px solid #D8F3DC; padding: 15px; border-radius: 16px; outline: none;
+
         background: #FFFFFF; box-sizing: border-box; font-family: 'Mali', cursive, sans-serif;
+
       }
+
+
 
       .loader {
+
         border: 4px solid #f3f3f3; border-top: 4px solid var(--primary);
+
         border-radius: 50%; width: 30px; height: 30px;
+
         animation: spin 1s linear infinite; display: none; margin: 20px auto;
+
       }
+
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
       
+
       #login-overlay {
+
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
         background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
+
         background-size: cover; z-index: 9999; display: flex; align-items: flex-start; justify-content: center;
+
       }
+
+
 
       .app-title { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+
       .user-pill { background: #D8F3DC; color: var(--primary); padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; }
+
       .menu-row { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 10px; }
+
       .icon-btn { 
+
         background: white; border: 1px solid #EAEAEA; width: 38px; height: 38px; border-radius: 10px;
+
         display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 16px;
+
       }
+
+
 
       .nav-tabs { display: flex; background: rgba(0,0,0,0.05); padding: 4px; border-radius: 14px; margin-bottom: 20px; }
-      .nav-btn { flex: 1; border: none; background: transparent; padding: 9px 4px; border-radius: 10px; font-family: 'Mali', cursive, sans-serif !important; font-size: 13px; color: var(--text-sub); cursor: pointer; font-weight: 600; transition:0.2s; white-space: nowrap; text-align: center; }
+
+      .nav-btn { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 10px; font-family: 'Mali', cursive, sans-serif; font-size: 13px; color: var(--text-sub); cursor: pointer; font-weight: 600; transition:0.2s; }
+
       .nav-btn.active { background: white; color: var(--primary); font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
+
+
       .input-wrapper { position: relative; margin-bottom: 15px; }
+
       .modern-input { 
+
         width: 100%; padding: 15px; padding-right: 50px; font-size: 16px; text-align: center; 
+
         font-family: 'Mali', cursive, sans-serif; font-weight: 600; border-radius: 16px; border: 2px solid #E9ECEF;
+
         background: #F8F9FA; box-sizing: border-box; outline: none; color: var(--text-main);
+
       }
+
       .cam-btn { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: white; border: 1px solid #E9ECEF; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; color: var(--primary); font-size: 18px; }
+
       .add-queue-btn { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); background: #D8F3DC; border: 1px solid #B7E4C7; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; color: var(--primary); font-size: 20px; font-weight: 700; }
 
+
+
       .info-card { background: white; border-radius: 15px; padding: 12px; border-left: 5px solid #E9ECEF; margin-bottom: 10px; text-align: left; transition: 0.3s;}
+
       .info-card.active { border-left-color: var(--accent); background: #F0FFF4; }
 
+
+
       /* รายการคิวหนังสือหลายเล่ม */
+
       .queue-box { display: none; margin-top: 15px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 16px; padding: 12px; border: 1.5px solid #D8F3DC; }
+
       .queue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--primary); }
+
       .queue-item { display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1.5px solid #D8F3DC; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; text-align: left; box-shadow: 0 2px 6px rgba(45, 106, 79, 0.06); }
+
       .queue-item-info { flex: 1; padding-right: 8px; }
+
       .queue-badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; margin-top: 3px; }
+
       .badge-available { background: #D8F3DC; color: var(--primary); }
+
       .badge-borrowed { background: #FEE2E2; color: var(--danger); }
+
       .queue-del-btn { border: none; background: #FFF0F0; color: var(--danger); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+
       .queue-del-btn:hover { background: #FEE2E2; }
+
       
+
       .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-      .action-btn { flex: 1; padding: 13px 15px; border: none; border-radius: 15px; font-size: 15px; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; }
+
+      .action-btn { flex: 1; padding: 15px; border: none; border-radius: 15px; font-size: 16px; font-weight: 700; color: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
       .btn-borrow { background: var(--accent); } .btn-return { background: var(--danger); }
+
       
+
       .status-text { font-size: 12px; color: var(--text-sub); text-align: center; margin-top: 10px; font-weight: 500; }
 
+
+
       .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; }
+
       .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-sizing: border-box; max-height: 90vh; overflow-y: auto;}
+
       .history-list { text-align: left; max-height: 300px; overflow-y: auto; margin-top: 10px; padding-right:5px;}
+
       .hist-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #F3F4F6; font-size: 13px; align-items: center; background: #F8F9FA; border-radius: 10px; margin-bottom: 5px; }
+
       .section { display: none; } .section.active { display: block; }
+
       #lock-msg { color: var(--danger); font-size: 14px; margin-top: 15px; display: none; font-weight: 600; background: rgba(230, 57, 70, 0.1); padding: 10px; border-radius: 12px; }
 
+
+
       /* หน้าต่างโหลด (Loading Overlay) */
+
       .tx-loader-overlay {
+
         display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
         background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
+
         z-index: 3000; align-items: center; justify-content: center; flex-direction: column;
-      }
-      .tx-spinner {
-        border: 6px solid #E9ECEF; border-top: 6px solid var(--primary);
-        border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
-      }
-    
-      /* 📱 รองรับหน้าจอมือถือแนวตั้ง (ป้องกันคำฉีกและตัวอักษรตกหล่น) */
-      @media (max-width: 480px) {
-        html, body { padding: 6px !important; }
-        .card { width: 100% !important; max-width: 100% !important; padding: 16px 12px !important; border-radius: 18px !important; margin-top: 5px !important; }
-        .app-title { font-size: 17px !important; white-space: nowrap !important; }
-        .user-pill { font-size: 11px !important; padding: 3px 8px !important; white-space: nowrap !important; }
-        .school-header { font-size: 14.5px !important; white-space: nowrap !important; }
-        .nav-btn { font-size: 12px !important; padding: 8px 2px !important; white-space: nowrap !important; }
-        .modern-input { font-size: 13.5px !important; padding: 10px 12px !important; min-height: 44px !important; }
-        .modern-input::placeholder { font-size: 12.5px !important; }
-        .action-btn { font-size: 14px !important; padding: 11px 12px !important; white-space: nowrap !important; }
-        .info-card { padding: 10px 12px !important; }
-        .modal-box { padding: 18px 14px !important; width: 95% !important; border-radius: 16px !important; }
-      }
-    
-      /* 🪪 ปุ่มพิมพ์บัตรสมาชิกขนาดคงที่เท่ากันทุกใบ สวยงามเป็นระเบียบ */
-      .btn-print-card {
-        flex: 0 0 95px !important;
-        width: 95px !important;
-        min-width: 95px !important;
-        max-width: 95px !important;
-        height: 34px !important;
-        padding: 0 8px !important;
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        background: var(--primary) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 9px !important;
-        cursor: pointer !important;
-        margin: 0 !important;
-        box-shadow: 0 2px 6px rgba(45, 106, 79, 0.2) !important;
-        white-space: nowrap !important;
-        font-family: 'Mali', cursive, sans-serif !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 4px !important;
-      }
-      .btn-print-card:hover {
-        background: #1B4332 !important;
+
       }
 
-      /* 📚 ปรับขนาดช่องกรอกในหน้าเพิ่มหนังสือ ให้ย่อขนาดคำลงและมีระยะห่างด้านบน ไม่โดนตัดสระ/วรรณยุกต์ */
-      .book-input {
-        padding-left: 15px !important;
-        padding-right: 15px !important;
-        padding-top: 14px !important;
-        padding-bottom: 10px !important;
-        font-size: 13px !important;
+      .tx-spinner {
+
+        border: 6px solid #E9ECEF; border-top: 6px solid var(--primary);
+
+        border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
+
       }
-      .book-input::placeholder {
-        font-size: 12.5px !important;
+
+    
+      #n-name::placeholder, #n-author::placeholder {
+        font-size: 13px !important;
         line-height: 1.6 !important;
       }
-    
     </style>
+
   </head>
+
   <body>
+
     
+
     <!-- หน้าต่างโหลดตอนทำรายการ -->
+
     <div id="tx-loader" class="tx-loader-overlay">
+
       <div class="tx-spinner"></div>
+
       <div id="tx-loader-text" style="margin-top:15px; font-weight:700; color:var(--primary); font-size: 18px;">กำลังประมวลผล...</div>
+
     </div>
+
+
 
     <!-- Login Screen -->
+
     <div id="login-overlay">
+
       <div class="card login-box">
+
         <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="school-logo" alt="School Logo">
+
         <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+
         <div class="app-title" style="justify-content:center; margin-bottom: 15px;">ระบบห้องสมุดดิจิทัล</div>
+
         <input type="password" id="login-pin" class="pin-input" inputmode="numeric" maxlength="4" placeholder="กรอกรหัส" oninput="checkPinLogin(this)" autofocus>
+
         <div id="login-loader" class="loader"></div>
+
         <div id="lock-msg">🔒 ล็อก 5 นาที: <span id="countdown"></span></div>
+
       </div>
+
     </div>
+
+
 
     <!-- Main App -->
+
     <div class="card container" id="main-app" style="display: none;">
+
       <div style="text-align:center"><img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px"></div>
+
       <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+
       
+
       <!-- User & Logout -->
+
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+
          <div class="app-title">📚 ห้องสมุด</div>
+
          <div style="display:flex; align-items:center; gap:8px;">
+
             <div class="user-pill" id="staff-display">Guest</div>
+
             <button onclick="logoutStaff()" title="ออกจากระบบ (Logout)" style="cursor:pointer; display:flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--danger); color:white; border-radius:8px; box-shadow:0 2px 5px rgba(230,57,70,0.3); transition:0.2s; border:none; padding:0;">
+
                <svg style="pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+
             </button>
+
          </div>
+
       </div>
+
+
 
       <div class="menu-row">
+
         <div class="icon-btn" onclick="showCardModal()" title="พิมพ์บัตรสมาชิกห้องสมุด (พร้อมบาร์โค้ด)">🪪</div>
+
         <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ">🕒</div>
+
         <div class="icon-btn" onclick="showBorrowedBooks()" title="หนังสือที่ถูกยืมอยู่ขณะนี้">📚</div>
+
         <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
+
       </div>
+
+
 
       <div class="nav-tabs">
+
         <button class="nav-btn active" onclick="switchTab('tab1', this)">ยืม-คืน</button>
+
         <button class="nav-btn" onclick="switchTab('tab2', this)">เพิ่มหนังสือ</button>
+
         <button class="nav-btn" onclick="switchTab('tab3', this)">แลกของ</button>
+
       </div>
+
       
+
       <div id="tab1" class="section active">
+
         <div class="input-wrapper">
+
           <input type="tel" id="sid" class="modern-input" placeholder="รหัสนักเรียน" maxlength="4" oninput="validateAndSearch(this, 'borrow')" onkeypress="if(event.key === 'Enter') { event.preventDefault(); document.getElementById('bid').focus(); }">
+
           <button class="cam-btn" onclick="startCamera('sid', 'borrow')">📷</button>
+
         </div>
+
         <div id="box-student" class="info-card"><div style="font-weight:700; color:var(--primary);" id="s-name">รอข้อมูลนักเรียน...</div><div id="s-score" style="font-size:12px; color:var(--text-sub)">-</div></div>
+
         
+
         <div class="input-wrapper" style="margin-top: 20px;">
+
           <button class="add-queue-btn" onclick="addCurrentBookToQueue()" title="เพิ่มหนังสือเข้าคิว">+</button>
+
           <input type="tel" id="bid" class="modern-input" style="padding-left:50px;" placeholder="รหัสหนังสือ/บาร์โค้ด" oninput="validateAndSearch(this, 'borrow')" onkeypress="if(event.key === 'Enter') { event.preventDefault(); addCurrentBookToQueue(); }">
+
           <button class="cam-btn" onclick="startCamera('bid', 'borrow')">📷</button>
+
         </div>
+
         <div id="box-book" class="info-card">
+
           <div style="font-weight:700; color:var(--primary);" id="b-name">รอข้อมูลหนังสือ...</div>
+
           <div id="b-status" style="font-size:12px; color:var(--text-sub)">-</div>
+
           <div id="b-borrower" style="font-size:12px; color:#2D6A4F; font-weight:600; margin-top:2px; display:none;"></div>
+
         </div>
+
         
+
         <div id="book-queue-box" class="queue-box"></div>
 
+
+
         <div class="btn-group">
+
           <button class="action-btn btn-borrow" onclick="submitAction('borrow')">ยืม</button>
+
           <button class="action-btn btn-return" onclick="submitAction('return')">คืน</button>
+
         </div>
+
       </div>
+
+
 
       <div id="tab2" class="section">
+
         <div class="input-wrapper">
+
           <input type="tel" id="n-bid" class="modern-input" placeholder="บาร์โค้ดหนังสือใหม่">
+
           <button class="cam-btn" onclick="startCamera('n-bid', 'add')">📷</button>
+
         </div>
-        <div class="input-wrapper"><input type="text" id="n-name" class="modern-input book-input" placeholder="ชื่อหนังสือ"></div>
-        <div class="input-wrapper"><input type="text" id="n-author" class="modern-input book-input" placeholder="ชื่อผู้แต่ง"></div>
+
+        <div class="input-wrapper"><input type="text" id="n-name" class="modern-input" style="padding-left:15px; padding-right:15px; font-size:13.5px;" placeholder="ชื่อหนังสือ"></div>
+
+        <div class="input-wrapper"><input type="text" id="n-author" class="modern-input" style="padding-left:15px; padding-right:15px; font-size:13.5px;" placeholder="ชื่อผู้แต่ง"></div>
+
         <div class="input-wrapper" style="display:flex; align-items:center; background:#F8F9FA; border:2px solid #E9ECEF; border-radius:16px; padding:6px 15px; box-sizing:border-box;">
+
           <span style="font-weight:600; color:var(--text-main); font-size:14px; white-space:nowrap; margin-right:8px;">📚 จำนวนหนังสือ:</span>
+
           <input type="number" id="n-qty" class="modern-input" style="border:none; background:transparent; padding:8px 5px; text-align:center; font-size:18px; width:70px; flex:1;" min="1" value="1">
+
           <span style="font-weight:700; color:var(--primary); font-size:14px; margin-left:5px;">เล่ม</span>
+
         </div>
+
         <button class="action-btn" style="width:100%; background:var(--primary);" onclick="addBook()">บันทึกหนังสือ</button>
+
       </div>
+
+
 
       <div id="tab3" class="section">
+
         <div class="input-wrapper">
+
           <input type="tel" id="r-sid" class="modern-input" placeholder="สแกนรหัสนักเรียน (4 หลัก)" maxlength="4" oninput="checkScore(this)">
+
           <button class="cam-btn" onclick="startCamera('r-sid', 'redeem')">📷</button>
+
         </div>
+
         <div class="info-card active" style="background:#FFFBEB; border-left-color:#F59E0B; text-align:center;">
+
            <div id="rs-name" style="font-weight:700; color:#B45309;">สแกนบัตรเพื่อตรวจสอบ</div>
+
            <div id="rs-score" style="font-size:28px; font-weight:700; color:#F59E0B">0 แต้ม</div>
+
         </div>
+
         <div id="rewards-list" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;"></div>
+
       </div>
+
       <div id="res-text" class="status-text">พร้อมใช้งาน</div>
+
     </div>
+
+
 
     <!-- Modals -->
+
     <div id="msgModal" class="modal-overlay"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main); font-family: 'Mali', cursive, sans-serif !important;" onclick="closeModal()">ตกลง</button></div></div>
+
     
+
     <div id="historyModal" class="modal-overlay"><div class="modal-box"><div style="font-weight:700; font-size: 18px; margin-bottom:10px; text-align:left;">🕒 ประวัติล่าสุด</div><div id="hist-content" class="history-list"></div><button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('historyModal').style.display='none'">ปิด</button></div></div>
 
+
+
     <!-- Modal รายชื่อหนังสือที่ถูกยืมอยู่ขณะนี้ -->
+
     <div id="borrowedBooksModal" class="modal-overlay">
+
        <div class="modal-box" style="max-width: 480px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+
                 <span>📚</span> หนังสือที่ถูกยืมอยู่ขณะนี้
+
              </div>
+
              <div id="borrowed-count-badge" style="background: #FFE8D6; color: #D00000; font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+
                 0 เล่ม
+
              </div>
+
           </div>
+
           
+
           <div style="margin-bottom: 10px;">
+
              <input type="text" id="borrowed-search" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อหนังสือ / ผู้ยืม..." oninput="filterBorrowedBooks(this.value)">
+
           </div>
+
+
 
           <div id="borrowed-books-content" style="flex: 1; overflow-y: auto; max-height: 52vh; padding-right: 2px;">
+
              <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดข้อมูล...</div>
+
           </div>
+
+
 
           <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('borrowedBooksModal').style.display='none'">ปิดหน้าต่าง</button>
+
        </div>
+
     </div>
+
     
+
     <div id="printModal" class="modal-overlay">
+
        <div class="modal-box">
+
           <div style="font-weight:700; font-size: 18px; margin-bottom:15px;">🖨️ กำหนดช่วงเวลาพิมพ์รายงาน</div>
+
           
+
           <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+
              <input type="date" id="print-c-day" class="modern-input" style="padding:10px; font-size:12px; flex:1;">
+
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--primary); margin:0;" onclick="triggerPrintCustom('day')">พิมพ์รายวัน</button>
+
           </div>
+
           <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+
              <input type="month" id="print-c-month" class="modern-input" style="padding:10px; font-size:12px; flex:1;">
+
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--accent); margin:0;" onclick="triggerPrintCustom('month')">พิมพ์รายเดือน</button>
+
           </div>
+
           <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+
              <input type="number" id="print-c-year" class="modern-input" placeholder="พิมพ์ปี พ.ศ. (เช่น 2569)" style="padding:10px; font-size:12px; flex:1;">
+
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:#457B9D; margin:0;" onclick="triggerPrintCustom('year')">พิมพ์รายปี</button>
+
           </div>
+
+
 
           <button class="action-btn" style="width:100%; margin-top:10px; background:transparent; border:1px solid #EAEAEA; color:var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('printModal').style.display='none'; document.getElementById('statsModal').style.display='flex'">ย้อนกลับ</button>
+
        </div>
+
     </div>
+
+
 
     <div id="statsModal" class="modal-overlay">
+
        <div class="modal-box">
+
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+
              <div style="font-weight:700; font-size: 18px; text-align:left;">📊 สถิติการใช้งาน</div>
+
              <button onclick="document.getElementById('statsModal').style.display='none'; document.getElementById('printModal').style.display='flex'" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Mali', cursive, sans-serif; font-size:12px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🖨️ พิมพ์รายงาน</button>
+
           </div>
+
           
+
           <div style="display:flex; gap:5px; margin-bottom:10px; background: rgba(0,0,0,0.05); padding:4px; border-radius:14px;" id="stats-nav">
+
              <button class="nav-btn active" onclick="loadStats('day', this)">วันนี้</button>
+
              <button class="nav-btn" onclick="loadStats('month', this)">เดือนนี้</button>
+
              <button class="nav-btn" onclick="loadStats('year', this)">ปีนี้</button>
+
              <button class="nav-btn" onclick="loadStats('all', this)">ทั้งหมด</button>
+
           </div>
+
+
 
           <div style="display:flex; gap:5px; margin-bottom:15px;">
+
              <input type="date" id="st-c-day" class="modern-input" title="เลือกสถิติเฉพาะวัน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_day', value:this.value}, null)">
+
              <input type="month" id="st-c-month" class="modern-input" title="เลือกสถิติเฉพาะเดือน" style="padding:8px 5px; font-size:11px;" onchange="if(this.value) loadStats({type:'custom_month', value:this.value}, null)">
+
              <input type="number" id="st-c-year" class="modern-input" placeholder="ปี พ.ศ." title="เลือกสถิติเฉพาะปี (พ.ศ.)" style="padding:8px 5px; font-size:11px;" onchange="if(this.value && this.value.length===4) { let y = parseInt(this.value, 10); if (y > 2400) y -= 543; loadStats({type:'custom_year', value: y.toString()}, null); }">
+
           </div>
+
+
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+
              <div style="background:#F0FFF4; padding:15px; border-radius:15px;">
+
                  <div style="font-size:12px; color:var(--text-sub);">จำนวนการยืม</div>
+
                  <b id="st-borrows" style="font-size:24px; color:var(--primary);">-</b><span style="font-size:12px"> เล่ม</span>
+
              </div>
+
              <div style="background:#FFF0F0; padding:15px; border-radius:15px;">
+
                  <div style="font-size:12px; color:var(--text-sub);">จำนวนการคืน</div>
+
                  <b id="st-returns" style="font-size:24px; color:var(--danger);">-</b><span style="font-size:12px"> เล่ม</span>
+
              </div>
+
           </div>
+
           <div style="text-align:left; font-size:14px; font-weight:700; margin-bottom:5px;">🏆 นักอ่านยอดเยี่ยม</div>
+
           <div id="st-top-students" class="history-list" style="max-height:110px; margin-bottom:10px;"></div>
+
           <div style="text-align:left; font-size:14px; font-weight:700; margin-bottom:5px;">🔥 หนังสือยอดฮิต</div>
+
           <div id="st-top-books" class="history-list" style="max-height:110px;"></div>
+
           <button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('statsModal').style.display='none'">ปิดหน้าต่าง</button>
+
        </div>
+
     </div>
+
     
+
     <!-- Modal พิมพ์บัตรสมาชิกห้องสมุดพร้อมบาร์โค้ด -->
+
     <div id="cardModal" class="modal-overlay">
+
        <div class="modal-box" style="max-width: 500px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+
                 <span>🪪</span> พิมพ์บัตรสมาชิกห้องสมุด
+
              </div>
+
              <div id="card-count-badge" style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+
                 0 คน
+
              </div>
+
           </div>
+
+
 
           <!-- ตัวกรองระดับชั้น และปุ่มพิมพ์ -->
+
           <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+
              <select id="card-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterStudentCards()">
+
                 <option value="all">ทุกระดับชั้น</option>
+
              </select>
+
              <button class="action-btn" style="padding: 8px 14px; font-size: 13px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; font-family: 'Mali', cursive, sans-serif !important;" onclick="printFilteredCards()">
+
                 🖨️ สั่งพิมพ์ (A4)
+
              </button>
+
           </div>
+
+
 
           <div style="margin-bottom: 10px;">
+
              <input type="text" id="card-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักเรียน..." oninput="filterStudentCards()">
+
           </div>
+
+
 
           <div id="card-students-list" style="flex: 1; overflow-y: auto; max-height: 48vh; padding-right: 2px;">
+
              <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดรายชื่อนักเรียน...</div>
+
           </div>
+
+
 
           <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('cardModal').style.display='none'">ปิดหน้าต่าง</button>
+
        </div>
+
     </div>
+
+
 
     <!-- หน้าต่างสแกนบาร์โค้ดแบบเรียลไทม์ (รองรับสแกนต่อเนื่อง) -->
+
     <div id="cameraModal" class="modal-overlay">
+
        <div style="width:95%; max-width:380px; background:black; border-radius:20px; overflow:hidden; position: relative; padding-bottom: 75px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+
           <!-- ✅ แถบแจ้งเตือนสถานะสแกนต่อเนื่อง -->
+
           <div id="scan-continuous-status" style="display:none; position:absolute; top:12px; left:50%; transform:translateX(-50%); background:rgba(45,106,79,0.92); color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; z-index:20; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>
+
           
+
           <div style="position: relative; width: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center;">
+
              <div id="reader" style="width:100%; height:100%;"></div>
+
           </div>
+
           <div style="position: absolute; bottom: 15px; left: 0; width: 100%; display: flex; justify-content: center; padding: 0 15px; box-sizing: border-box;">
+
               <button class="action-btn btn-return" style="width:100%; padding:12px; font-size:14px; border-radius:15px; margin:0; background:#333; border: 1px solid #555; font-family: 'Mali', cursive, sans-serif !important;" onclick="stopCamera()">❌ ปิดหน้าต่างสแกน</button>
+
           </div>
+
        </div>
+
     </div>
 
+
+
     <script>
+
       // ⚙️ [สำคัญสำหรับ GitHub Pages] ใส่ Web App URL ของ Google Apps Script ที่ Deploy ไว้ที่นี่
+
       const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec";
 
+
+
       // 🔄 Bridge Polyfill: รองรับทั้งบน Google Apps Script และ GitHub Pages อัตโนมัติ
+
       if (typeof google === 'undefined' || !google.script || !google.script.run) {
+
          function createRunner(successCb, failureCb) {
+
             return new Proxy({}, {
+
                get: function(target, actionName) {
+
                   if (actionName === 'withSuccessHandler') {
+
                      return (cb) => createRunner(cb, failureCb);
+
                   }
+
                   if (actionName === 'withFailureHandler') {
+
                      return (cb) => createRunner(successCb, cb);
+
                   }
+
                   return function(...args) {
+
                      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_APPS_SCRIPT_WEB_APP_URL")) {
+
                         alert("⚠️ กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ของไฟล์ index.html ก่อนใช้งานครับ");
+
                         if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+
                         if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+
                         return;
+
                      }
+
                      fetch(GAS_WEB_APP_URL, {
+
                         method: "POST",
+
                         body: JSON.stringify({ action: actionName, args: args })
+
                      })
+
                      .then(res => res.json())
+
                      .then(data => {
+
                         if (successCb) successCb(data);
+
                      })
+
                      .catch(err => {
+
                         console.error("API Error:", err);
+
                         if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
+
                         if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+
                         if (failureCb) failureCb(err);
+
                         else alert("❌ ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กรุณาตรวจสอบสิทธิ์การ Deploy (Anyone)");
+
                      });
+
                   };
+
                }
+
             });
+
          }
+
          window.google = {
+
             script: {
+
                run: createRunner()
+
             }
+
          };
+
       }
+
+
 
       let studentCache = {}; let currentUser = ""; let loginAttempts = 0; let lockoutEnd = 0;
+
       let bookQueue = []; // คิวหนังสือสำหรับยืม/คืนหลายเล่ม
+
       let localDB = { students: {}, books: {}, rewards: [], loaded: false };
 
+
+
       // ⚡ ฟังก์ชันซิงก์ฐานข้อมูลทั้งหมดมาเก็บในเครื่อง เพื่อความเร็วสูงสุดระดับ 0.01 วินาที
+
       function syncLibraryData(onDone) {
+
         google.script.run.withSuccessHandler(function(data) {
+
           if (data) {
+
             if (data.students) localDB.students = data.students;
+
             if (data.books) localDB.books = data.books;
+
             if (data.rewards) localDB.rewards = data.rewards;
+
             localDB.loaded = true;
+
           }
+
           if (onDone) onDone();
+
         }).getFullLibraryData();
+
       }
+
+
 
       document.addEventListener("DOMContentLoaded", function() {
+
          let savedUser = sessionStorage.getItem('library_logged_in_user');
+
          if (savedUser) {
+
              currentUser = savedUser;
+
              document.getElementById('staff-display').innerText = currentUser;
+
              document.getElementById('login-overlay').style.display = 'none';
+
              document.getElementById('main-app').style.display = 'block';
+
              document.getElementById('sid').focus();
+
              syncLibraryData(); // โหลดฐานข้อมูลทั้งหมดเข้าหน่วยความจำทันที
+
          }
+
       });
 
+
+
       function logoutStaff() {
+
          if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+
              sessionStorage.removeItem('library_logged_in_user');
+
              currentUser = "";
+
              document.getElementById('main-app').style.display = 'none';
+
              document.getElementById('login-overlay').style.display = 'flex';
+
              document.getElementById('login-pin').value = "";
+
              document.getElementById('login-pin').focus();
+
          }
+
       }
+
+
 
       function triggerPrintCustom(type) {
+
          let val = ""; let rangeText = "";
+
          if (type === 'day') { 
+
             val = document.getElementById('print-c-day').value; 
+
             if(val) { 
+
                let p = val.split('-'); 
+
                let y = parseInt(p[0], 10);
+
                let yBE = y > 2400 ? y : y + 543;
+
                rangeText = "ประจำวันที่ " + p[2] + "/" + p[1] + "/" + yBE; 
+
             }
+
          }
+
          else if (type === 'month') { 
+
             val = document.getElementById('print-c-month').value; 
+
             if(val) { 
+
                let p = val.split('-'); 
+
                let y = parseInt(p[0], 10);
+
                let yBE = y > 2400 ? y : y + 543;
+
                rangeText = "ประจำเดือน " + p[1] + "/" + yBE; 
+
             }
+
          }
+
          else if (type === 'year') { 
+
             val = document.getElementById('print-c-year').value; 
+
             if(val) { 
+
                let rawY = parseInt(val, 10);
+
                let yBE = rawY > 2400 ? rawY : rawY + 543;
+
                rangeText = "ประจำปี พ.ศ. " + yBE; 
+
             }
+
          }
+
          
+
          if (!val) { alert("⚠️ กรุณาระบุเวลาที่ต้องการพิมพ์ให้ครบถ้วน"); return; }
+
          triggerPrint({ type: 'custom_' + type, value: val, text: rangeText });
+
       }
 
+
+
       function triggerPrint(range) {
+
         document.getElementById('printModal').style.display = 'none';
+
         let win = window.open("", "_blank");
+
         if (!win) { alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนครับ"); return; }
-        win.document.write("<h3 style=\"font-family:Mali, cursive, sans-serif; text-align:center; padding:20px;\">⏳ กำลังดึงข้อมูล...</h3>");
+
+        win.document.write("<h3 style='font-family:Sarabun, sans-serif; text-align:center; padding:20px;'>⏳ กำลังดึงข้อมูล...</h3>");
+
         
+
         let rangeText = typeof range === 'object' ? range.text : 'ทั้งหมด';
 
+
+
         google.script.run.withSuccessHandler(function(data) {
-          if (data.length === 0) { win.document.body.innerHTML = `<h3 style=\"text-align:center; font-family:Mali, cursive, sans-serif;\">ไม่มีข้อมูล ${rangeText}</h3>`; return; }
+
+          if (data.length === 0) { win.document.body.innerHTML = `<h3 style='text-align:center; font-family:Sarabun, sans-serif;'>ไม่มีข้อมูล ${rangeText}</h3>`; return; }
+
           
+
           const now = new Date();
+
           const thaiYear = now.getFullYear() + 543;
+
           const thaiMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+
           const thaiDay = now.getDate().toString().padStart(2, '0');
+
           const thaiHours = now.getHours().toString().padStart(2, '0');
+
           const thaiMinutes = now.getMinutes().toString().padStart(2, '0');
+
           const printDateThai = `${thaiDay}/${thaiMonth}/${thaiYear} ${thaiHours}:${thaiMinutes} น.`;
 
+
+
           let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>รายงานการเข้าใช้บริการห้องสมุด</title>
-          <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+          <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
           <style>
       *, *::before, *::after, html, body, button, input, select, textarea, optgroup, option {
         font-family: 'Mali', cursive, sans-serif !important;
@@ -596,718 +1050,1424 @@
       ::placeholder {
         font-family: 'Mali', cursive, sans-serif !important;
       }
+
              @media print { 
+
                 @page { size: landscape; margin: 1cm; } 
+
                 thead { display: table-header-group; }
+
                 tfoot { display: table-footer-group; }
+
                 tr { page-break-inside: avoid; }
+
              } 
-             body { font-family: 'Mali', cursive, sans-serif !important; padding: 20px; color: #333; margin: 0; }
+
+             body { font-family: 'Sarabun', sans-serif; padding: 20px; color: #333; margin: 0; }
+
              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+
              thead { display: table-header-group; }
-             th, td { border: 1px solid #bbb; padding: 7px 10px; font-size: 14px; text-align: left; font-family: 'Mali', cursive, sans-serif !important; }
+
+             th, td { border: 1px solid #bbb; padding: 7px 10px; font-size: 14px; text-align: left; font-family: 'Sarabun', sans-serif; }
+
              th { background: #2D6A4F; color: #fff; text-align: center; font-weight: 600; }
-             .header { text-align: center; margin-bottom: 15px; font-family: 'Mali', cursive, sans-serif !important; }
+
+             .header { text-align: center; margin-bottom: 15px; font-family: 'Sarabun', sans-serif; }
+
              .header img { height: 75px; margin-bottom: 5px; }
-             .header h2 { margin: 4px 0; font-size: 20px; color: #1B4332; font-family: 'Mali', cursive, sans-serif !important; }
-             .header h3 { margin: 2px 0; font-size: 17px; font-weight: 500; color: #2D6A4F; font-family: 'Mali', cursive, sans-serif !important; }
-             .header p { margin: 4px 0; font-size: 13px; color: #666; font-family: 'Mali', cursive, sans-serif !important; }
+
+             .header h2 { margin: 4px 0; font-size: 20px; color: #1B4332; font-family: 'Sarabun', sans-serif; }
+
+             .header h3 { margin: 2px 0; font-size: 17px; font-weight: 500; color: #2D6A4F; font-family: 'Sarabun', sans-serif; }
+
+             .header p { margin: 4px 0; font-size: 13px; color: #666; font-family: 'Sarabun', sans-serif; }
+
           </style></head><body>
+
           <div class="header">
+
              <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" alt="โลโก้โรงเรียน">
+
              <h2>รายงานการเข้าใช้บริการห้องสมุด (${rangeText})</h2>
+
              <h3>โรงเรียนวัดหนองตะเฆ่</h3>
+
              <p>พิมพ์เมื่อ: ${printDateThai} • ข้อมูลทั้งหมด ${data.length} รายการ</p>
+
           </div>
+
           <table>
+
              <thead>
+
                 <tr>
-                   <th style="width: 5%; white-space: nowrap;">ลำดับ</th>
-                   <th style="width: 13%; white-space: nowrap;">วันที่ (พ.ศ.)</th>
-                   <th style="width: 9%; white-space: nowrap;">เวลา</th>
-                   <th style="width: 10%; white-space: nowrap;">รายการ</th>
-                   <th style="width: 25%; white-space: nowrap;">ชื่อ-นามสกุล</th>
-                   <th style="width: 26%;">ชื่อหนังสือ</th>
-                   <th style="width: 12%; white-space: nowrap;">เจ้าหน้าที่</th>
+
+                   <th style="width: 6%;">ลำดับ</th>
+
+                   <th style="width: 14%;">วันที่ (พ.ศ.)</th>
+
+                   <th style="width: 10%;">เวลา</th>
+
+                   <th style="width: 12%;">รายการ</th>
+
+                   <th style="width: 25%;">ชื่อ-นามสกุล</th>
+
+                   <th style="width: 21%;">ชื่อหนังสือ</th>
+
+                   <th style="width: 12%;">เจ้าหน้าที่</th>
+
                 </tr>
+
              </thead>
+
              <tbody>`;
+
           
+
           data.forEach((r, idx) => { 
+
              html += `<tr>
-                <td style="text-align:center; white-space: nowrap;">${idx + 1}</td>
-                <td style="text-align:center; white-space: nowrap;">${r.date}</td>
-                <td style="text-align:center; white-space: nowrap;">${r.time}</td>
-                <td style="text-align:center; font-weight:600; white-space: nowrap;">${r.action}</td>
-                <td style="white-space: nowrap; font-weight: 600;">${r.studentName}</td>
-                <td style="word-break: normal; overflow-wrap: break-word;">${r.bookName}</td>
-                <td style="text-align:center; white-space: nowrap;">${r.staff}</td>
+
+                <td style="text-align:center">${idx + 1}</td>
+
+                <td style="text-align:center">${r.date}</td>
+
+                <td style="text-align:center">${r.time}</td>
+
+                <td style="text-align:center; font-weight:600;">${r.action}</td>
+
+                <td>${r.studentName}</td>
+
+                <td>${r.bookName}</td>
+
+                <td style="text-align:center">${r.staff}</td>
+
              </tr>`; 
+
           });
+
           
+
           html += `</tbody></table></body></html>`;
+
           win.document.open(); win.document.write(html); win.document.close(); 
+
           setTimeout(() => win.print(), 600); 
+
         }).getLogsByRange(range);
+
       }
+
+
 
       function checkPinLogin(input) {
+
         if (input.value.length === 4) {
+
           input.blur(); // ✅ ย่อคีย์บอร์ดมือถือลงทันทีเมื่อกรอกรหัส PIN ครบ 4 หลัก
+
           document.getElementById('login-loader').style.display = 'block'; 
+
           google.script.run.withSuccessHandler(function(res) {
+
             document.getElementById('login-loader').style.display = 'none'; 
+
             if (res.status === "success") { 
+
                currentUser = res.name; 
+
                sessionStorage.setItem('library_logged_in_user', currentUser);
+
                document.getElementById('staff-display').innerText = currentUser; 
+
                document.getElementById('login-overlay').style.display = 'none'; 
+
                document.getElementById('main-app').style.display = 'block'; 
+
                if (res.libraryData) {
+
                   localDB.students = res.libraryData.students || {};
+
                   localDB.books = res.libraryData.books || {};
+
                   localDB.rewards = res.libraryData.rewards || [];
+
                   localDB.loaded = true;
+
                } else {
+
                   syncLibraryData();
+
                }
+
                showModal("success:✅ เข้าสู่ระบบสำเร็จ\nยินดีต้อนรับ " + currentUser);
+
             } else { 
+
                loginAttempts++; input.value = ""; 
+
                if (loginAttempts >= 3) startLock(); 
+
             }
+
           }).loginStaff(input.value);
+
         }
+
       }
+
       
+
       function startLock() {
+
         lockoutEnd = Date.now() + 300000;
+
         document.getElementById('login-pin').disabled = true;
+
         document.getElementById('lock-msg').style.display = 'block';
+
         let timer = setInterval(() => {
+
           let left = Math.ceil((lockoutEnd - Date.now()) / 1000);
+
           if (left <= 0) { clearInterval(timer); document.getElementById('login-pin').disabled = false; document.getElementById('lock-msg').style.display = 'none'; loginAttempts = 0; }
+
           else { document.getElementById('countdown').innerText = Math.floor(left/60) + ":" + (left%60).toString().padStart(2,'0'); }
+
         }, 1000);
+
       }
+
+
 
       function switchTab(id, btn) { 
+
          document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
+
          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); 
+
          document.getElementById(id).classList.add('active'); btn.classList.add('active'); 
+
       }
+
       
+
       let searchTimeout = null;
+
       const dataCache = { student: {}, book: {} };
 
+
+
       function validateAndSearch(input, mode) {
+
         if (searchTimeout) clearTimeout(searchTimeout);
 
+
+
         if (input.id === 'sid') {
+
             if (input.value.length > 4) input.value = input.value.slice(0, 4);
+
             const sid = input.value.trim();
+
             if (sid.length === 4) { 
+
                // ⚡ ตรวจสอบจากหน่วยความจำเครื่องทันที (0.001 วินาที)
+
                if (localDB.students && localDB.students[sid]) {
+
                   displayStudentInfo(localDB.students[sid]);
+
                   return;
+
                }
+
                if (dataCache.student[sid]) {
+
                   displayStudentInfo(dataCache.student[sid]);
+
                   return;
+
                }
+
                document.getElementById('s-name').innerText = "🔍 กำลังดึงชื่อนักเรียน..."; 
+
                searchTimeout = setTimeout(() => {
+
                   google.script.run.withSuccessHandler(data => { 
+
                      if (data && data.student) { 
+
                         dataCache.student[sid] = data.student;
+
                         if (!localDB.students) localDB.students = {};
+
                         localDB.students[sid] = data.student;
+
                         displayStudentInfo(data.student);
+
                      } else {
+
                         document.getElementById('s-name').innerText = "❌ ไม่พบรหัสนักเรียน";
+
                         document.getElementById('box-student').classList.remove('active');
+
                         document.getElementById('s-score').innerText = "-";
+
                      }
+
                   }).getNames(sid, "");
+
                }, 100);
+
             } else {
+
                document.getElementById('s-name').innerText = "รอข้อมูลนักเรียน...";
+
                document.getElementById('s-score').innerText = "-";
+
                document.getElementById('box-student').classList.remove('active');
+
             }
+
         } else if (input.id === 'bid') {
+
            const bid = input.value.trim();
+
            if (bid.length >= 2) {
+
               // ⚡ ตรวจสอบจากหน่วยความจำเครื่องทันที (0.001 วินาที)
+
               if (localDB.books && localDB.books[bid]) {
+
                  displayBookInfo(localDB.books[bid]);
+
                  return;
+
               }
+
               if (dataCache.book[bid]) {
+
                  displayBookInfo(dataCache.book[bid]);
+
                  return;
+
               }
+
               document.getElementById('b-name').innerText = "🔍 กำลังดึงข้อมูลหนังสือ...";
+
               searchTimeout = setTimeout(() => {
+
                  google.script.run.withSuccessHandler(data => { 
+
                     if (data && data.book) { 
+
                        dataCache.book[bid] = data.book;
+
                        if (!localDB.books) localDB.books = {};
+
                        localDB.books[bid] = data.book;
+
                        displayBookInfo(data.book);
+
                     } else {
+
                        document.getElementById('b-name').innerText = "❌ ไม่พบรหัสหนังสือ";
+
                        document.getElementById('b-status').innerText = "-";
+
                        document.getElementById('box-book').classList.remove('active');
+
                     }
+
                  }).getNames("", bid);
+
               }, 150);
+
            } else {
+
               document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
+
               document.getElementById('b-status').innerText = "-";
+
               document.getElementById('box-book').classList.remove('active');
+
            }
+
         }
+
       }
+
+
 
       function displayStudentInfo(student) {
+
         document.getElementById('s-name').innerText = student.name;
+
         document.getElementById('box-student').classList.add('active');
+
         document.getElementById('s-score').innerText = "แต้มสะสม: " + student.score + " แต้ม";
+
       }
+
+
 
       function displayBookInfo(book) {
+
         document.getElementById('b-name').innerText = book.name;
+
         let statusText = "สถานะ: " + book.status;
+
         if (book.borrowDaysText && !book.status.includes(book.borrowDaysText)) {
+
           statusText += ` (${book.borrowDaysText})`;
+
         }
+
         document.getElementById('b-status').innerText = statusText;
+
         
+
         const borrowerEl = document.getElementById('b-borrower');
+
         if (borrowerEl) {
+
           if (book.borrowerName) {
+
             borrowerEl.innerText = "👤 ผู้ยืมคนล่าสุด: " + book.borrowerName;
+
             borrowerEl.style.display = "block";
+
           } else {
+
             borrowerEl.innerText = "";
+
             borrowerEl.style.display = "none";
+
           }
+
         }
+
         document.getElementById('box-book').classList.add('active');
+
       }
+
+
 
       function addCurrentBookToQueue(forcedId) {
+
         const bidInput = document.getElementById('bid');
+
         const bid = String(forcedId || bidInput.value).trim();
+
         if (!bid) return;
 
+
+
         if (bookQueue.some(b => b.id === bid)) {
+
           showModal("warning:⚠️ หนังสือรหัส " + bid + " อยู่ในคิวแล้วครับ");
+
           return;
+
         }
+
+
 
         // ⚡ ถ้ามีใน localDB ดึงขึ้นมาทันทีใน 0.001 วินาที!
+
         if (localDB.books && localDB.books[bid]) {
+
           const b = localDB.books[bid];
+
           let statusText = b.status;
+
           if (b.borrowDaysText && !statusText.includes(b.borrowDaysText)) {
+
             statusText += ` (${b.borrowDaysText})`;
+
           }
+
           bookQueue.push({ id: bid, name: b.name, status: statusText, borrowerName: b.borrowerName });
+
           renderBookQueue();
+
           bidInput.value = "";
+
           displayBookInfo(b);
+
           bidInput.focus();
+
           return;
+
         }
+
+
 
         const currentName = document.getElementById('b-name').innerText;
+
         const currentStatus = document.getElementById('b-status').innerText.replace("สถานะ: ", "");
+
         const displayName = (currentName && !currentName.includes("รอข้อมูล") && !currentName.includes("กำลังดึง")) 
+
                             ? currentName : "กำลังดึงข้อมูล...";
+
         
+
         bookQueue.push({ id: bid, name: displayName, status: currentStatus, borrowerName: "" });
+
         renderBookQueue();
+
+
 
         const itemIndex = bookQueue.length - 1;
+
         google.script.run.withSuccessHandler(data => {
+
           if (data && data.book && bookQueue[itemIndex] && bookQueue[itemIndex].id === bid) {
+
             bookQueue[itemIndex].name = data.book.name;
+
             let statusText = data.book.status;
+
             if (data.book.borrowDaysText && !statusText.includes(data.book.borrowDaysText)) {
+
               statusText += ` (${data.book.borrowDaysText})`;
+
             }
+
             bookQueue[itemIndex].status = statusText;
+
             bookQueue[itemIndex].borrowerName = data.book.borrowerName || "";
+
             renderBookQueue();
+
             displayBookInfo(data.book);
+
           }
+
         }).getNames("", bid);
 
+
+
         bidInput.value = "";
+
         bidInput.focus();
+
       }
+
+
 
       function removeBookFromQueue(index) {
+
         bookQueue.splice(index, 1);
+
         renderBookQueue();
+
       }
+
+
 
       function clearBookQueue() {
+
         if (bookQueue.length > 0 && confirm("ต้องการล้างคิวหนังสือทั้งหมดหรือไม่?")) {
+
           bookQueue = [];
+
           renderBookQueue();
+
         }
+
       }
+
+
 
       function renderBookQueue() {
+
         const box = document.getElementById('book-queue-box');
+
         if (bookQueue.length === 0) {
+
           box.style.display = 'none';
+
           box.innerHTML = "";
+
           return;
+
         }
+
         box.style.display = 'block';
+
         let html = `
+
           <div class="queue-header">
+
             <span>📚 รายการที่เลือก (${bookQueue.length} เล่ม)</span>
+
             <button onclick="clearBookQueue()" style="border:none; background:none; color:var(--text-sub); font-size:12px; cursor:pointer; text-decoration:underline;">ล้างคิว</button>
+
           </div>
+
         `;
+
         bookQueue.forEach((b, i) => {
+
           const isBorrowed = (b.status && (b.status.includes("ถูกยืม") || b.status.includes("ยืมแล้ว")));
+
           const badgeClass = isBorrowed ? "badge-borrowed" : "badge-available";
+
           const statusText = (b.status && b.status !== "-") ? b.status : "พร้อมทำรายการ";
+
           const borrowerStr = b.borrowerName ? `<div style="font-size:11px; color:#2D6A4F; font-weight:600; margin-top:2px;">👤 ผู้ยืมคนล่าสุด: ${b.borrowerName}</div>` : '';
+
           html += `
+
             <div class="queue-item">
+
               <div class="queue-item-info">
+
                 <div style="font-weight:700; color:var(--text-main); font-size:14px;">
+
                   <span style="display:inline-block; width:20px; height:20px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:20px; font-size:11px; margin-right:4px;">${i+1}</span>
+
                   ${b.name}
+
                 </div>
+
                 <div style="font-size:12px; color:var(--text-sub); margin-top:2px;">
+
                   รหัส: <b>${b.id}</b>
+
                 </div>
+
                 ${borrowerStr}
+
                 <div class="queue-badge ${badgeClass}" style="margin-top:4px;">${statusText}</div>
+
               </div>
+
               <button class="queue-del-btn" onclick="removeBookFromQueue(${i})" title="ลบรายการนี้">🗑️</button>
+
             </div>
+
           `;
+
         });
+
         box.innerHTML = html;
+
       }
+
+
 
       function submitAction(type) {
+
         const sid = document.getElementById('sid').value.trim(); 
+
         const currentBid = document.getElementById('bid').value.trim();
+
         const currentStudentName = document.getElementById('s-name').innerText.replace("รอข้อมูลนักเรียน...", "").trim();
+
         
+
         let bookIds = bookQueue.map(b => b.id);
+
         if (currentBid && !bookIds.includes(currentBid)) {
+
           bookIds.push(currentBid);
+
         }
+
+
 
         if (!sid || bookIds.length === 0) {
+
             showModal("error:❌ กรุณากรอกรหัสนักเรียนและรหัสหนังสือให้ครบ");
+
             return;
+
         }
+
+
 
         // ⚠️ แจ้งเตือนเมื่อมีการยืมหนังสือที่ยังไม่ได้ทำการคืน (มีผู้ยืมเดิมอยู่)
+
         if (type === 'borrow') {
+
           let heldBooks = [];
+
           bookIds.forEach(bid => {
+
             const queueItem = bookQueue.find(b => b.id === bid);
+
             const bookDb = localDB.books ? localDB.books[bid] : null;
+
             const bName = (queueItem && queueItem.name && !queueItem.name.includes("กำลังดึง")) 
+
                           ? queueItem.name 
+
                           : ((bookDb && bookDb.name) || bid);
+
             const bStatus = (queueItem && queueItem.status) || (bookDb && bookDb.status) || "";
+
             const borrower = (queueItem && queueItem.borrowerName) || (bookDb && bookDb.borrowerName) || "";
+
             
+
             const isBorrowed = bStatus.includes("ถูกยืม") || bStatus.includes("ยืมแล้ว") || (bookDb && bookDb.available === 0);
+
             if (isBorrowed) {
+
               const borrowerText = borrower ? ` (ผู้ยืมเดิม: ${borrower})` : ' (มีผู้ยืมอยู่ขณะนี้)';
+
               heldBooks.push(`• ${bName}${borrowerText}`);
+
             }
+
           });
+
+
 
           if (heldBooks.length > 0) {
+
             const confirmMsg = `⚠️ พบหนังสือที่ยังไม่ได้คืน ${heldBooks.length} เล่ม:\n` +
+
                                heldBooks.join("\n") +
+
                                `\n\nระบบจะทำการบันทึกคืนหนังสือ (คิด/หักคะแนนผู้ยืมเดิม) ก่อน แล้วจึงบันทึกการยืมให้นักเรียนคนใหม่ ต้องการดำเนินการต่อหรือไม่?`;
+
             if (!confirm(confirmMsg)) {
+
               return;
+
             }
+
           }
+
         }
+
         
+
         document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+
         document.getElementById('tx-loader').style.display = 'flex';
+
         
+
         google.script.run.withSuccessHandler(res => { 
+
            document.getElementById('tx-loader').style.display = 'none';
+
            
+
            showModal(res); 
+
            bookQueue = [];
+
            renderBookQueue();
+
            document.getElementById('sid').value = ""; 
+
            document.getElementById('bid').value = ""; 
+
            document.getElementById('box-student').classList.remove('active'); 
+
            document.getElementById('box-book').classList.remove('active'); 
+
            document.getElementById('s-name').innerText = "รอข้อมูลนักเรียน..."; 
+
            document.getElementById('s-score').innerText = "-";
+
            document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ..."; 
+
            document.getElementById('b-status').innerText = "-";
+
            const borrowerEl = document.getElementById('b-borrower');
+
            if (borrowerEl) { borrowerEl.innerText = ""; borrowerEl.style.display = "none"; }
+
            
+
            if (res && res.includes("success")) {
+
               dataCache.book = {}; // เคลียร์แคชหนังสือเก่าทันทีเพื่อป้องกันข้อมูลค้าง
+
               dataCache.student = {};
+
               // อัปเดตสถานะใน localDB ทันที
+
               if (localDB.books) {
+
                 bookIds.forEach(id => {
+
                   if (localDB.books[id]) {
+
                     if (type === 'borrow') {
+
                       localDB.books[id].status = "ถูกยืม";
+
                       localDB.books[id].available = Math.max(0, (localDB.books[id].available || 1) - 1);
+
                       if (currentStudentName) localDB.books[id].borrowerName = currentStudentName;
+
                       localDB.books[id].borrowDaysText = "ยืมวันนี้";
+
                       localDB.books[id].borrowDays = 0;
+
                     } else if (type === 'return') {
+
                       localDB.books[id].status = "ว่าง";
+
                       localDB.books[id].available = Math.max(1, (localDB.books[id].available || 0) + 1);
+
                       localDB.books[id].borrowDaysText = "";
+
                       localDB.books[id].borrowDays = 0;
+
                     }
+
                   }
+
                 });
+
               }
+
               syncLibraryData(); // อัปเดตฐานข้อมูลในเครื่องทันทีหลังทำรายการสำเร็จ
+
            }
+
         }).processMultipleTransactions(sid, bookIds, type, currentUser);
+
       }
+
+
 
       function addBook() {
+
         const id = document.getElementById('n-bid').value.trim(); 
+
         const name = document.getElementById('n-name').value.trim(); 
+
         const author = document.getElementById('n-author').value.trim();
+
         const qty = parseInt(document.getElementById('n-qty').value, 10) || 1;
+
         
+
         if (id === "" || name === "" || author === "") {
+
             showModal("error:❌ กรุณากรอกข้อมูลให้ครบทุกช่องก่อนบันทึกครับ");
+
             return;
+
         }
+
+
 
         document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+
         document.getElementById('tx-loader').style.display = 'flex';
 
+
+
         google.script.run.withSuccessHandler(res => { 
+
             document.getElementById('tx-loader').style.display = 'none';
+
             showModal(res); 
+
             if(res.includes("success")) {
+
                 document.getElementById('n-bid').value=""; 
+
                 document.getElementById('n-name').value=""; 
+
                 document.getElementById('n-author').value=""; 
+
                 document.getElementById('n-qty').value="1";
+
                 syncLibraryData(); // อัปเดตหนังสือใหม่เข้าฐานข้อมูลในเครื่อง
+
             }
+
         }).addNewBook(id, name, author, qty);
+
       }
+
+
 
       function renderRewardsList(sid, score, rewards) {
+
         let html = ""; 
+
         if (rewards && rewards.length > 0) {
+
           rewards.forEach(r => {
+
             let can = (score || 0) >= r.cost;
+
             let safeName = String(r.name || '').replace(/'/g, "\\'");
+
             html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`alert('คะแนนสะสมไม่พอแลกรายการนี้ครับ')`}">
+
                         <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
+
                         <b style="color:var(--text-main); font-size: 14px;">${r.name}</b><br>
+
                         <div style="background:${can?'#d8f3dc':'#e9ecef'}; color:${can?'var(--primary)':'#6c757d'}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
+
                      </div>`;
+
           });
+
         } else {
+
           html = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ยังไม่มีรายการของรางวัล</div>";
+
         }
+
         document.getElementById('rewards-list').innerHTML = html;
+
       }
+
+
 
       function checkScore(input) {
+
         if(input.value.length > 4) input.value = input.value.slice(0, 4);
+
         const sid = input.value.trim();
+
         if (sid.length === 4) {
+
           // ⚡ ดึงจาก localDB แสดงผลทันทีใน 0.001 วินาที!
+
           if (localDB.students && localDB.students[sid]) {
+
             const st = localDB.students[sid];
+
             document.getElementById('rs-name').innerText = st.name || ("รหัส " + sid);
+
             document.getElementById('rs-score').innerText = (st.score || 0) + " แต้ม";
+
             if (localDB.rewards && localDB.rewards.length > 0) {
+
               renderRewardsList(sid, st.score, localDB.rewards);
+
             }
+
           } else {
+
             document.getElementById('rs-name').innerText = "🔍 กำลังดึงข้อมูลนักเรียน..."; 
+
             document.getElementById('rs-score').innerText = "...";
+
           }
 
+
+
           google.script.run.withSuccessHandler(data => {
+
             if (!data || data.error) {
+
               if (!localDB.students || !localDB.students[sid]) {
+
                 document.getElementById('rs-name').innerText = (data && data.error) ? data.error : "❌ ไม่พบข้อมูลนักเรียน";
+
                 document.getElementById('rs-score').innerText = "0 แต้ม";
+
                 document.getElementById('rewards-list').innerHTML = "<div style='grid-column: span 2; color:var(--text-sub); text-align:center;'>ไม่พบข้อมูลนักเรียนหรือของรางวัล</div>";
+
               }
+
               return;
+
             }
+
             document.getElementById('rs-name').innerText = data.name; 
+
             document.getElementById('rs-score').innerText = (data.score || 0) + " แต้ม";
+
             if (data.rewards) {
+
               localDB.rewards = data.rewards;
+
               renderRewardsList(sid, data.score, data.rewards);
+
             }
+
             if (!localDB.students) localDB.students = {};
+
             localDB.students[sid] = { name: data.name, score: data.score || 0 };
+
           }).getStudentScoreAndRewards(sid);
+
         } else {
+
           document.getElementById('rs-name').innerText = "สแกนบัตรเพื่อตรวจสอบ";
+
           document.getElementById('rs-score').innerText = "0 แต้ม";
+
           document.getElementById('rewards-list').innerHTML = "";
+
         }
+
       }
+
+
 
       function redeem(sid, rid, cost, name) { 
+
          if(confirm(`ยืนยันการแลกของรางวัล: ${name} (ใช้ ${cost} แต้ม)?`)) {
+
             document.getElementById('tx-loader-text').innerText = "กำลังประมวลผลการแลกของรางวัล...";
+
             document.getElementById('tx-loader').style.display = 'flex';
+
             google.script.run.withSuccessHandler(res => { 
+
                 document.getElementById('tx-loader').style.display = 'none';
+
                 showModal(res); 
+
                 syncLibraryData(() => {
+
                   checkScore(document.getElementById('r-sid'));
+
                 });
+
             }).processRedemption(sid, rid, cost, name, currentUser); 
+
          }
+
       }
 
+
+
       function showHistory() { 
+
         document.getElementById('historyModal').style.display='flex'; 
+
         google.script.run.withSuccessHandler(data => { 
+
           let html = ""; 
+
           data.forEach(h => html += `<div class="hist-item"><div>${h.date ? h.date + ' ' : ''}${h.time} | <b>${h.action}</b><br>${h.studentName}</div><button onclick="deleteLog(${h.rowIndex})" style="border:none;background:none;color:red">🗑️</button></div>`); 
+
           document.getElementById('hist-content').innerHTML = html || "ไม่มีข้อมูล"; 
+
         }).getRecentLogs(); 
+
       }
+
+
 
       let cachedBorrowedBooks = [];
 
+
+
       function showBorrowedBooks() {
+
         document.getElementById('borrowedBooksModal').style.display = 'flex';
+
         const contentEl = document.getElementById('borrowed-books-content');
+
         const badgeEl = document.getElementById('borrowed-count-badge');
+
         const searchInput = document.getElementById('borrowed-search');
+
         if (searchInput) searchInput.value = "";
 
+
+
         // 1. ดึงจาก localDB มาแสดงทันทีก่อนใน 0.001 วินาที
+
         let localList = [];
+
         if (localDB.books) {
+
           for (let bid in localDB.books) {
+
             const b = localDB.books[bid];
+
             if (b.status && (b.status.includes("ถูกยืม") || (b.available === 0 && b.totalQty > 0))) {
+
               localList.push({
+
                 bookId: bid,
+
                 bookName: b.name || bid,
+
                 studentId: "-",
+
                 borrowerName: b.borrowerName || "ไม่ระบุชื่อ",
+
                 days: b.borrowDays || 0,
+
                 borrowDaysText: b.borrowDaysText || (b.borrowDays === 0 ? "ยืมวันนี้" : `ยืมไปแล้ว ${b.borrowDays} วัน`),
+
                 borrowDateThai: "-"
+
               });
+
             }
+
           }
+
         }
+
         if (localList.length > 0) {
+
           cachedBorrowedBooks = localList;
+
           renderBorrowedBooks(localList);
+
         } else {
+
           contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงข้อมูล...</div>";
+
         }
+
+
 
         // 2. ดึงข้อมูลแบบสมบูรณ์จาก Apps Script
+
         google.script.run.withSuccessHandler(data => {
+
           cachedBorrowedBooks = data || [];
+
           renderBorrowedBooks(cachedBorrowedBooks);
+
         }).getCurrentlyBorrowedBooks();
+
       }
+
+
 
       function renderBorrowedBooks(list) {
+
         const contentEl = document.getElementById('borrowed-books-content');
+
         const badgeEl = document.getElementById('borrowed-count-badge');
+
         badgeEl.innerText = `${list ? list.length : 0} เล่ม`;
+
         
+
         if (!list || list.length === 0) {
+
           contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>✅ ไม่มีหนังสือค้างส่ง (ทุกคนคืนครบแล้ว)</div>";
+
           return;
+
         }
+
+
 
         let html = "";
+
         list.forEach((item, idx) => {
+
           const isOverdue = item.days >= 3;
+
           const badgeBg = isOverdue ? '#FFE5D9' : '#D8F3DC';
+
           const badgeColor = isOverdue ? '#D00000' : '#2D6A4F';
+
           const dateStr = item.borrowDateThai && item.borrowDateThai !== '-' ? ` • ยืมเมื่อ: ${item.borrowDateThai}` : '';
+
           const safeBookName = String(item.bookName || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
           const safeBorrowerName = String(item.borrowerName || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
           const safeStudentId = String(item.studentId || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
+
+
           html += `
+
             <div style="background: white; border: 1.5px solid ${isOverdue ? '#FFCCD5' : '#E9ECEF'}; border-radius: 14px; padding: 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+
               <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+
                 <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">
+
                   <span style="display:inline-block; width:20px; height:20px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:20px; font-size:11px; margin-right:4px;">${idx+1}</span>
+
                   ${item.bookName}
+
                 </div>
+
                 <span style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; background: ${badgeBg}; color: ${badgeColor}; white-space: nowrap;">
+
                   ${item.borrowDaysText}
+
                 </span>
+
               </div>
+
               <div style="font-size: 12px; color: var(--text-sub); margin-top: 3px;">
+
                 รหัสหนังสือ: <b>${item.bookId}</b>
+
               </div>
+
               <div style="font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px;">
+
                 👤 ผู้ยืม: <b>${item.borrowerName}</b> ${item.studentId && item.studentId !== '-' ? `<span style="font-size:11px; color:var(--text-sub);">(${item.studentId})</span>` : ''}
+
               </div>
+
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px dashed #E9ECEF; padding-top: 8px;">
+
                 <div style="font-size: 11px; color: #888;">${dateStr ? `📅 ${dateStr.replace(' • ', '')}` : ''}</div>
+
                 <button type="button" style="padding: 5px 12px; font-size: 12px; font-weight: 600; background: #E63946; color: white; border: none; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(230,57,70,0.25);" onclick="returnBorrowedBook('${item.bookId}', '${safeStudentId}', '${safeBorrowerName}', '${safeBookName}')">
+
                   🗑️ ลบรายการ
+
                 </button>
+
               </div>
+
             </div>
+
           `;
+
         });
+
         contentEl.innerHTML = html;
+
       }
+
+
 
       function returnBorrowedBook(bookId, studentId, borrowerName, bookName) {
+
         const displayTitle = bookName ? `"${bookName}" (${bookId})` : `รหัส ${bookId}`;
+
         const displayBorrower = (borrowerName && borrowerName !== '-' && borrowerName !== 'ไม่ระบุชื่อ') ? ` โดย ${borrowerName}` : '';
+
         if (!confirm(`ยืนยันว่าต้องการลบรายการหนังสือ ${displayTitle}${displayBorrower} ออกจากรายการยืมใช่หรือไม่?`)) {
+
           return;
+
         }
+
+
 
         document.getElementById('tx-loader-text').innerText = "กำลังลบรายการ...";
+
         document.getElementById('tx-loader').style.display = 'flex';
 
+
+
         // ปรับปรุงแคชและ UI ทันที
+
         if (localDB.books && localDB.books[bookId]) {
+
           localDB.books[bookId].status = "ว่าง";
+
           localDB.books[bookId].borrowerName = "";
+
           localDB.books[bookId].borrowDays = 0;
+
           localDB.books[bookId].borrowDaysText = "";
+
           localDB.books[bookId].available = Math.max(1, (localDB.books[bookId].available || 0) + 1);
+
         }
+
         cachedBorrowedBooks = cachedBorrowedBooks.filter(b => !(b.bookId === bookId && (studentId && studentId !== '-' ? b.studentId === studentId : true)));
+
         renderBorrowedBooks(cachedBorrowedBooks);
 
+
+
         google.script.run.withSuccessHandler(res => {
+
           document.getElementById('tx-loader').style.display = 'none';
+
           showModal(res);
+
           showBorrowedBooks();
+
           syncLibraryData();
+
         }).withFailureHandler(err => {
+
           document.getElementById('tx-loader').style.display = 'none';
+
           alert("❌ เกิดข้อผิดพลาดในการบันทึกการคืน: " + err);
+
           showBorrowedBooks();
+
         }).markBookAsReturned(bookId, studentId, borrowerName, currentUser);
+
       }
+
+
 
       function filterBorrowedBooks(query) {
+
         const q = String(query || '').trim().toLowerCase();
+
         if (!q) {
+
           renderBorrowedBooks(cachedBorrowedBooks);
+
           return;
+
         }
+
         const filtered = cachedBorrowedBooks.filter(b => 
+
           (b.bookName && b.bookName.toLowerCase().includes(q)) ||
+
           (b.bookId && b.bookId.toLowerCase().includes(q)) ||
+
           (b.borrowerName && b.borrowerName.toLowerCase().includes(q)) ||
+
           (b.studentId && b.studentId.toLowerCase().includes(q))
+
         );
+
         renderBorrowedBooks(filtered);
+
       }
+
       
+
       function deleteLog(idx) { 
+
          if(confirm("ลบรายการ?")) {
+
              document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+
              document.getElementById('tx-loader').style.display = 'flex';
+
              google.script.run.withSuccessHandler(() => {
+
                 document.getElementById('tx-loader').style.display = 'none';
+
                 showHistory();
+
              }).deleteSpecificLog(idx); 
+
          }
+
       }
+
       
+
       function showStats() { 
+
          document.getElementById('statsModal').style.display='flex'; 
+
          let btn = document.getElementById('stats-nav').children[0];
+
          loadStats('day', btn);
+
       }
+
+
 
       function loadStats(range, btnElement) {
+
          if(btnElement) {
+
             let btns = document.getElementById('stats-nav').querySelectorAll('.nav-btn');
+
             btns.forEach(b => b.classList.remove('active'));
+
             btnElement.classList.add('active');
+
             document.getElementById('st-c-day').value = ""; document.getElementById('st-c-month').value = ""; document.getElementById('st-c-year').value = "";
+
          } else {
+
             let btns = document.getElementById('stats-nav').querySelectorAll('.nav-btn');
+
             btns.forEach(b => b.classList.remove('active'));
+
          }
+
          
+
          document.getElementById('st-borrows').innerText = "...";
+
          document.getElementById('st-returns').innerText = "...";
+
          document.getElementById('st-top-students').innerHTML = "<div style='text-align:center; color:var(--text-sub);'>กำลังประมวลผล...</div>";
+
          document.getElementById('st-top-books').innerHTML = "<div style='text-align:center; color:var(--text-sub);'>กำลังประมวลผล...</div>";
 
+
+
          google.script.run.withSuccessHandler(data => { 
+
             document.getElementById('st-borrows').innerText = data.borrows; 
+
             document.getElementById('st-returns').innerText = data.returns; 
+
             
+
             let htmlS = ""; let medals = ["🥇", "🥈", "🥉"];
+
             data.topStudents.forEach((s,i) => {
+
                htmlS += `<div class="hist-item" style="background:white; margin-bottom:5px;">
+
                           <span style="font-weight:600;">${medals[i]||(i+1)+'.'} ${s.name}</span>
+
                           <b style="color:var(--primary); font-size:14px;">${s.count} เล่ม</b>
+
                         </div>`;
+
             }); 
+
             document.getElementById('st-top-students').innerHTML = htmlS || "<div style='text-align:center; color:var(--text-sub);'>ไม่มีข้อมูล</div>"; 
 
+
+
             let htmlB = ""; 
+
             data.topBooks.forEach((b,i) => {
+
                htmlB += `<div class="hist-item" style="background:white; margin-bottom:5px;">
+
                           <span style="font-weight:600;">${medals[i]||(i+1)+'.'} ${b.name}</span>
+
                           <b style="color:var(--accent); font-size:14px;">${b.count} ครั้ง</b>
+
                         </div>`;
+
             }); 
+
             document.getElementById('st-top-books').innerHTML = htmlB || "<div style='text-align:center; color:var(--text-sub);'>ไม่มีข้อมูล</div>"; 
+
          }).getAdvancedStats(range);
+
       }
+
+
 
       function showModal(msg) { 
+
           const m = document.getElementById('msgModal'); 
+
           document.getElementById('m-title').innerText = msg.includes("success") ? "สำเร็จ" : "แจ้งเตือน"; 
+
           document.getElementById('m-text').innerText = msg.split(":")[1] || msg; 
+
           document.getElementById('m-icon').innerText = msg.includes("success") ? "✅" : "⚠️"; 
+
           m.style.display = 'flex'; 
+
       }
 
-      // ==========================================
       // 🪪 ระบบพิมพ์บัตรสมาชิกห้องสมุดพร้อมบาร์โค้ด
-      // ==========================================
       let cachedCardStudents = [];
 
       function showCardModal() {
@@ -1415,9 +2575,9 @@
         list.forEach((st, idx) => {
           const safeName = String(st.name || '').replace(/'/g, "\\'");
           const safeGrade = String(st.grade || '').replace(/'/g, "\\'");
-          const safeId = String(st.id || '').replace(/'/g, "\\'")
+          const safeId = String(st.id || '').replace(/'/g, "\\'");
           html += `
-            <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 54px; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+            <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
               <div style="text-align: left; flex: 1; min-width: 0;">
                 <div style="font-weight: 700; color: var(--text-main); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
                   <span style="display:inline-block; width:18px; height:18px; min-width:18px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:18px; font-size:10px;">${idx+1}</span>
@@ -1427,7 +2587,9 @@
                   รหัส: <b>${st.id}</b> | ชั้น: <b>${st.grade || '-'}</b>
                 </div>
               </div>
-              <button type="button" class="btn-print-card" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')">🖨️ พิมพ์บัตร</button>
+              <button type="button" style="width: 88px; height: 32px; flex: 0 0 88px; padding: 0 6px; font-size: 11px; font-weight: 600; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')">
+                🖨️ พิมพ์บัตร
+              </button>
             </div>
           `;
         });
@@ -1512,7 +2674,7 @@
   <title>${docTitle || 'บัตรสมาชิกห้องสมุด โรงเรียนวัดหนองตะเฆ่'}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
   <style>
     @media print {
@@ -1722,113 +2884,225 @@
       }
 
 
+
+
       
+
       function closeModal() { 
+
           document.getElementById('msgModal').style.display = 'none'; 
+
           if (document.getElementById('tab1').classList.contains('active')) {
+
               document.getElementById('sid').focus();
+
           }
+
       }
+
       
+
       function playBeep() {
+
         try {
+
           const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
           const osc = ctx.createOscillator();
+
           const gain = ctx.createGain();
+
           osc.type = "sine"; osc.frequency.value = 1200;
+
           gain.gain.value = 0.1;
+
           osc.connect(gain); gain.connect(ctx.destination);
+
           osc.start(); setTimeout(() => { osc.stop(); ctx.close(); }, 100);
+
         } catch(e) {}
+
       }
+
+
 
       // ✅ ระบบ Live Scanner (รองรับสแกนหนังสือแบบต่อเนื่อง)
+
       let qr; 
+
       let currentScanId = "";
+
       let currentScanMode = "";
+
       let isScanCooldown = false;
 
+
+
       function startCamera(id, m) { 
+
          document.getElementById('cameraModal').style.display = 'flex'; 
+
          currentScanId = id;
+
          currentScanMode = m;
+
          isScanCooldown = false;
+
          document.getElementById('reader').innerHTML = ""; 
 
+
+
          const statusEl = document.getElementById('scan-continuous-status');
+
          if (statusEl) statusEl.style.display = 'none';
+
          
+
          if(qr) { try { qr.clear(); } catch(e){} qr = null; }
+
          qr = new Html5Qrcode("reader", {
+
            experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+
          }); 
+
          
+
          const config = { 
+
            fps: 20, 
+
            qrbox: { width: 280, height: 130 },
+
            disableFlip: false,
+
            videoConstraints: {
+
              facingMode: "environment",
+
              focusMode: "continuous"
+
            }
+
          };
+
          
+
          setTimeout(() => {
+
              qr.start({ facingMode: "environment" }, config, onScanSuccess)
+
                .catch(err => {
+
                    Html5Qrcode.getCameras().then(devices => {
+
                        if (devices && devices.length > 0) {
+
                            let camId = devices[0].id;
+
                            let backCam = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('environment'));
+
                            if (backCam) camId = backCam.id;
+
                            
+
                            qr.start(camId, { fps: 20, qrbox: { width: 280, height: 130 } }, onScanSuccess)
+
                              .catch(e => showCameraFallbackMsg());
+
                        } else {
+
                            showCameraFallbackMsg();
+
                        }
+
                    }).catch(e => showCameraFallbackMsg());
+
                });
+
          }, 100);
+
       }
+
       
+
       function showCameraFallbackMsg() {
+
          document.getElementById('scan-continuous-status').style.display = 'none';
+
          document.getElementById('reader').innerHTML = "<div style='color:white; padding: 40px 20px; text-align:center; font-family: 'Mali', cursive, sans-serif;'>⚠️ ไม่สามารถเปิดกล้องได้<br>เบราว์เซอร์อาจบล็อกสิทธิ์การเข้าถึงกล้องครับ</div>";
+
       }
+
+
 
       function onScanSuccess(decodedText) {
+
           playBeep();
+
           stopCamera(); // ✅ สแกน 1 เล่มแล้วปิดกล้องสแกนทันที หากต้องการสแกนเล่มอื่น ค่อยให้ผู้ใช้กดปุ่มเองทีหลัง
 
+
+
           if (currentScanId === 'bid') {
+
               document.getElementById('bid').value = decodedText;
+
               addCurrentBookToQueue(decodedText);
+
               return;
+
           }
+
+
 
           if (currentScanMode === 'add') {
+
               document.getElementById(currentScanId).value = decodedText;
+
               document.getElementById('n-name').focus();
+
           } else if (currentScanMode === 'redeem' || currentScanId.includes('r-sid')) {
+
               document.getElementById(currentScanId).value = decodedText;
+
               checkScore(document.getElementById(currentScanId));
+
           } else {
+
               document.getElementById(currentScanId).value = decodedText;
+
               validateAndSearch(document.getElementById(currentScanId), currentScanMode); 
+
           }
+
       }
 
+
+
       function stopCamera() { 
+
          isScanCooldown = false;
+
          document.getElementById('scan-continuous-status').style.display = 'none';
+
          if(qr) {
+
              try { 
+
                  qr.stop().then(() => { qr.clear(); qr = null; }).catch(e => { qr.clear(); qr = null; }); 
+
              } catch(e) { qr = null; }
+
          }
+
          document.getElementById('cameraModal').style.display='none'; 
+
       }
+
     </script>
+
   </body>
+
 </html>
+
