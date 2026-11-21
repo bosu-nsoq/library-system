@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html>
 
@@ -82,22 +82,33 @@
 
 
       html, body { 
+
         overflow: hidden; width: 100%; height: 100%; position: fixed; 
-        top: 0; left: 0; right: 0; bottom: 0;
+
         overscroll-behavior: none; -webkit-overflow-scrolling: auto; touch-action: manipulation;
-        font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 0;
+
+        font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 10px;
+
         background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
+
         background-size: cover; background-position: center; background-attachment: fixed;
-        display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+
+        display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box;
+
       }
 
       
 
       .card {
+
         background: var(--bg-glass); border-radius: var(--radius); box-shadow: var(--shadow);
+
         backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.8); width: 100%; max-width: 480px; padding: 22px; box-sizing: border-box; margin: auto;
-        max-height: 96vh; overflow-y: auto;
+
+        border: 1px solid rgba(255, 255, 255, 0.8); width: 95vw; max-width: 460px; padding: 22px; box-sizing: border-box; margin-top: 0;
+
+        max-height: 98vh; overflow: hidden;
+
       }
 
 
@@ -108,7 +119,7 @@
 
       /* Login Screen */
 
-      .login-box { text-align: center; margin: auto; }
+      .login-box { text-align: center; margin-top: 15vh; }
 
       .school-logo { width: 85px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 
@@ -139,9 +150,13 @@
       
 
       #login-overlay {
+
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
         background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
-        background-size: cover; z-index: 9999; display: flex; align-items: center; justify-content: center;
+
+        background-size: cover; z-index: 9999; display: flex; align-items: flex-start; justify-content: center;
+
       }
 
 
@@ -155,50 +170,7 @@
       #staff-display {
         white-space: nowrap; font-size: 13px; padding: 4px 10px; max-width: none; overflow: visible; text-overflow: clip;
       }
-      @media (max-width: 600px) {
-        html, body {
-          padding: 0 !important;
-          margin: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          overflow: hidden !important;
-        }
-        .card {
-          width: 100vw !important;
-          height: 100vh !important;
-          max-width: 100vw !important;
-          max-height: 100vh !important;
-          border-radius: 0 !important;
-          border: none !important;
-          box-shadow: none !important;
-          margin: 0 !important;
-          padding: 16px 14px !important;
-          padding-top: max(16px, env(safe-area-inset-top)) !important;
-          padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
-          padding-left: max(14px, env(safe-area-inset-left)) !important;
-          padding-right: max(14px, env(safe-area-inset-right)) !important;
-          display: flex !important;
-          flex-direction: column !important;
-          justify-content: flex-start !important;
-          overflow-y: auto !important;
-          -webkit-overflow-scrolling: touch !important;
-          box-sizing: border-box !important;
-        }
-        .login-box {
-          margin: 0 !important;
-          width: 100vw !important;
-          max-width: 100vw !important;
-          height: 100vh !important;
-          max-height: 100vh !important;
-          display: flex !important;
-          flex-direction: column !important;
-          justify-content: center !important;
-          align-items: center !important;
-          border-radius: 0 !important;
-          border: none !important;
-          box-shadow: none !important;
-          padding: 20px !important;
-        }
+      @media (max-width: 480px) {
         .user-pill, #staff-display {
           white-space: nowrap;
           overflow: hidden;
@@ -535,7 +507,7 @@
 
       </div>
 
-      <div id="res-text" class="status-text" style="display: none;"></div>
+      <div id="res-text" class="status-text">พร้อมใช้งาน</div>
 
     </div>
 
