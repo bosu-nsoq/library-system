@@ -56,6 +56,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>`n    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
       *, *::before, *::after, html, body, button, input, select, textarea, optgroup, option {
@@ -82,9 +83,9 @@
 
       html, body { 
 
-        overflow-x: hidden; width: 100%; position: relative; 
+        overflow: hidden; width: 100%; height: 100%; position: fixed; 
 
-        overscroll-behavior: none; -webkit-overflow-scrolling: touch; touch-action: pan-y;
+        overscroll-behavior: none; -webkit-overflow-scrolling: auto; touch-action: manipulation;
 
         font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 10px;
 
@@ -92,7 +93,7 @@
 
         background-size: cover; background-position: center; background-attachment: fixed;
 
-        display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; box-sizing: border-box;
+        display: flex; align-items: center; justify-content: center; min-height: 100vh; box-sizing: border-box;
 
       }
 
@@ -104,9 +105,9 @@
 
         backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 
-        border: 1px solid rgba(255, 255, 255, 0.8); width: 95vw; max-width: 460px; padding: 25px; box-sizing: border-box; margin-top: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.8); width: 95vw; max-width: 460px; padding: 22px; box-sizing: border-box; margin-top: 0;
 
-        overscroll-behavior: contain;
+        max-height: 98vh; overflow: hidden;
 
       }
 
@@ -226,7 +227,7 @@
 
       /* รายการคิวหนังสือหลายเล่ม */
 
-      .queue-box { display: none; margin-top: 15px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 16px; padding: 12px; border: 1.5px solid #D8F3DC; }
+      .queue-box { display: none; margin-top: 15px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 16px; padding: 12px; border: 1.5px solid #D8F3DC; max-height: 105px; overflow-y: auto; }
 
       .queue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--primary); }
 
@@ -298,7 +299,8 @@
         line-height: 1.6 !important;
       }
       #print-c-day::-webkit-calendar-picker-indicator,
-      #st-c-day::-webkit-calendar-picker-indicator {
+      #st-c-day::-webkit-calendar-picker-indicator,
+      #excel-c-day::-webkit-calendar-picker-indicator {
         position: absolute;
         top: 0;
         left: 0;
@@ -615,6 +617,44 @@
 
     </div>
 
+    <!-- 📥 หน้าต่างดาวน์โหลด Excel -->
+    <div id="excelModal" class="modal-overlay">
+       <div class="modal-box">
+          <div style="font-weight:700; font-size: 18px; margin-bottom:15px;">📥 กำหนดช่วงเวลาดาวน์โหลด Excel</div>
+          <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+             <div style="position:relative; flex:1; display:flex; align-items:center;">
+                <input type="text" id="excel-c-day-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="padding:10px; font-size:12px; width:100%; cursor:pointer; text-align:center; background:#fff;" onclick="openExcelCalendar()" title="คลิกเพื่อเลือกวันที่">
+                <input type="date" id="excel-c-day" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="onExcelDateChange(this.value)">
+             </div>
+             <button class="action-btn" style="padding:10px 15px; font-size:12px; background:#1B7A43; margin:0;" onclick="triggerDownloadExcelCustom('day')">โหลดรายวัน</button>
+          </div>
+          <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+             <input type="month" id="excel-c-month" class="modern-input" style="padding:10px; font-size:12px; flex:1; cursor:pointer;" onclick="try{this.showPicker()}catch(e){}">
+             <button class="action-btn" style="padding:10px 15px; font-size:12px; background:var(--accent); margin:0;" onclick="triggerDownloadExcelCustom('month')">โหลดรายเดือน</button>
+          </div>
+          <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
+             <input type="number" id="excel-c-year" class="modern-input" placeholder="พิมพ์ปี พ.ศ. (เช่น 2569)" style="padding:10px; font-size:12px; flex:1;">
+             <button class="action-btn" style="padding:10px 15px; font-size:12px; background:#457B9D; margin:0;" onclick="triggerDownloadExcelCustom('year')">โหลดรายปี</button>
+          </div>
+          <button class="action-btn" style="width:100%; margin-top:5px; margin-bottom:10px; background:#2D6A4F; font-size:13px; padding:10px;" onclick="triggerDownloadExcelCustom('all')">📥 ดาวน์โหลดข้อมูลทั้งหมด</button>
+          <button class="action-btn" style="width:100%; margin-top:5px; background:transparent; border:1px solid #EAEAEA; color:var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('excelModal').style.display='none'; document.getElementById('statsModal').style.display='flex'">ย้อนกลับ</button>
+       </div>
+    </div>
+
+    <!-- 📚 ป๊อปอัปยืนยันการยืมหนังสือหลายเล่ม -->
+    <div id="confirmBorrowModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 400px;">
+          <div style="font-weight:700; font-size: 18px; color:var(--primary); margin-bottom:6px;">📚 ยืนยันการยืมหนังสือ</div>
+          <div id="confirm-borrow-student" style="font-size:13px; color:var(--text-main); margin-bottom:10px; font-weight:600;"></div>
+          <div style="font-size:12px; color:var(--text-sub); text-align:left; margin-bottom:6px;">รายการหนังสือที่ยืม (<span id="confirm-borrow-count">0</span> เล่ม):</div>
+          <div id="confirm-borrow-list" class="history-list" style="max-height: 200px; margin-bottom: 15px; border: 1.5px solid #D8F3DC; border-radius: 12px; padding: 6px 8px; background: #FAFDFB;"></div>
+          <div class="btn-group" style="margin-top: 10px;">
+             <button class="action-btn" style="background:#E5E7EB; color:#4B5563; box-shadow:none; font-size:14px; padding:12px;" onclick="closeConfirmBorrowModal()">ยกเลิก</button>
+             <button class="action-btn" style="background:var(--accent); color:white; font-size:14px; padding:12px;" onclick="proceedBorrowExecution()">ยืนยันการยืม</button>
+          </div>
+       </div>
+    </div>
+
 
 
     <div id="statsModal" class="modal-overlay">
@@ -625,7 +665,13 @@
 
              <div style="font-weight:700; font-size: 18px; text-align:left;">📊 สถิติการใช้งาน</div>
 
-             <button onclick="document.getElementById('statsModal').style.display='none'; document.getElementById('printModal').style.display='flex'; initPrintDate();" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:'Mali', cursive, sans-serif; font-size:12px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🖨️ พิมพ์รายงาน</button>
+             <div style="display:flex; gap:6px; align-items:center;">
+
+                <button onclick="openExcelModal()" style="background:#1B7A43; color:white; border:none; width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(27,122,67,0.25); padding:0;" title="ดาวน์โหลด Excel">📥</button>
+
+                <button onclick="openPrintModal()" style="background:var(--primary); color:white; border:none; width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); padding:0;" title="พิมพ์รายงาน">🖨️</button>
+
+             </div>
 
           </div>
 
@@ -1029,6 +1075,195 @@
             if (dayDisplay) dayDisplay.value = `${d}/${m}/${yBE}`;
          }
          loadStats({ type: 'custom_day', value: val }, null);
+      }
+
+      function openPrintModal() {
+        document.getElementById('statsModal').style.display = 'none';
+        document.getElementById('printModal').style.display = 'flex';
+        initPrintDate();
+      }
+
+      function openExcelModal() {
+        document.getElementById('statsModal').style.display = 'none';
+        document.getElementById('excelModal').style.display = 'flex';
+        initExcelDate();
+      }
+
+      function initExcelDate() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = (now.getMonth() + 1).toString().padStart(2, '0');
+        const d = now.getDate().toString().padStart(2, '0');
+        const yBE = y + 543;
+        
+        const dayInput = document.getElementById('excel-c-day');
+        const dayDisplay = document.getElementById('excel-c-day-display');
+        if (dayInput && (!dayInput.value || (dayDisplay && !dayDisplay.value))) {
+          dayInput.value = y + '-' + m + '-' + d;
+          if (dayDisplay) dayDisplay.value = d + '/' + m + '/' + yBE;
+        }
+        
+        const monthInput = document.getElementById('excel-c-month');
+        if (monthInput && !monthInput.value) {
+          monthInput.value = y + '-' + m;
+        }
+        
+        const yearInput = document.getElementById('excel-c-year');
+        if (yearInput && !yearInput.value) {
+          yearInput.value = yBE;
+        }
+      }
+
+      function openExcelCalendar() {
+        const el = document.getElementById('excel-c-day');
+        if (el) {
+          if (typeof el.showPicker === 'function') {
+            try { el.showPicker(); return; } catch(e) {}
+          }
+          el.focus();
+          el.click();
+        }
+      }
+
+      function onExcelDateChange(val) {
+        const dayDisplay = document.getElementById('excel-c-day-display');
+        if (!val) {
+          if (dayDisplay) dayDisplay.value = '';
+          return;
+        }
+        const parts = val.split('-');
+        if (parts.length === 3) {
+          let y = parseInt(parts[0], 10);
+          let yBE = y > 2400 ? y : y + 543;
+          let m = parts[1].padStart(2, '0');
+          let d = parts[2].padStart(2, '0');
+          if (dayDisplay) dayDisplay.value = d + '/' + m + '/' + yBE;
+        }
+      }
+
+      function triggerDownloadExcelCustom(type) {
+        let val = ''; let rangeText = ''; let filenameSuffix = '';
+        if (type === 'day') {
+          val = document.getElementById('excel-c-day').value;
+          if (!val && document.getElementById('excel-c-day-display')) {
+            let disp = document.getElementById('excel-c-day-display').value.trim();
+            if (disp.includes('/')) {
+              let p = disp.split('/');
+              if (p.length === 3) {
+                let d = p[0].padStart(2, '0');
+                let m = p[1].padStart(2, '0');
+                let y = parseInt(p[2], 10);
+                let yCE = y > 2400 ? y - 543 : y;
+                val = yCE + '-' + m + '-' + d;
+                document.getElementById('excel-c-day').value = val;
+              }
+            }
+          }
+          if (val) {
+            let p = val.split('-');
+            let y = parseInt(p[0], 10);
+            let yBE = y > 2400 ? y : y + 543;
+            let d = p[2].padStart(2, '0');
+            let m = p[1].padStart(2, '0');
+            rangeText = 'ประจำวันที่ ' + d + '/' + m + '/' + yBE;
+            filenameSuffix = d + '-' + m + '-' + yBE;
+          }
+        } else if (type === 'month') {
+          val = document.getElementById('excel-c-month').value;
+          if (val) {
+            let p = val.split('-');
+            let y = parseInt(p[0], 10);
+            let yBE = y > 2400 ? y : y + 543;
+            rangeText = 'ประจำเดือน ' + p[1] + '/' + yBE;
+            filenameSuffix = p[1] + '-' + yBE;
+          }
+        } else if (type === 'year') {
+          val = document.getElementById('excel-c-year').value;
+          if (val) {
+            let rawY = parseInt(val, 10);
+            let yBE = rawY > 2400 ? rawY : rawY + 543;
+            rangeText = 'ประจำปี พ.ศ. ' + yBE;
+            filenameSuffix = String(yBE);
+          }
+        } else if (type === 'all') {
+          val = 'all';
+          rangeText = 'ทั้งหมด';
+          filenameSuffix = 'ทั้งหมด';
+        }
+
+        if (!val) { alert('⚠️ กรุณาระบุเวลาที่ต้องการดาวน์โหลดให้ครบถ้วน'); return; }
+
+        document.getElementById('excelModal').style.display = 'none';
+        document.getElementById('tx-loader-text').innerText = 'กำลังเตรียมไฟล์ Excel...';
+        document.getElementById('tx-loader').style.display = 'flex';
+
+        const rangeObj = type === 'all' ? 'all' : { type: 'custom_' + type, value: val, text: rangeText };
+
+        google.script.run.withSuccessHandler(function(data) {
+          document.getElementById('tx-loader').style.display = 'none';
+          if (!data || data.length === 0) {
+            alert('⚠️ ไม่มีข้อมูลสำหรับ ' + rangeText);
+            return;
+          }
+          exportToExcelFile(data, filenameSuffix, rangeText);
+        }).withFailureHandler(function(err) {
+          document.getElementById('tx-loader').style.display = 'none';
+          alert('❌ ไม่สามารถดึงข้อมูลได้: ' + err);
+        }).getPrintData(rangeObj);
+      }
+
+      function exportToExcelFile(data, filenameSuffix, rangeText) {
+        const rows = [
+          ['ลำดับ', 'วันที่ (พ.ศ.)', 'เวลา', 'รายการ', 'รหัสนักเรียน', 'ชื่อ-นามสกุล', 'รหัสหนังสือ', 'ชื่อหนังสือ', 'เจ้าหน้าที่']
+        ];
+
+        data.forEach((r, idx) => {
+          rows.push([
+            idx + 1,
+            r.date || '',
+            r.time || '',
+            r.action || '',
+            r.studentId || '',
+            r.studentName || '',
+            r.bookId || '',
+            r.bookName || '',
+            r.staff || ''
+          ]);
+        });
+
+        const filename = 'รายงานสถิติห้องสมุด_' + filenameSuffix + '.xlsx';
+
+        if (typeof XLSX !== 'undefined') {
+          const wb = XLSX.utils.book_new();
+          const ws = XLSX.utils.aoa_to_sheet(rows);
+          ws['!cols'] = [
+            { wch: 8 },
+            { wch: 14 },
+            { wch: 10 },
+            { wch: 12 },
+            { wch: 14 },
+            { wch: 25 },
+            { wch: 16 },
+            { wch: 30 },
+            { wch: 16 }
+          ];
+          XLSX.utils.book_append_sheet(wb, ws, 'สถิติห้องสมุด');
+          XLSX.writeFile(wb, filename);
+        } else {
+          let csvContent = '\uFEFF';
+          rows.forEach(row => {
+            let rowStr = row.map(cell => '"' + String(cell || '').replace(/"/g, '""') + '"').join(',');
+            csvContent += rowStr + '\r\n';
+          });
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = filename.replace('.xlsx', '.csv');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(link.href);
+        }
       }
 
       function openPrintCalendar() {
@@ -1786,6 +2021,8 @@
 
 
 
+      let pendingBorrowParams = null;
+
       function submitAction(type) {
 
         const sid = document.getElementById('sid').value.trim(); 
@@ -1813,6 +2050,60 @@
             return;
 
         }
+
+        // 📚 หากกรณีที่มีหนังสือหลายเล่ม ให้แสดงป๊อปอัพขึ้นมายืนยันหลังจากกดยืม
+        if (type === 'borrow' && bookIds.length > 1) {
+          pendingBorrowParams = { sid, bookIds, currentStudentName };
+          openConfirmBorrowModal(sid, bookIds, currentStudentName);
+          return;
+        }
+
+        executeBorrowOrReturn(type, sid, bookIds, currentStudentName);
+      }
+
+      function openConfirmBorrowModal(sid, bookIds, studentName) {
+        document.getElementById('confirm-borrow-student').innerText = '👤 ผู้ยืม: ' + (studentName || sid) + ' (รหัส: ' + sid + ')';
+        document.getElementById('confirm-borrow-count').innerText = bookIds.length;
+        
+        let html = '';
+        bookIds.forEach((bid, idx) => {
+          const queueItem = bookQueue.find(b => b.id === bid);
+          const bookDb = localDB.books ? localDB.books[bid] : null;
+          const bName = (queueItem && queueItem.name && !queueItem.name.includes('กำลังดึง')) 
+                        ? queueItem.name 
+                        : ((bookDb && bookDb.name) || bid);
+          const bStatus = (queueItem && queueItem.status) || (bookDb && bookDb.status) || '';
+          const isBorrowed = bStatus.includes('ถูกยืม') || bStatus.includes('ยืมแล้ว') || (bookDb && bookDb.available === 0);
+          const statusBadge = isBorrowed 
+            ? '<span style="background:#FEE2E2; color:var(--danger); padding:2px 6px; border-radius:6px; font-size:10px; font-weight:600;">⚠️ ยังไม่คืน</span>' 
+            : '<span style="background:#D8F3DC; color:var(--primary); padding:2px 6px; border-radius:6px; font-size:10px; font-weight:600;">พร้อมยืม</span>';
+          
+          html += '<div style="display:flex; justify-content:space-between; align-items:center; background:white; border-radius:10px; padding:8px 12px; margin-bottom:6px; border:1px solid #E9ECEF; font-size:13px; text-align:left; box-shadow:0 1px 3px rgba(0,0,0,0.03);">' +
+                    '<div style="flex:1; padding-right:8px;">' +
+                      '<div style="font-weight:700; color:var(--text-main);">' + (idx + 1) + '. ' + bName + '</div>' +
+                      '<div style="font-size:11px; color:var(--text-sub);">รหัส: <b>' + bid + '</b></div>' +
+                    '</div>' +
+                    '<div>' + statusBadge + '</div>' +
+                  '</div>';
+        });
+        document.getElementById('confirm-borrow-list').innerHTML = html;
+        document.getElementById('confirmBorrowModal').style.display = 'flex';
+      }
+
+      function closeConfirmBorrowModal() {
+        document.getElementById('confirmBorrowModal').style.display = 'none';
+        pendingBorrowParams = null;
+      }
+
+      function proceedBorrowExecution() {
+        if (!pendingBorrowParams) return;
+        const p = pendingBorrowParams;
+        document.getElementById('confirmBorrowModal').style.display = 'none';
+        executeBorrowOrReturn('borrow', p.sid, p.bookIds, p.currentStudentName);
+        pendingBorrowParams = null;
+      }
+
+      function executeBorrowOrReturn(type, sid, bookIds, currentStudentName) {
 
 
 
