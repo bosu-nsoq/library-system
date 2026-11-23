@@ -1790,8 +1790,14 @@
 
         const borrowerEl = document.getElementById('b-borrower');
         if (borrowerEl) {
-          borrowerEl.innerText = "";
-          borrowerEl.style.display = "none";
+          if ((!book.totalQty || book.totalQty <= 1) && book.borrowerName && (avail === 0 || (book.status && (book.status.includes('ถูกยืม') || book.status.includes('ยืมแล้ว'))))) {
+            borrowerEl.innerText = "👤 ผู้ยืมขณะนี้: " + book.borrowerName;
+            borrowerEl.style.display = "block";
+            borrowerEl.style.color = "#D90429";
+          } else {
+            borrowerEl.innerText = "";
+            borrowerEl.style.display = "none";
+          }
         }
 
         const copiesEl = document.getElementById('b-copies');
@@ -1855,7 +1861,7 @@
             id: bid, 
             name: b.name, 
             status: statusText, 
-            borrowerName: "",
+            borrowerName: b.borrowerName || "",
             totalQty: b.totalQty || 1,
             copies: b.copies || []
           });
@@ -1888,7 +1894,7 @@
           id: bid, 
           name: displayName, 
           status: currentStatus, 
-          borrowerName: "",
+          borrowerName: (dataCache.book && dataCache.book[bid] && dataCache.book[bid].borrowerName) || "",
           totalQty: 1,
           copies: []
         });
@@ -1913,7 +1919,7 @@
 
             bookQueue[itemIndex].status = statusText;
 
-            bookQueue[itemIndex].borrowerName = "";
+            bookQueue[itemIndex].borrowerName = data.book.borrowerName || "";
 
             bookQueue[itemIndex].totalQty = data.book.totalQty || 1;
 
@@ -2049,6 +2055,8 @@
                   รหัส: <b>${b.id}</b>
 
                 </div>
+
+                ${(b.borrowerName && (!b.totalQty || b.totalQty <= 1 || !b.copies || b.copies.length === 0)) ? `<div style="font-size:12px; color:#D90429; font-weight:600; margin-top:3px;">👤 ผู้ยืมขณะนี้: <b>${b.borrowerName}</b></div>` : ''}
 
                 <div class="queue-badge ${badgeClass}" style="margin-top:4px;">${statusText}</div>
 
@@ -2725,31 +2733,9 @@
 
 
 
-        document.getElementById('tx-loader-text').innerText = "กำลังลบรายการ...";
+        document.getElementById('tx-loader-text').innerText = "กำลังลบรายการและอัปเดตข้อมูล...";
 
         document.getElementById('tx-loader').style.display = 'flex';
-
-
-
-        // ปรับปรุงแคชและ UI ทันที
-
-        if (localDB.books && localDB.books[bookId]) {
-
-          localDB.books[bookId].status = "ว่าง";
-
-          localDB.books[bookId].borrowerName = "";
-
-          localDB.books[bookId].borrowDays = 0;
-
-          localDB.books[bookId].borrowDaysText = "";
-
-          localDB.books[bookId].available = Math.max(1, (localDB.books[bookId].available || 0) + 1);
-
-        }
-
-        cachedBorrowedBooks = cachedBorrowedBooks.filter(b => !(b.bookId === bookId && (studentId && studentId !== '-' ? b.studentId === studentId : true)));
-
-        renderBorrowedBooks(cachedBorrowedBooks);
 
 
 
@@ -2757,19 +2743,49 @@
 
           document.getElementById('tx-loader').style.display = 'none';
 
-          showModal(res);
+          if (res && res.status === "success") {
 
-          showBorrowedBooks();
+            if (res.libraryData) {
 
-          syncLibraryData();
+              localDB = res.libraryData;
+
+              localDB.loaded = true;
+
+            }
+
+            if (res.borrowedBooks) {
+
+              cachedBorrowedBooks = res.borrowedBooks;
+
+            }
+
+            renderBorrowedBooks(cachedBorrowedBooks);
+
+            showModal(res.msg || "success:✅ ลบรายการเรียบร้อย");
+
+          } else {
+
+            const msg = (typeof res === 'string') ? res : ((res && res.msg) || "error:❌ เกิดข้อผิดพลาดในการลบรายการ");
+
+            google.script.run.withSuccessHandler(data => {
+
+              cachedBorrowedBooks = data || [];
+
+              renderBorrowedBooks(cachedBorrowedBooks);
+
+            }).getCurrentlyBorrowedBooks();
+
+            syncLibraryData();
+
+            showModal(msg);
+
+          }
 
         }).withFailureHandler(err => {
 
           document.getElementById('tx-loader').style.display = 'none';
 
           alert("❌ เกิดข้อผิดพลาดในการบันทึกการคืน: " + err);
-
-          showBorrowedBooks();
 
         }).markBookAsReturned(bookId, studentId, borrowerName, currentUser);
 
