@@ -259,6 +259,7 @@
 
 
       .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; }
+      #msgModal { z-index: 99999 !important; }
 
       .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-sizing: border-box; max-height: 90vh; overflow-y: auto;}
 
@@ -516,7 +517,7 @@
 
     <!-- Modals -->
 
-    <div id="msgModal" class="modal-overlay"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main); font-family: 'Mali', cursive, sans-serif !important;" onclick="closeModal()">ตกลง</button></div></div>
+    <div id="msgModal" class="modal-overlay" style="z-index: 99999;"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main); font-family: 'Mali', cursive, sans-serif !important;" onclick="closeModal()">ตกลง</button></div></div>
 
     
 
@@ -2761,7 +2762,7 @@
 
             renderBorrowedBooks(cachedBorrowedBooks);
 
-            showModal(res.msg || "success:✅ ลบรายการเรียบร้อย");
+            showModal(res.msg || "success:✅ คืนหนังสือสำเร็จเรียบร้อย", "คืนสำเร็จ");
 
           } else {
 
@@ -2937,11 +2938,20 @@
 
 
 
-      function showModal(msg) { 
+      function showModal(msg, customTitle) { 
 
           const m = document.getElementById('msgModal'); 
 
-          document.getElementById('m-title').innerText = msg.includes("success") ? "สำเร็จ" : "แจ้งเตือน"; 
+          let title = "แจ้งเตือน";
+          if (customTitle) {
+            title = customTitle;
+          } else if (msg.includes("คืนสำเร็จ") || msg.includes("คืนหนังสือสำเร็จ")) {
+            title = "คืนสำเร็จ";
+          } else if (msg.includes("success")) {
+            title = "สำเร็จ";
+          }
+
+          document.getElementById('m-title').innerText = title; 
 
           document.getElementById('m-text').innerText = msg.split(":")[1] || msg; 
 
