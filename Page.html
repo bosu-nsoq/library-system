@@ -1766,36 +1766,17 @@
 
         document.getElementById('b-name').innerText = book.name;
 
-        let statusText = "สถานะ: " + book.status;
+        let avail = (book.available !== undefined && book.available !== null)
+                    ? Number(book.available)
+                    : (book.status && (book.status.includes('ถูกยืม') || book.status.includes('ยืมแล้ว')) ? 0 : (Number(book.totalQty) || 1));
 
-        if (book.borrowDaysText && !book.status.includes(book.borrowDaysText)) {
-
-          statusText += ` (${book.borrowDaysText})`;
-
-        }
-
+        let statusText = (avail > 0) ? `สถานะ: ว่าง จำนวน ${avail} เล่ม` : `สถานะ: ถูกยืม (ว่าง 0 เล่ม)`;
         document.getElementById('b-status').innerText = statusText;
 
-        
-
         const borrowerEl = document.getElementById('b-borrower');
-
         if (borrowerEl) {
-
-          if (book.borrowerName) {
-
-            borrowerEl.innerText = "👤 ผู้ยืมคนล่าสุด: " + book.borrowerName;
-
-            borrowerEl.style.display = "block";
-
-          } else {
-
-            borrowerEl.innerText = "";
-
-            borrowerEl.style.display = "none";
-
-          }
-
+          borrowerEl.innerText = "";
+          borrowerEl.style.display = "none";
         }
 
         document.getElementById('box-book').classList.add('active');
@@ -1830,15 +1811,13 @@
 
           const b = localDB.books[bid];
 
-          let statusText = b.status;
+          let avail = (b.available !== undefined && b.available !== null)
+                      ? Number(b.available)
+                      : (b.status && (b.status.includes('ถูกยืม') || b.status.includes('ยืมแล้ว')) ? 0 : (Number(b.totalQty) || 1));
 
-          if (b.borrowDaysText && !statusText.includes(b.borrowDaysText)) {
+          let statusText = (avail > 0) ? `ว่าง จำนวน ${avail} เล่ม` : `ถูกยืม (ว่าง 0 เล่ม)`;
 
-            statusText += ` (${b.borrowDaysText})`;
-
-          }
-
-          bookQueue.push({ id: bid, name: b.name, status: statusText, borrowerName: b.borrowerName });
+          bookQueue.push({ id: bid, name: b.name, status: statusText, borrowerName: "" });
 
           renderBookQueue();
 
@@ -1878,17 +1857,15 @@
 
             bookQueue[itemIndex].name = data.book.name;
 
-            let statusText = data.book.status;
+            let avail = (data.book.available !== undefined && data.book.available !== null)
+                        ? Number(data.book.available)
+                        : (data.book.status && (data.book.status.includes('ถูกยืม') || data.book.status.includes('ยืมแล้ว')) ? 0 : (Number(data.book.totalQty) || 1));
 
-            if (data.book.borrowDaysText && !statusText.includes(data.book.borrowDaysText)) {
-
-              statusText += ` (${data.book.borrowDaysText})`;
-
-            }
+            let statusText = (avail > 0) ? `ว่าง จำนวน ${avail} เล่ม` : `ถูกยืม (ว่าง 0 เล่ม)`;
 
             bookQueue[itemIndex].status = statusText;
 
-            bookQueue[itemIndex].borrowerName = data.book.borrowerName || "";
+            bookQueue[itemIndex].borrowerName = "";
 
             renderBookQueue();
 
@@ -1968,7 +1945,7 @@
 
           const statusText = (b.status && b.status !== "-") ? b.status : "พร้อมทำรายการ";
 
-          const borrowerStr = b.borrowerName ? `<div style="font-size:11px; color:#2D6A4F; font-weight:600; margin-top:2px;">👤 ผู้ยืมคนล่าสุด: ${b.borrowerName}</div>` : '';
+          const borrowerStr = '';
 
           html += `
 
@@ -2051,7 +2028,7 @@
       }
 
       function openConfirmBorrowModal(sid, bookIds, studentName) {
-        document.getElementById('confirm-borrow-student').innerText = '👤 ผู้ยืม: ' + (studentName || sid) + ' (รหัส: ' + sid + ')';
+        document.getElementById('confirm-borrow-student').innerText = '👤 ผู้ยืม: ' + (studentName || sid);
         document.getElementById('confirm-borrow-count').innerText = bookIds.length;
         
         let html = '';
@@ -2067,10 +2044,9 @@
             ? '<span style="background:#FEE2E2; color:var(--danger); padding:2px 6px; border-radius:6px; font-size:10px; font-weight:600;">⚠️ ยังไม่คืน</span>' 
             : '<span style="background:#D8F3DC; color:var(--primary); padding:2px 6px; border-radius:6px; font-size:10px; font-weight:600;">พร้อมยืม</span>';
           
-          html += '<div style="display:flex; justify-content:space-between; align-items:center; background:white; border-radius:10px; padding:8px 12px; margin-bottom:6px; border:1px solid #E9ECEF; font-size:13px; text-align:left; box-shadow:0 1px 3px rgba(0,0,0,0.03);">' +
+          html += '<div style="display:flex; justify-content:space-between; align-items:center; background:white; border-radius:10px; padding:10px 12px; margin-bottom:6px; border:1px solid #E9ECEF; font-size:13px; text-align:left; box-shadow:0 1px 3px rgba(0,0,0,0.03);">' +
                     '<div style="flex:1; padding-right:8px;">' +
                       '<div style="font-weight:700; color:var(--text-main);">' + (idx + 1) + '. ' + bName + '</div>' +
-                      '<div style="font-size:11px; color:var(--text-sub);">รหัส: <b>' + bid + '</b></div>' +
                     '</div>' +
                     '<div>' + statusBadge + '</div>' +
                   '</div>';
