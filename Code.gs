@@ -37,18 +37,59 @@ function loginStaff(pin) {
 function getRecentLogs() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const logSheet = ss.getSheetByName("Logs");
+  const bSheet = ss.getSheetByName("Books");
   const lastRow = logSheet.getLastRow();
-  const numRows = 10;
+  const numRows = 25;
   if (lastRow < 2) return []; 
   const startRow = Math.max(2, lastRow - numRows + 1);
   const data = logSheet.getRange(startRow, 1, lastRow - startRow + 1, 8).getValues();
+
+  // สร้าง map ชื่อหนังสือเพื่อดึงชื่อเรื่องมาแสดงในประวัติ
+  let bookNameMap = {};
+  if (bSheet) {
+    const bData = bSheet.getDataRange().getValues();
+    for (let b = 1; b < bData.length; b++) {
+      const bid = String(bData[b][0] || '').trim();
+      if (bid) {
+        bookNameMap[bid] = String(bData[b][1] || '').trim();
+      }
+    }
+  }
+
   let logs = [];
   for (let i = 0; i < data.length; i++) {
     let row = data[i];
     let d = new Date(row[0]);
     let dateStr = !isNaN(d.getTime()) ? (Utilities.formatDate(d, "GMT+7", "dd/MM/") + (d.getFullYear() + 543)) : "";
     let timeStr = !isNaN(d.getTime()) ? (d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0')) : "";
-    logs.push({ rowIndex: startRow + i, date: dateStr, time: timeStr, action: row[1], studentName: row[3], itemName: row[4], note: row[6] });
+    
+    // กำหนดส่ง (dueDate)
+    let dueDateStr = "";
+    if (row[5]) {
+      let dd = new Date(row[5]);
+      if (!isNaN(dd.getTime())) {
+        dueDateStr = Utilities.formatDate(dd, "GMT+7", "dd/MM/") + (dd.getFullYear() + 543);
+      } else {
+        dueDateStr = String(row[5]).trim();
+      }
+    }
+
+    const bookId = String(row[4] || '').trim();
+    const bookTitle = bookNameMap[bookId] || bookId;
+
+    logs.push({
+      rowIndex: startRow + i,
+      date: dateStr,
+      time: timeStr,
+      action: String(row[1] || '').trim(),
+      studentId: String(row[2] || '').trim(),
+      studentName: String(row[3] || '').trim(),
+      bookId: bookId,
+      bookName: bookTitle,
+      dueDate: dueDateStr,
+      note: String(row[6] || '').trim(),
+      staffName: String(row[7] || '').trim()
+    });
   }
   return logs.reverse();
 }
@@ -769,6 +810,7 @@ function getFullLibraryData() {
         books[bid] = {
           name: bName,
           category: String(bData[i][2] || 'ทั่วไป').trim(),
+          author: String(bData[i][2] || 'ทั่วไป').trim(),
           status: statusText,
           available: available,
           totalQty: totalQty,
@@ -1032,7 +1074,7 @@ function getAllBooksForLabels() {
     let category = String(bData[i][2] || 'ทั่วไป').trim();
     let totalQty = Math.max(1, Number(bData[i][5]) || 1);
     if (id && name) {
-      list.push({ id: id, name: name, category: category, totalQty: totalQty });
+      list.push({ id: id, name: name, category: category, author: category, totalQty: totalQty });
     }
   }
   return list;

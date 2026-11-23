@@ -381,17 +381,17 @@
 
       <div class="menu-row">
 
+        <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ (ประวัติล่าสุด)">🕒</div>
+
         <div class="icon-btn" onclick="showCardModal()" title="พิมพ์บัตรสมาชิกห้องสมุด (พร้อมบาร์โค้ด)">🪪</div>
 
         <div class="icon-btn" onclick="showBookBarcodeModal()" title="พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ">🏷️</div>
 
-        <div class="icon-btn" onclick="showBackupModal()" title="ระบบสำรองข้อมูลอัตโนมัติ (Google Drive)">💾</div>
-
-        <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ">🕒</div>
-
         <div class="icon-btn" onclick="showBorrowedBooks()" title="หนังสือที่ถูกยืมอยู่ขณะนี้">📚</div>
 
         <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
+
+        <div class="icon-btn" onclick="showBackupModal()" title="ระบบสำรองข้อมูลอัตโนมัติ (Google Drive)">💾</div>
 
       </div>
 
@@ -527,7 +527,21 @@
 
     
 
-    <div id="historyModal" class="modal-overlay"><div class="modal-box"><div style="font-weight:700; font-size: 18px; margin-bottom:10px; text-align:left;">🕒 ประวัติล่าสุด</div><div id="hist-content" class="history-list"></div><button class="action-btn" style="width:100%; margin-top:15px; background:transparent; border: 1px solid #EAEAEA; color: var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('historyModal').style.display='none'">ปิด</button></div></div>
+    <!-- Modal ประวัติการทำรายการล่าสุด -->
+    <div id="historyModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 500px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>🕒</span> ประวัติล่าสุด
+             </div>
+             <div id="hist-count-badge" style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+                รายการล่าสุด
+             </div>
+          </div>
+          <div id="hist-content" class="history-list" style="flex: 1; overflow-y: auto; max-height: 55vh; padding-right: 4px; margin-top: 0;"></div>
+          <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('historyModal').style.display='none'">ปิด</button>
+       </div>
+    </div>
 
 
 
@@ -2628,19 +2642,73 @@
 
 
       function showHistory() { 
-
-        document.getElementById('historyModal').style.display='flex'; 
+        document.getElementById('historyModal').style.display = 'flex'; 
+        const container = document.getElementById('hist-content');
+        if (container) {
+          container.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงประวัติการทำรายการ...</div>";
+        }
 
         google.script.run.withSuccessHandler(data => { 
+          if (!data || data.length === 0) {
+            document.getElementById('hist-content').innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>❌ ยังไม่มีประวัติการทำรายการ</div>";
+            return;
+          }
+
+          const badge = document.getElementById('hist-count-badge');
+          if (badge) badge.innerText = `${data.length} รายการ`;
 
           let html = ""; 
+          data.forEach(h => {
+            const isBorrow = h.action === "ยืม";
+            const isReturn = h.action === "คืน";
+            const isReward = h.action && h.action.includes("แลก");
+            
+            let actionBadgeBg = "#F3F4F6";
+            let actionBadgeColor = "#495057";
+            let actionIcon = "📝";
+            if (isBorrow) {
+              actionBadgeBg = "#D8F3DC";
+              actionBadgeColor = "#2D6A4F";
+              actionIcon = "📖";
+            } else if (isReturn) {
+              actionBadgeBg = "#E0F2FE";
+              actionBadgeColor = "#0369A1";
+              actionIcon = "↩️";
+            } else if (isReward) {
+              actionBadgeBg = "#FEF3C7";
+              actionBadgeColor = "#B45309";
+              actionIcon = "🎁";
+            }
 
-          data.forEach(h => html += `<div class="hist-item"><div>${h.date ? h.date + ' ' : ''}${h.time} | <b>${h.action}</b><br>${h.studentName}</div><button onclick="deleteLog(${h.rowIndex})" style="border:none;background:none;color:red">🗑️</button></div>`); 
+            const safeStudent = h.studentName || 'ผู้ยืมทั่วไป';
+            const safeBook = h.bookName || h.bookId || '-';
+            const dateDisplay = (h.date ? h.date + ' ' : '') + (h.time ? h.time + ' น.' : '');
 
-          document.getElementById('hist-content').innerHTML = html || "ไม่มีข้อมูล"; 
-
+            html += `
+              <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); text-align: left;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="background: ${actionBadgeBg}; color: ${actionBadgeColor}; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 11.5px;">
+                      ${actionIcon} ${h.action}
+                    </span>
+                    <span style="font-size: 11px; color: var(--text-sub); font-weight: 500;">
+                      📅 ${dateDisplay}
+                    </span>
+                  </div>
+                  <button type="button" onclick="deleteLog(${h.rowIndex})" title="ลบรายการนี้" style="border: none; background: transparent; cursor: pointer; color: #E63946; font-size: 14px; padding: 2px 4px; line-height: 1;">🗑️</button>
+                </div>
+                <div style="font-size: 12px; color: var(--text-main); line-height: 1.55;">
+                  <div>👤 <b>ผู้ยืม/สมาชิก:</b> ${safeStudent} ${h.studentId ? '<span style="color:var(--text-sub); font-size:11px;">[รหัส: ' + h.studentId + ']</span>' : ''}</div>
+                  <div>📚 <b>หนังสือ:</b> <span style="color: var(--primary); font-weight: 700;">${safeBook}</span> ${h.bookId && safeBook !== h.bookId ? '<span style="color:var(--text-sub); font-size:11px;">[รหัส: ' + h.bookId + ']</span>' : ''}</div>
+                  ${h.dueDate ? `<div style="font-size: 11.5px; color: #D00000; font-weight: 600;">⏰ กำหนดส่ง: ${h.dueDate}</div>` : ''}
+                  ${h.note ? `<div style="font-size: 11.5px; color: #555; background: #F8F9FA; padding: 2px 6px; border-radius: 6px; margin-top: 3px; display: inline-block;">💬 ${h.note}</div>` : ''}
+                  ${h.staffName ? `<div style="font-size: 10.5px; color: #888; margin-top: 2px; text-align: right;">เจ้าหน้าที่: ${h.staffName}</div>` : ''}
+                </div>
+              </div>
+            `;
+          }); 
+          document.getElementById('hist-content').innerHTML = html; 
         }).getRecentLogs(); 
-
       }
 
 
@@ -3504,6 +3572,7 @@
               id: id,
               name: b.name || id,
               category: b.category || 'ทั่วไป',
+              author: b.author || b.category || 'ทั่วไป',
               totalQty: Math.max(1, Number(b.totalQty) || 1)
             });
           }
@@ -3529,6 +3598,7 @@
                 if (!localDB.books[b.id]) localDB.books[b.id] = {};
                 localDB.books[b.id].name = b.name;
                 localDB.books[b.id].category = b.category;
+                localDB.books[b.id].author = b.author || b.category;
                 localDB.books[b.id].totalQty = b.totalQty;
               });
               populateBookCategories(data);
@@ -3588,7 +3658,8 @@
           const matchQ = !q || 
             (b.name && b.name.toLowerCase().includes(q)) || 
             (b.id && String(b.id).toLowerCase().includes(q)) || 
-            (b.category && String(b.category).toLowerCase().includes(q));
+            (b.category && String(b.category).toLowerCase().includes(q)) ||
+            (b.author && String(b.author).toLowerCase().includes(q));
           return matchCat && matchQ;
         });
 
@@ -3612,6 +3683,7 @@
           const isChecked = selectedBookLabelIds.has(b.id) ? "checked" : "";
           const safeName = String(b.name || '').replace(/'/g, "\\'");
           const safeCat = String(b.category || 'ทั่วไป').replace(/'/g, "\\'");
+          const safeAuthor = String(b.author || b.category || '-').replace(/'/g, "\\'");
           const safeId = String(b.id || '').replace(/'/g, "\\'");
           const qty = Math.max(1, Number(b.totalQty) || 1);
 
@@ -3624,11 +3696,11 @@
                     <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${b.name}</span>
                   </div>
                   <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px; white-space: nowrap;">
-                    รหัส: <b>${b.id}</b> | หมวด: <b>${b.category || 'ทั่วไป'}</b> | <span style="background: #E8F5E9; color: #2D6A4F; padding: 1px 6px; border-radius: 8px; font-weight: 700;">${qty} เล่ม</span>
+                    รหัส: <b>${b.id}</b> | ผู้แต่ง: <b>${b.author || b.category || '-'}</b> | <span style="background: #E8F5E9; color: #2D6A4F; padding: 1px 6px; border-radius: 8px; font-weight: 700;">${qty} เล่ม</span>
                   </div>
                 </div>
               </label>
-              <button type="button" style="height: 30px; padding: 0 8px; font-size: 11px; font-weight: 600; background: white; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleBookLabel('${safeId}', '${safeName}', '${safeCat}', ${qty})">
+              <button type="button" style="height: 30px; padding: 0 8px; font-size: 11px; font-weight: 600; background: white; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleBookLabel('${safeId}', '${safeName}', '${safeCat}', ${qty}, '${safeAuthor}')">
                 🖨️ เรื่องนี้
               </button>
             </div>
@@ -3658,7 +3730,8 @@
           const matchQ = !q || 
             (b.name && b.name.toLowerCase().includes(q)) || 
             (b.id && String(b.id).toLowerCase().includes(q)) || 
-            (b.category && String(b.category).toLowerCase().includes(q));
+            (b.category && String(b.category).toLowerCase().includes(q)) ||
+            (b.author && String(b.author).toLowerCase().includes(q));
           return matchCat && matchQ;
         });
 
@@ -3710,6 +3783,7 @@
                 id: b.id,
                 name: b.name,
                 category: b.category || 'ทั่วไป',
+                author: b.author || b.category || '-',
                 copyNum: count > 1 ? c : 0,
                 totalQty: b.totalQty || 1
               });
@@ -3725,7 +3799,7 @@
         generateAndPrintBookLabels(labelsToPrint, `สติกเกอร์บาร์โค้ดติดสันหนังสือ (${labelsToPrint.length} ชิ้น)`);
       }
 
-      function printSingleBookLabel(id, name, category, totalQty) {
+      function printSingleBookLabel(id, name, category, totalQty, author) {
         const printAllCopiesCb = document.getElementById('book-print-all-copies-cb');
         const printAllCopies = printAllCopiesCb ? printAllCopiesCb.checked : true;
         const count = printAllCopies ? Math.max(1, Number(totalQty) || 1) : 1;
@@ -3736,6 +3810,7 @@
             id: id,
             name: name,
             category: category || 'ทั่วไป',
+            author: author || category || '-',
             copyNum: count > 1 ? c : 0,
             totalQty: totalQty || 1
           });
@@ -3757,14 +3832,26 @@
 
         let labelsHtml = "";
         labelsList.forEach((item, idx) => {
-          const copyBadge = item.copyNum > 0 ? ` [เล่ม ${item.copyNum}]` : "";
+          const copyBadge = item.copyNum > 0 ? `เล่ม ${item.copyNum}` : "";
+          const safeAuthor = String(item.author || item.category || '-').replace(/"/g, '&quot;');
+          const safeTitle = String(item.name || '').replace(/"/g, '&quot;');
+
           labelsHtml += `
           <div class="spine-label-item">
-            <div class="label-header">
-              <span class="label-school">รร.วัดหนองตะเฆ่</span>
-              <span class="label-cat">${item.category || 'ทั่วไป'}${copyBadge}</span>
+            <!-- บรรทัดที่ 1 (บนสุด): ชื่อโรงเรียน -->
+            <div class="label-school-row">
+              <span class="label-school">โรงเรียนวัดหนองตะเฆ่</span>
+              ${copyBadge ? `<span class="label-copy-tag">${copyBadge}</span>` : ''}
             </div>
-            <div class="label-title">${item.name}</div>
+            <!-- บรรทัดที่ 2: ชื่อเรื่อง -->
+            <div class="label-title-row">
+              <div class="label-title" title="${safeTitle}">${safeTitle}</div>
+            </div>
+            <!-- บรรทัดที่ 3: ชื่อผู้แต่ง -->
+            <div class="label-author-row">
+              <div class="label-author">ผู้แต่ง: ${safeAuthor}</div>
+            </div>
+            <!-- บรรทัดที่ 4: บาร์โค้ด -->
             <div class="label-barcode-wrap">
               <svg class="label-barcode-svg" data-barcode="${item.id}"></svg>
             </div>
@@ -3784,7 +3871,7 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 8mm 6mm;
+        margin: 7mm 5mm;
       }
       body {
         margin: 0 !important;
@@ -3839,63 +3926,79 @@
     .print-btn:hover {
       background: #1B4332;
     }
+    /* Grid 3 คอลัมน์ x 8 แถว = 24 ป้ายต่อแผ่น A4 มาตรฐาน */
     .labels-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 5mm 4mm;
+      gap: 3.5mm 3.5mm;
       width: 100%;
-      max-width: 198mm;
+      max-width: 200mm;
       margin: 0 auto;
     }
     .spine-label-item {
       background: white;
-      border: 1px dashed #B7E4C7;
+      border: 1px dashed #A3D9C9;
       border-radius: 6px;
-      padding: 3mm 3mm 2mm 3mm;
-      height: 33mm;
+      padding: 2.5mm 2.8mm 1.5mm 2.8mm;
+      height: 33.5mm;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       box-shadow: 0 1px 3px rgba(0,0,0,0.03);
       position: relative;
       overflow: hidden;
+      box-sizing: border-box;
+      text-align: center;
     }
-    .label-header {
+    .label-school-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 8.5px;
-      line-height: 1.1;
-      border-bottom: 0.5px solid #E0E0E0;
-      padding-bottom: 1.5px;
-      margin-bottom: 1.5px;
+      border-bottom: 0.6px solid #D8F3DC;
+      padding-bottom: 1.2px;
+      margin-bottom: 1px;
     }
     .label-school {
       font-weight: 700;
+      color: #1B4332;
+      font-size: 8.5px;
+      white-space: nowrap;
+      letter-spacing: 0.1px;
+    }
+    .label-copy-tag {
+      font-size: 7.5px;
+      font-weight: 700;
       color: #2D6A4F;
+      background: #D8F3DC;
+      padding: 0 4px;
+      border-radius: 4px;
       white-space: nowrap;
     }
-    .label-cat {
-      color: #666;
-      font-weight: 600;
-      font-size: 8px;
+    .label-title-row {
+      margin: 0.5px 0;
+    }
+    .label-title {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.2;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 65px;
+      text-align: left;
     }
-    .label-title {
-      font-size: 9px;
-      font-weight: 700;
-      color: #222;
+    .label-author-row {
+      margin-bottom: 1px;
+    }
+    .label-author {
+      font-size: 8px;
+      font-weight: 500;
+      color: #4B5563;
       line-height: 1.15;
-      max-height: 2.3em;
+      white-space: nowrap;
       overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      word-break: break-word;
-      margin: 1px 0;
+      text-overflow: ellipsis;
+      text-align: left;
     }
     .label-barcode-wrap {
       text-align: center;
@@ -3903,10 +4006,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      padding-top: 1px;
     }
     .label-barcode-svg {
       max-width: 100%;
-      height: 17mm;
+      height: 15.5mm;
+      display: block;
+      margin: 0 auto;
     }
   </style>
 </head>
@@ -3935,12 +4041,13 @@
             JsBarcode(el, val, {
               format: "CODE128",
               lineColor: "#000",
-              width: 1.3,
-              height: 34,
+              width: 1.25,
+              height: 32,
               displayValue: true,
-              fontSize: 10,
+              fontSize: 9.5,
               font: "Mali",
               fontOptions: "600",
+              textMargin: 1,
               margin: 0
             });
           } catch(e) {
