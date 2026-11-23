@@ -260,12 +260,72 @@
 
 
 
-      .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; }
+      /* ✅ ล็อกการเลื่อนพื้นหลังเมื่อเปิดป๊อปอัป (Background Scroll Lock) */
+      html.modal-open, body.modal-open {
+        overflow: hidden !important;
+        touch-action: none !important;
+        overscroll-behavior: none !important;
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        height: 100dvh;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        overscroll-behavior: contain;
+        touch-action: none;
+      }
       #msgModal { z-index: 99999 !important; }
 
-      .modal-box { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-sizing: border-box; max-height: 90vh; overflow-y: auto;}
+      .modal-box {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 380px;
+        text-align: center;
+        box-sizing: border-box;
+        max-height: 85vh;
+        max-height: 85dvh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+      }
 
-      .history-list { text-align: left; max-height: 300px; overflow-y: auto; margin-top: 10px; padding-right:5px;}
+      .history-list {
+        text-align: left;
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 10px;
+        padding-right: 5px;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+      }
+
+      /* รายการเนื้อหาภายในโมดอลทุกตัว ให้เลื่อนได้เฉพาะภายในกล่องเท่านั้น ไม่ทะลุพื้นหลัง */
+      #confirm-borrow-list,
+      #st-top-students,
+      #st-top-books,
+      #hist-content,
+      #borrowed-books-content,
+      #card-students-list,
+      #book-labels-list,
+      #backup-files-list {
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+      }
 
       .hist-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #F3F4F6; font-size: 13px; align-items: center; background: #F8F9FA; border-radius: 10px; margin-bottom: 5px; }
 
@@ -1156,11 +1216,80 @@
 
       }
 
+      // ✅ ระบบล็อกการเลื่อนพื้นหลังอัตโนมัติเมื่อเปิดป๊อปอัปฟังก์ชันใดๆ (Background Scroll Lock)
+      let savedModalScrollY = 0;
 
+      function updateBodyScrollLock() {
+        const modals = document.querySelectorAll('.modal-overlay');
+        let hasOpenModal = false;
+        for (let i = 0; i < modals.length; i++) {
+          const style = window.getComputedStyle(modals[i]);
+          if (style.display !== 'none' && modals[i].style.display !== 'none') {
+            hasOpenModal = true;
+            break;
+          }
+        }
+        if (hasOpenModal) {
+          if (!document.body.classList.contains('modal-open')) {
+            savedModalScrollY = window.scrollY || window.pageYOffset || 0;
+            document.body.classList.add('modal-open');
+            document.documentElement.classList.add('modal-open');
+          }
+        } else {
+          if (document.body.classList.contains('modal-open')) {
+            document.body.classList.remove('modal-open');
+            document.documentElement.classList.remove('modal-open');
+            if (savedModalScrollY > 0) {
+              window.scrollTo(0, savedModalScrollY);
+            }
+          }
+        }
+      }
+
+      function initModalScrollLock() {
+        const modals = document.querySelectorAll('.modal-overlay');
+        
+        // ใช้ MutationObserver เพื่อตรวจจับการเปิด/ปิด modal-overlay ทุกตัวแบบอัตโนมัติ 100%
+        const observer = new MutationObserver(function() {
+          updateBodyScrollLock();
+        });
+
+        modals.forEach(modal => {
+          observer.observe(modal, { attributes: true, attributeFilter: ['style', 'class'] });
+
+          // ป้องกันการลากทัชบนพื้นหลังสีดำของ Modal Overlay ไม่ให้ขยับหน้าเว็บ
+          modal.addEventListener('touchmove', function(e) {
+            if (e.target === modal) {
+              e.preventDefault();
+            }
+          }, { passive: false });
+        });
+
+        // Global touchmove: หากมีโมดอลเปิดอยู่ และการสัมผัสไม่ได้เกิดใน .modal-box ให้บล็อกการเลื่อนพื้นหลัง
+        document.addEventListener('touchmove', function(e) {
+          if (document.body.classList.contains('modal-open')) {
+            if (!e.target.closest('.modal-box')) {
+              e.preventDefault();
+            }
+          }
+        }, { passive: false });
+
+        // Wheel listener สำหรับ Desktop: บล็อกล้อเลื่อนหากอยู่นอก .modal-box
+        document.addEventListener('wheel', function(e) {
+          if (document.body.classList.contains('modal-open')) {
+            if (!e.target.closest('.modal-box')) {
+              e.preventDefault();
+            }
+          }
+        }, { passive: false });
+
+        updateBodyScrollLock();
+      }
 
       document.addEventListener("DOMContentLoaded", function() {
 
          initPrintDate();
+         initModalScrollLock();
 
          let savedUser = sessionStorage.getItem('library_logged_in_user');
          let savedRole = sessionStorage.getItem('library_logged_in_role') || 'admin';
@@ -3202,6 +3331,7 @@
           document.getElementById('m-icon').innerText = msg.includes("success") ? "✅" : "⚠️"; 
 
           m.style.display = 'flex'; 
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
 
       }
 
@@ -4467,6 +4597,7 @@
       function closeModal() { 
 
           document.getElementById('msgModal').style.display = 'none'; 
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
 
           if (document.getElementById('tab1').classList.contains('active')) {
 
