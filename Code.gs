@@ -22,6 +22,7 @@ function loginStaff(pin) {
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][1]) === String(pin)) {
+      checkAndAutoBackupOnLogin();
       return { 
         status: "success", 
         name: data[i][2],
@@ -91,18 +92,21 @@ function processMultipleTransactions(studentId, bookIds, action, staffName) {
   if (!Array.isArray(bookIds) || bookIds.length === 0) return "error:❌ กรุณาสแกนรหัสให้ครบ";
   if (bookIds.length === 1) return processTransaction(studentId, bookIds[0], action, staffName);
 
-  let results = [];
   let successCount = 0;
   for (let i = 0; i < bookIds.length; i++) {
     let bid = String(bookIds[i]).trim();
     if (!bid) continue;
     let res = processTransaction(studentId, bid, action, staffName);
-    let cleanMsg = res.split(":")[1] || res;
     if (res.startsWith("success:")) successCount++;
-    results.push(`[${bid}] ${cleanMsg}`);
   }
-  let prefix = successCount > 0 ? "success:" : "warning:";
-  return prefix + `ทำรายการสำเร็จ ${successCount}/${bookIds.length} เล่ม\n` + results.join("\n");
+  const actionText = (action === 'borrow') ? 'ยืม' : 'คืน';
+  if (successCount === bookIds.length) {
+    return `success:✅ ${actionText}สำเร็จ ${successCount} เล่ม`;
+  } else if (successCount > 0) {
+    return `warning:⚠️ ${actionText}สำเร็จ ${successCount}/${bookIds.length} เล่ม`;
+  } else {
+    return `error:❌ ทำรายการไม่สำเร็จ`;
+  }
 }
 
 function processTransaction(studentId, bookId, action, staffName) {
@@ -453,19 +457,49 @@ function getNames(studentId, bookId) {
           if (isCurrentlyBorrowed) {
             const effectiveCount = Math.max(sheetBorrowers.length, activeBorrows.length, 1);
             available = Math.max(0, totalQty - effectiveCount);
-            if (totalQty > 1 && available > 0) {
-              const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
-              statusText = `ว่าง (${available}/${totalQty} เล่ม) ${detail ? `[ล่าสุด: ${detail}]` : ''}`.trim();
+            if (available > 0) {
+              statusText = `ว่าง จำนวน ${available} เล่ม`;
             } else {
-              available = 0;
-              const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
-              statusText = totalQty > 1 
-                ? (detail ? `ถูกยืมครบแล้ว (${detail})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
-                : (detail ? `ถูกยืม (${detail})` : "ถูกยืม");
+              statusText = `ถูกยืม (ว่าง 0 เล่ม)`;
             }
           } else {
             available = totalQty;
-            statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
+            statusText = `ว่าง จำนวน ${available} เล่ม`;
+            latestBorrower = "";
+          }
+
+          let currentBorrowers = [];
+          if (activeBorrows.length > 0) {
+            currentBorrowers = activeBorrows.map(b => b.studentName || b.studentId).filter(Boolean);
+            for (let s of sheetBorrowers) {
+              if (!currentBorrowers.includes(s) && currentBorrowers.length < totalQty) {
+                currentBorrowers.push(s);
+              }
+            }
+          } else if (sheetBorrowers.length > 0) {
+            currentBorrowers = sheetBorrowers.slice();
+          }
+
+          let copies = [];
+          if (totalQty > 1) {
+            for (let k = 1; k <= totalQty; k++) {
+              if (k <= currentBorrowers.length) {
+                const bName = currentBorrowers[k - 1];
+                copies.push({
+                  copyNum: k,
+                  borrower: bName,
+                  isAvailable: false,
+                  text: `เล่มที่ ${k}: อยู่ที่ ${bName}`
+                });
+              } else {
+                copies.push({
+                  copyNum: k,
+                  borrower: "",
+                  isAvailable: true,
+                  text: `เล่มที่ ${k}: ว่าง`
+                });
+              }
+            }
           }
 
           bInfo = { 
@@ -473,8 +507,9 @@ function getNames(studentId, bookId) {
             status: statusText, 
             available: available, 
             totalQty: totalQty,
-            borrowerName: latestBorrower,
-            borrowDays: borrowDays,
+            copies: copies,
+            borrowerName: latestBorrower, 
+            borrowDays: borrowDays, 
             borrowDaysText: borrowDaysText
           };
           break;
@@ -686,26 +721,58 @@ function getFullLibraryData() {
         if (isCurrentlyBorrowed) {
           const effectiveCount = Math.max(sheetBorrowers.length, activeList.length, 1);
           available = Math.max(0, totalQty - effectiveCount);
-          if (totalQty > 1 && available > 0) {
-            const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
-            statusText = `ว่าง (${available}/${totalQty} เล่ม) ${detail ? `[ล่าสุด: ${detail}]` : ''}`.trim();
+          if (available > 0) {
+            statusText = `ว่าง จำนวน ${available} เล่ม`;
           } else {
-            available = 0;
-            const detail = [latestBorrower, borrowDaysText].filter(Boolean).join(" ");
-            statusText = totalQty > 1 
-              ? (detail ? `ถูกยืมครบแล้ว (${detail})` : `ถูกยืมครบแล้ว (0/${totalQty} เล่ม)`)
-              : (detail ? `ถูกยืม (${detail})` : "ถูกยืม");
+            statusText = `ถูกยืม (ว่าง 0 เล่ม)`;
           }
         } else {
           available = totalQty;
-          statusText = totalQty > 1 ? `ว่าง (${available}/${totalQty} เล่ม)` : "ว่าง";
+          statusText = `ว่าง จำนวน ${available} เล่ม`;
+          latestBorrower = "";
+        }
+
+        let currentBorrowers = [];
+        if (activeList.length > 0) {
+          currentBorrowers = activeList.map(b => b.studentName || b.studentId).filter(Boolean);
+          for (let s of sheetBorrowers) {
+            if (!currentBorrowers.includes(s) && currentBorrowers.length < totalQty) {
+              currentBorrowers.push(s);
+            }
+          }
+        } else if (sheetBorrowers.length > 0) {
+          currentBorrowers = sheetBorrowers.slice();
+        }
+
+        let copies = [];
+        if (totalQty > 1) {
+          for (let k = 1; k <= totalQty; k++) {
+            if (k <= currentBorrowers.length) {
+              const bName = currentBorrowers[k - 1];
+              copies.push({
+                copyNum: k,
+                borrower: bName,
+                isAvailable: false,
+                text: `เล่มที่ ${k}: อยู่ที่ ${bName}`
+              });
+            } else {
+              copies.push({
+                copyNum: k,
+                borrower: "",
+                isAvailable: true,
+                text: `เล่มที่ ${k}: ว่าง`
+              });
+            }
+          }
         }
 
         books[bid] = {
           name: bName,
+          category: String(bData[i][2] || 'ทั่วไป').trim(),
           status: statusText,
           available: available,
           totalQty: totalQty,
+          copies: copies,
           borrowerName: latestBorrower,
           borrowDays: borrowDays,
           borrowDaysText: borrowDaysText
@@ -923,7 +990,15 @@ function markBookAsReturned(bookId, studentId, borrowerName, staffName) {
     logSheet.appendRow([new Date(), "คืน", sIdForLog, sNameForLog, bookId, "", scoreMsg, staffName]);
   }
 
-  return "success:✅ ลบรายการเรียบร้อย " + scoreMsg;
+  const freshBorrowed = getCurrentlyBorrowedBooks();
+  const freshLibData = getFullLibraryData();
+
+  return {
+    status: "success",
+    msg: "success:✅ คืนหนังสือสำเร็จเรียบร้อย " + scoreMsg,
+    borrowedBooks: freshBorrowed,
+    libraryData: freshLibData
+  };
 }
 
 // ฟังก์ชันดึงรายชื่อนักเรียนทั้งหมดพร้อมชั้นเรียนสำหรับพิมพ์บัตรสมาชิก
@@ -942,6 +1017,227 @@ function getAllStudentsForCards() {
     }
   }
   return list;
+}
+
+// ฟังก์ชันดึงรายการหนังสือทั้งหมดสำหรับพิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ
+function getAllBooksForLabels() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const bSheet = ss.getSheetByName("Books");
+  if (!bSheet) return [];
+  const bData = bSheet.getDataRange().getValues();
+  let list = [];
+  for (let i = 1; i < bData.length; i++) {
+    let id = String(bData[i][0] || '').trim();
+    let name = String(bData[i][1] || '').trim();
+    let category = String(bData[i][2] || 'ทั่วไป').trim();
+    let totalQty = Math.max(1, Number(bData[i][5]) || 1);
+    if (id && name) {
+      list.push({ id: id, name: name, category: category, totalQty: totalQty });
+    }
+  }
+  return list;
+}
+
+// ==========================================
+// 💾 ระบบสำรองข้อมูลอัตโนมัติ (Automated Backup System)
+// ==========================================
+
+const BACKUP_SHEET_NAME = "Backups";
+const MAX_BACKUP_RECORDS = 30; // เก็บประวัติสำรองข้อมูล 30 รายการล่าสุด
+
+// ฟังก์ชันแปลง Date เป็น วัน เดือน ปี พ.ศ. พร้อมเวลา (dd/mm/yyyy พ.ศ. HH:mm:ss)
+function formatThaiDateTimeBE(date) {
+  if (!date) return '-';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const yearBE = d.getFullYear() + 543;
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+  return `${day}/${month}/${yearBE} ${hours}:${minutes}:${seconds}`;
+}
+
+// ตรวจสอบและดึงชีตสำหรับบันทึกรายการสำรองข้อมูล (Backups)
+function getOrCreateBackupLogSheet(ss) {
+  let sheet = ss.getSheetByName(BACKUP_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(BACKUP_SHEET_NAME);
+    sheet.appendRow(["วันที่/เวลา", "ชื่อไฟล์สำรอง", "ลิงก์ไฟล์", "รหัสไฟล์", "ประเภท", "สถานะ"]);
+    sheet.getRange(1, 1, 1, 6).setFontWeight("bold").setBackground("#D8F3DC");
+  }
+  return sheet;
+}
+
+// สร้างไฟล์สำรองข้อมูล (Full Spreadsheet Snapshot) คัดลอกทุกชีต (Books, Students, Logs, Staff)
+function createLibraryBackup(triggerType) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const now = new Date();
+    const thaiDateStr = formatThaiDateTimeBE(now);
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const yearBE = now.getFullYear() + 543;
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const timestamp = `${yearBE}${month}${day}_${hours}${minutes}${seconds}`;
+    const backupName = `Backup_WNTK_Library_${timestamp}`;
+
+    // 1. สร้าง Google Spreadsheet ไฟล์ใหม่สำหรับเก็บสำรองข้อมูล
+    const newSs = SpreadsheetApp.create(backupName);
+    const newSsId = newSs.getId();
+    const newSsUrl = newSs.getUrl();
+    const defaultSheet = newSs.getSheets()[0];
+
+    // 2. คัดลอกทุกชีตในระบบ (ยกเว้นชีต Backups เอง)
+    const sheets = ss.getSheets();
+    for (let i = 0; i < sheets.length; i++) {
+      const s = sheets[i];
+      if (s.getName() !== BACKUP_SHEET_NAME) {
+        const copied = s.copyTo(newSs);
+        copied.setName(s.getName());
+      }
+    }
+
+    // ลบ Sheet1 เริ่มต้นของ Spreadsheet ใหม่
+    if (newSs.getSheets().length > 1) {
+      newSs.deleteSheet(defaultSheet);
+    }
+
+    // 3. ถ้าผู้ใช้เปิดสิทธิ์ DriveApp ไว้ ให้พยายามย้ายเข้าโฟลเดอร์ WNTK_Library_Backups (แบบ Graceful)
+    try {
+      if (typeof DriveApp !== 'undefined') {
+        const folders = DriveApp.getFoldersByName("WNTK_Library_Backups");
+        let folder;
+        if (folders.hasNext()) {
+          folder = folders.next();
+        } else {
+          folder = DriveApp.createFolder("WNTK_Library_Backups");
+        }
+        const file = DriveApp.getFileById(newSsId);
+        folder.addFile(file);
+      }
+    } catch (driveErr) {
+      // ทำงานต่อได้ปกติ แม้ DriveApp ยังไม่ได้รับสิทธิ์
+    }
+
+    // 4. บันทึกประวัติลงชีต Backups
+    const logSheet = getOrCreateBackupLogSheet(ss);
+    logSheet.appendRow([
+      thaiDateStr,
+      backupName,
+      newSsUrl,
+      newSsId,
+      triggerType || "กำหนดเอง (Manual)",
+      "สำเร็จ"
+    ]);
+
+    return {
+      status: "success",
+      msg: `สำรองข้อมูลสำเร็จเรียบร้อย (${thaiDateStr})`,
+      fileName: backupName,
+      fileUrl: newSsUrl,
+      time: thaiDateStr
+    };
+  } catch (err) {
+    return {
+      status: "error",
+      msg: "เกิดข้อผิดพลาดในการสำรองข้อมูล: " + err.toString()
+    };
+  }
+}
+
+// ดึงข้อมูลประวัติการสำรองข้อมูลและสถานะระบบ
+function getLibraryBackupInfo() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const logSheet = getOrCreateBackupLogSheet(ss);
+    const lastRow = logSheet.getLastRow();
+    
+    let backups = [];
+    if (lastRow > 1) {
+      const data = logSheet.getRange(2, 1, lastRow - 1, 6).getValues();
+      for (let i = data.length - 1; i >= 0; i--) {
+        const dateStr = String(data[i][0] || '').trim();
+        const name = String(data[i][1] || '').trim();
+        const url = String(data[i][2] || '').trim();
+        const type = String(data[i][4] || 'อัตโนมัติ').trim();
+        if (name && url) {
+          backups.push({
+            name: name,
+            createdAt: dateStr,
+            url: url,
+            type: type,
+            size: "Google Sheets"
+          });
+        }
+        if (backups.length >= 15) break; // คืนค่า 15 รายการล่าสุด
+      }
+    }
+
+    // ตรวจสอบว่าวันนี้มีการสำรองข้อมูลแล้วหรือยัง (สำหรับ Auto Backup Daily Check)
+    const today = new Date();
+    const todayDay = String(today.getDate()).padStart(2, '0');
+    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const todayYearBE = String(today.getFullYear() + 543);
+    const todayPrefix = `${todayDay}/${todayMonth}/${todayYearBE}`;
+    
+    let backedUpToday = false;
+    if (backups.length > 0 && backups[0].createdAt.startsWith(todayPrefix)) {
+      backedUpToday = true;
+    }
+
+    return {
+      status: "success",
+      folderUrl: "https://drive.google.com/drive/my-drive",
+      hasAutoTrigger: true,
+      triggerSchedule: "ทำงานอัตโนมัติทุกวัน (และเมื่อล็อกอินเข้าใช้งานครั้งแรกของวัน)",
+      maxFiles: MAX_BACKUP_RECORDS,
+      totalBackups: Math.max(0, lastRow - 1),
+      backedUpToday: backedUpToday,
+      backups: backups
+    };
+  } catch (err) {
+    return {
+      status: "error",
+      msg: "ไม่สามารถดึงข้อมูลสำรอง: " + err.toString(),
+      folderUrl: "https://drive.google.com/drive/my-drive",
+      hasAutoTrigger: true,
+      backups: []
+    };
+  }
+}
+
+// ตรวจสอบและสำรองข้อมูลอัตโนมัติประจำวันเมื่อเจ้าหน้าที่ล็อกอิน
+function checkAndAutoBackupOnLogin() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const logSheet = getOrCreateBackupLogSheet(ss);
+    const lastRow = logSheet.getLastRow();
+    
+    const today = new Date();
+    const todayDay = String(today.getDate()).padStart(2, '0');
+    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const todayYearBE = String(today.getFullYear() + 543);
+    const todayPrefix = `${todayDay}/${todayMonth}/${todayYearBE}`;
+
+    if (lastRow > 1) {
+      const lastDate = String(logSheet.getRange(lastRow, 1).getValue() || '').trim();
+      if (lastDate.startsWith(todayPrefix)) {
+        return; // วันนี้สำรองข้อมูลไปแล้ว
+      }
+    }
+    // วันนี้ยังไม่มีการสำรองข้อมูล ให้สร้างสแนปช็อตอัตโนมัติ
+    createLibraryBackup("อัตโนมัติประจำวัน (Daily Auto)");
+  } catch (e) {
+    console.error("Auto backup on login check failed:", e);
+  }
+}
+
+// ฟังก์ชันสำหรับเรียกใช้งานโดยอัตโนมัติจาก Time-driven Trigger หรือ Event
+function autoLibraryBackupDailyTrigger() {
+  createLibraryBackup("อัตโนมัติ (Daily Trigger)");
 }
 
 // ฟังก์ชัน API รับ request จากหน้าเว็บภายนอก

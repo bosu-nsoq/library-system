@@ -178,6 +178,8 @@
           font-size: 11.5px;
           padding: 3px 8px;
         }
+        .menu-row { gap: 6px; }
+        .icon-btn { width: 36px; height: 36px; font-size: 15px; }
       }
 
       .menu-row { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 10px; }
@@ -380,6 +382,10 @@
       <div class="menu-row">
 
         <div class="icon-btn" onclick="showCardModal()" title="พิมพ์บัตรสมาชิกห้องสมุด (พร้อมบาร์โค้ด)">🪪</div>
+
+        <div class="icon-btn" onclick="showBookBarcodeModal()" title="พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ">🏷️</div>
+
+        <div class="icon-btn" onclick="showBackupModal()" title="ระบบสำรองข้อมูลอัตโนมัติ (Google Drive)">💾</div>
 
         <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ">🕒</div>
 
@@ -811,6 +817,105 @@
 
        </div>
 
+    </div>
+
+
+
+    <!-- Modal พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ -->
+    <div id="bookBarcodeModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 520px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>🏷️</span> พิมพ์สติกเกอร์สันหนังสือ
+             </div>
+             <div id="book-barcode-count-badge" style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+                0 เรื่อง
+             </div>
+          </div>
+
+          <!-- ตัวกรองหมวดหมู่ และปุ่มพิมพ์ -->
+          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+             <select id="book-category-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterBookLabels()">
+                <option value="all">ทุกหมวดหมู่</option>
+             </select>
+             <button class="action-btn" style="padding: 8px 14px; font-size: 13px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSelectedBookLabels()">
+                🖨️ สั่งพิมพ์ (A4)
+             </button>
+          </div>
+
+          <!-- ช่องค้นหา -->
+          <div style="margin-bottom: 8px;">
+             <input type="text" id="book-label-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อเรื่อง, รหัส, หรือหมวด..." oninput="filterBookLabels()">
+          </div>
+
+          <!-- ตัวเลือกเลือกทั้งหมด / พิมพ์ตามจำนวนเล่ม -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; margin-bottom: 6px; font-size: 12px; color: var(--text-sub); border-bottom: 1px dashed #EAEAEA;">
+             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; color: var(--primary);">
+                <input type="checkbox" id="book-select-all-cb" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;" onchange="toggleSelectAllBookLabels(this.checked)" checked>
+                เลือกทั้งหมด (<span id="book-selected-count">0</span> ชิ้น)
+             </label>
+             <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" id="book-print-all-copies-cb" style="width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer;" checked onchange="updateSelectedCountBadge()">
+                พิมพ์ตามจำนวนเล่มจริง
+             </label>
+          </div>
+
+          <!-- รายการหนังสือ -->
+          <div id="book-labels-list" style="flex: 1; overflow-y: auto; max-height: 44vh; padding-right: 2px;">
+             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดรายการหนังสือ...</div>
+          </div>
+
+          <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('bookBarcodeModal').style.display='none'">ปิดหน้าต่าง</button>
+       </div>
+    </div>
+
+    <!-- Modal ระบบสำรองข้อมูลอัตโนมัติ (Google Drive) -->
+    <div id="backupModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 520px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>💾</span> ระบบสำรองข้อมูลอัตโนมัติ
+             </div>
+             <div id="backup-status-badge" style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+                🟢 พร้อมทำงาน
+             </div>
+          </div>
+
+          <!-- ข้อมูลสถานะและระบบอัตโนมัติ -->
+          <div style="background: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 14px; padding: 12px; margin-bottom: 12px; text-align: left;">
+             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-weight: 700; font-size: 13px; color: var(--primary);">⏱️ สำรองอัตโนมัติ:</span>
+                <span id="backup-schedule-text" style="font-size: 12px; font-weight: 600; color: #2D6A4F; background: #D8F3DC; padding: 2px 8px; border-radius: 10px;">ทุกวัน เวลา 01:00 น.</span>
+             </div>
+             <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.45;">
+                ระบบสร้างไฟล์สำรองข้อมูล (Books, Students, Logs) ไปยังโฟลเดอร์ Google Drive ทุกวันโดยอัตโนมัติ และเก็บย้อนหลัง 30 ไฟล์ล่าสุด
+             </div>
+             <div style="margin-top: 10px; display: flex; gap: 8px;">
+                <a id="backup-folder-link" href="#" target="_blank" class="action-btn" style="flex: 1; padding: 7px 10px; font-size: 12px; background: white; border: 1.5px solid #2D6A4F; color: #2D6A4F; text-decoration: none; border-radius: 10px; text-align: center; margin: 0; box-shadow: none; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                   📁 เปิดโฟลเดอร์ Google Drive
+                </a>
+                <button type="button" id="manual-backup-btn" class="action-btn" style="flex: 1; padding: 7px 10px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; margin: 0; box-shadow: none; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 4px;" onclick="triggerManualBackup()">
+                   ⚡ สำรองทันที (Now)
+                </button>
+             </div>
+          </div>
+
+          <!-- ข้อความสถานะการสำรอง -->
+          <div id="backup-action-msg" style="display: none; padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; font-size: 12px; font-weight: 600; text-align: center;"></div>
+
+          <!-- หัวข้อรายการไฟล์สำรองล่าสุด -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 0 4px;">
+             <span style="font-weight: 700; font-size: 13px; color: var(--text-main);">📋 ไฟล์สำรองข้อมูลล่าสุด:</span>
+             <span id="backup-total-count" style="font-size: 11.5px; color: var(--text-sub);">0 ไฟล์</span>
+          </div>
+
+          <!-- รายการไฟล์สำรอง -->
+          <div id="backup-files-list" style="flex: 1; overflow-y: auto; max-height: 38vh; padding-right: 2px;">
+             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดรายการไฟล์สำรอง...</div>
+          </div>
+
+          <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('backupModal').style.display='none'">ปิดหน้าต่าง</button>
+       </div>
     </div>
 
 
@@ -3375,6 +3480,634 @@
         win.document.open();
         win.document.write(printPageHtml);
         win.document.close();
+      }
+
+      // 🏷️ ระบบพิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ
+      let cachedBookLabels = [];
+      let selectedBookLabelIds = new Set();
+
+      function showBookBarcodeModal() {
+        const modal = document.getElementById('bookBarcodeModal');
+        if (modal) modal.style.display = 'flex';
+
+        const catSelect = document.getElementById('book-category-filter');
+        if (catSelect) catSelect.value = 'all';
+        const searchInput = document.getElementById('book-label-search-input');
+        if (searchInput) searchInput.value = '';
+
+        // ถ้ามีข้อมูลใน localDB.books ให้แสดงก่อนทันทีใน 0.01 วินาที
+        if (localDB && localDB.books && Object.keys(localDB.books).length > 0) {
+          const arr = [];
+          for (let id in localDB.books) {
+            const b = localDB.books[id];
+            arr.push({
+              id: id,
+              name: b.name || id,
+              category: b.category || 'ทั่วไป',
+              totalQty: Math.max(1, Number(b.totalQty) || 1)
+            });
+          }
+          cachedBookLabels = arr;
+          populateBookCategories(arr);
+          if (selectedBookLabelIds.size === 0) {
+            selectedBookLabelIds = new Set(arr.map(b => b.id));
+          }
+          filterBookLabels();
+        } else {
+          const listContainer = document.getElementById('book-labels-list');
+          if (listContainer) {
+            listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงรายการหนังสือจากฐานข้อมูล...</div>";
+          }
+        }
+
+        google.script.run
+          .withSuccessHandler(function(data) {
+            if (data && Array.isArray(data) && data.length > 0) {
+              cachedBookLabels = data;
+              if (!localDB.books) localDB.books = {};
+              data.forEach(b => {
+                if (!localDB.books[b.id]) localDB.books[b.id] = {};
+                localDB.books[b.id].name = b.name;
+                localDB.books[b.id].category = b.category;
+                localDB.books[b.id].totalQty = b.totalQty;
+              });
+              populateBookCategories(data);
+              if (selectedBookLabelIds.size === 0) {
+                selectedBookLabelIds = new Set(data.map(b => b.id));
+              }
+              filterBookLabels();
+            } else if (!cachedBookLabels || cachedBookLabels.length === 0) {
+              const listContainer = document.getElementById('book-labels-list');
+              if (listContainer) {
+                listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>❌ ไม่พบรายการหนังสือในระบบ</div>";
+              }
+            }
+          })
+          .withFailureHandler(function(err) {
+            console.error("Error loading books for labels:", err);
+            if (!cachedBookLabels || cachedBookLabels.length === 0) {
+              const listContainer = document.getElementById('book-labels-list');
+              if (listContainer) {
+                listContainer.innerHTML = "<div style='text-align: center; color: #E63946; padding: 30px;'>❌ เกิดข้อผิดพลาดในการโหลดรายการหนังสือ</div>";
+              }
+            }
+          })
+          .getAllBooksForLabels();
+      }
+
+      function populateBookCategories(list) {
+        const catSelect = document.getElementById('book-category-filter');
+        if (!catSelect) return;
+        let cats = [];
+        list.forEach(b => {
+          if (b.category && b.category !== '-' && !cats.includes(b.category)) {
+            cats.push(b.category);
+          }
+        });
+        let curVal = catSelect.value;
+        let html = '<option value="all">ทุกหมวดหมู่</option>';
+        cats.forEach(c => {
+          html += `<option value="${c}">${c}</option>`;
+        });
+        catSelect.innerHTML = html;
+        if (curVal && cats.includes(curVal)) {
+          catSelect.value = curVal;
+        } else {
+          catSelect.value = 'all';
+        }
+      }
+
+      function filterBookLabels() {
+        const catEl = document.getElementById('book-category-filter');
+        const catVal = catEl ? catEl.value : 'all';
+        const qEl = document.getElementById('book-label-search-input');
+        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+
+        let filtered = (cachedBookLabels || []).filter(b => {
+          const matchCat = (catVal === 'all') || (b.category === catVal);
+          const matchQ = !q || 
+            (b.name && b.name.toLowerCase().includes(q)) || 
+            (b.id && String(b.id).toLowerCase().includes(q)) || 
+            (b.category && String(b.category).toLowerCase().includes(q));
+          return matchCat && matchQ;
+        });
+
+        renderBookLabelsList(filtered);
+      }
+
+      function renderBookLabelsList(list) {
+        const container = document.getElementById('book-labels-list');
+        const badge = document.getElementById('book-barcode-count-badge');
+        if (badge) badge.innerText = `${list ? list.length : 0} เรื่อง`;
+        if (!container) return;
+
+        if (!list || list.length === 0) {
+          container.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>❌ ไม่พบรายการหนังสือ</div>";
+          updateSelectedCountBadge();
+          return;
+        }
+
+        let html = "";
+        list.forEach((b, idx) => {
+          const isChecked = selectedBookLabelIds.has(b.id) ? "checked" : "";
+          const safeName = String(b.name || '').replace(/'/g, "\\'");
+          const safeCat = String(b.category || 'ทั่วไป').replace(/'/g, "\\'");
+          const safeId = String(b.id || '').replace(/'/g, "\\'");
+          const qty = Math.max(1, Number(b.totalQty) || 1);
+
+          html += `
+            <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+              <label style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; cursor: pointer; margin: 0;">
+                <input type="checkbox" class="book-item-cb" data-id="${safeId}" ${isChecked} onchange="toggleBookLabelSelection('${safeId}', this.checked)" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0;">
+                <div style="text-align: left; flex: 1; min-width: 0;">
+                  <div style="font-weight: 700; color: var(--text-main); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${b.name}</span>
+                  </div>
+                  <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px; white-space: nowrap;">
+                    รหัส: <b>${b.id}</b> | หมวด: <b>${b.category || 'ทั่วไป'}</b> | <span style="background: #E8F5E9; color: #2D6A4F; padding: 1px 6px; border-radius: 8px; font-weight: 700;">${qty} เล่ม</span>
+                  </div>
+                </div>
+              </label>
+              <button type="button" style="height: 30px; padding: 0 8px; font-size: 11px; font-weight: 600; background: white; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleBookLabel('${safeId}', '${safeName}', '${safeCat}', ${qty})">
+                🖨️ เรื่องนี้
+              </button>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+        updateSelectedCountBadge();
+      }
+
+      function toggleBookLabelSelection(id, checked) {
+        if (checked) {
+          selectedBookLabelIds.add(id);
+        } else {
+          selectedBookLabelIds.delete(id);
+        }
+        updateSelectedCountBadge();
+      }
+
+      function toggleSelectAllBookLabels(checked) {
+        const qEl = document.getElementById('book-label-search-input');
+        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+        const catEl = document.getElementById('book-category-filter');
+        const catVal = catEl ? catEl.value : 'all';
+
+        let visibleBooks = (cachedBookLabels || []).filter(b => {
+          const matchCat = (catVal === 'all') || (b.category === catVal);
+          const matchQ = !q || 
+            (b.name && b.name.toLowerCase().includes(q)) || 
+            (b.id && String(b.id).toLowerCase().includes(q)) || 
+            (b.category && String(b.category).toLowerCase().includes(q));
+          return matchCat && matchQ;
+        });
+
+        visibleBooks.forEach(b => {
+          if (checked) {
+            selectedBookLabelIds.add(b.id);
+          } else {
+            selectedBookLabelIds.delete(b.id);
+          }
+        });
+
+        const cbs = document.querySelectorAll('.book-item-cb');
+        cbs.forEach(cb => cb.checked = checked);
+        updateSelectedCountBadge();
+      }
+
+      function updateSelectedCountBadge() {
+        const countSpan = document.getElementById('book-selected-count');
+        const printAllCopiesCb = document.getElementById('book-print-all-copies-cb');
+        const printAllCopies = printAllCopiesCb ? printAllCopiesCb.checked : true;
+
+        let totalCopies = 0;
+        (cachedBookLabels || []).forEach(b => {
+          if (selectedBookLabelIds.has(b.id)) {
+            totalCopies += printAllCopies ? (Math.max(1, Number(b.totalQty) || 1)) : 1;
+          }
+        });
+
+        if (countSpan) countSpan.innerText = totalCopies;
+
+        const selectAllCb = document.getElementById('book-select-all-cb');
+        if (selectAllCb) {
+          const visibleCount = document.querySelectorAll('.book-item-cb').length;
+          const checkedCount = document.querySelectorAll('.book-item-cb:checked').length;
+          selectAllCb.checked = visibleCount > 0 && visibleCount === checkedCount;
+        }
+      }
+
+      function printSelectedBookLabels() {
+        const printAllCopiesCb = document.getElementById('book-print-all-copies-cb');
+        const printAllCopies = printAllCopiesCb ? printAllCopiesCb.checked : true;
+
+        let labelsToPrint = [];
+        (cachedBookLabels || []).forEach(b => {
+          if (selectedBookLabelIds.has(b.id)) {
+            const count = printAllCopies ? Math.max(1, Number(b.totalQty) || 1) : 1;
+            for (let c = 1; c <= count; c++) {
+              labelsToPrint.push({
+                id: b.id,
+                name: b.name,
+                category: b.category || 'ทั่วไป',
+                copyNum: count > 1 ? c : 0,
+                totalQty: b.totalQty || 1
+              });
+            }
+          }
+        });
+
+        if (labelsToPrint.length === 0) {
+          alert("⚠️ กรุณาเลือกหนังสืออย่างน้อย 1 รายการเพื่อพิมพ์สติกเกอร์ครับ");
+          return;
+        }
+
+        generateAndPrintBookLabels(labelsToPrint, `สติกเกอร์บาร์โค้ดติดสันหนังสือ (${labelsToPrint.length} ชิ้น)`);
+      }
+
+      function printSingleBookLabel(id, name, category, totalQty) {
+        const printAllCopiesCb = document.getElementById('book-print-all-copies-cb');
+        const printAllCopies = printAllCopiesCb ? printAllCopiesCb.checked : true;
+        const count = printAllCopies ? Math.max(1, Number(totalQty) || 1) : 1;
+
+        let labels = [];
+        for (let c = 1; c <= count; c++) {
+          labels.push({
+            id: id,
+            name: name,
+            category: category || 'ทั่วไป',
+            copyNum: count > 1 ? c : 0,
+            totalQty: totalQty || 1
+          });
+        }
+        generateAndPrintBookLabels(labels, `สติกเกอร์สันหนังสือ - ${name}`);
+      }
+
+      function generateAndPrintBookLabels(labelsList, docTitle) {
+        if (!labelsList || labelsList.length === 0) {
+          alert("⚠️ ไม่มีรายการสติกเกอร์สำหรับพิมพ์ครับ");
+          return;
+        }
+
+        let win = window.open("", "_blank");
+        if (!win) {
+          alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือการเปิดแท็บใหม่ในเบราว์เซอร์ก่อนครับ");
+          return;
+        }
+
+        let labelsHtml = "";
+        labelsList.forEach((item, idx) => {
+          const copyBadge = item.copyNum > 0 ? ` [เล่ม ${item.copyNum}]` : "";
+          labelsHtml += `
+          <div class="spine-label-item">
+            <div class="label-header">
+              <span class="label-school">รร.วัดหนองตะเฆ่</span>
+              <span class="label-cat">${item.category || 'ทั่วไป'}${copyBadge}</span>
+            </div>
+            <div class="label-title">${item.name}</div>
+            <div class="label-barcode-wrap">
+              <svg class="label-barcode-svg" data-barcode="${item.id}"></svg>
+            </div>
+          </div>`;
+        });
+
+        const printPageHtml = `<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>${docTitle || 'สติกเกอร์บาร์โค้ดติดสันหนังสือ โรงเรียนวัดหนองตะเฆ่'}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
+  <style>
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm 6mm;
+      }
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .spine-label-item {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+      }
+    }
+    *, *::before, *::after, html, body, div, span, button {
+      box-sizing: border-box;
+      font-family: 'Mali', cursive, sans-serif !important;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #F4F6F9;
+      color: #333;
+    }
+    .print-controls {
+      max-width: 900px;
+      margin: 0 auto 16px auto;
+      background: white;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .print-btn {
+      background: #2D6A4F;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .print-btn:hover {
+      background: #1B4332;
+    }
+    .labels-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5mm 4mm;
+      width: 100%;
+      max-width: 198mm;
+      margin: 0 auto;
+    }
+    .spine-label-item {
+      background: white;
+      border: 1px dashed #B7E4C7;
+      border-radius: 6px;
+      padding: 3mm 3mm 2mm 3mm;
+      height: 33mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      position: relative;
+      overflow: hidden;
+    }
+    .label-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5px;
+      line-height: 1.1;
+      border-bottom: 0.5px solid #E0E0E0;
+      padding-bottom: 1.5px;
+      margin-bottom: 1.5px;
+    }
+    .label-school {
+      font-weight: 700;
+      color: #2D6A4F;
+      white-space: nowrap;
+    }
+    .label-cat {
+      color: #666;
+      font-weight: 600;
+      font-size: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 65px;
+    }
+    .label-title {
+      font-size: 9px;
+      font-weight: 700;
+      color: #222;
+      line-height: 1.15;
+      max-height: 2.3em;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      word-break: break-word;
+      margin: 1px 0;
+    }
+    .label-barcode-wrap {
+      text-align: center;
+      margin-top: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .label-barcode-svg {
+      max-width: 100%;
+      height: 17mm;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-controls no-print">
+    <div>
+      <div style="font-weight: 700; font-size: 16px; color: #2D6A4F;">🏷️ สติกเกอร์บาร์โค้ดติดสันหนังสือ (${labelsList.length} ชิ้น)</div>
+      <div style="font-size: 12px; color: #666; margin-top: 2px;">แนะนำตั้งค่าการพิมพ์: กระดาษ A4 แนวตั้ง, ตั้งขอบกระดาษเป็น "กำหนดเอง (ประมาณ 6-8 มม.)" หรือ "ไม่มีขอบ"</div>
+    </div>
+    <button class="print-btn" onclick="window.print()">
+      🖨️ สั่งพิมพ์ออกเครื่องพิมพ์
+    </button>
+  </div>
+
+  <div class="labels-grid">
+    ${labelsHtml}
+  </div>
+
+  <script>
+    window.addEventListener('load', function() {
+      const svgs = document.querySelectorAll('.label-barcode-svg');
+      svgs.forEach(function(el) {
+        const val = el.getAttribute('data-barcode');
+        if (val) {
+          try {
+            JsBarcode(el, val, {
+              format: "CODE128",
+              lineColor: "#000",
+              width: 1.3,
+              height: 34,
+              displayValue: true,
+              fontSize: 10,
+              font: "Mali",
+              fontOptions: "600",
+              margin: 0
+            });
+          } catch(e) {
+            console.error("Barcode error for", val, e);
+          }
+        }
+      });
+      setTimeout(function() {
+        window.print();
+      }, 600);
+    });
+  <\/script>
+</body>
+</html>`;
+
+        win.document.open();
+        win.document.write(printPageHtml);
+        win.document.close();
+      }
+
+      // 💾 ระบบสำรองข้อมูลอัตโนมัติ (Google Drive Automated Backup)
+      let cachedBackupInfo = null;
+
+      function showBackupModal() {
+        const modal = document.getElementById('backupModal');
+        if (modal) modal.style.display = 'flex';
+
+        const msgDiv = document.getElementById('backup-action-msg');
+        if (msgDiv) msgDiv.style.display = 'none';
+
+        const filesContainer = document.getElementById('backup-files-list');
+        if (filesContainer) {
+          filesContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังเชื่อมต่อระบบสำรองข้อมูล Google Drive...</div>";
+        }
+
+        loadBackupInfo();
+      }
+
+      function loadBackupInfo(onDone) {
+        google.script.run
+          .withSuccessHandler(function(info) {
+            cachedBackupInfo = info;
+            renderBackupInfo(info);
+            if (onDone) onDone(info);
+          })
+          .withFailureHandler(function(err) {
+            console.error("Error loading backup info:", err);
+            const filesContainer = document.getElementById('backup-files-list');
+            if (filesContainer) {
+              filesContainer.innerHTML = "<div style='text-align: center; color: #E63946; padding: 30px;'>❌ ไม่สามารถโหลดข้อมูลสำรองได้: " + err + "</div>";
+            }
+            if (onDone) onDone(null);
+          })
+          .getLibraryBackupInfo();
+      }
+
+      function renderBackupInfo(info) {
+        if (!info) return;
+
+        // ลิงก์โฟลเดอร์ Google Drive
+        const folderLink = document.getElementById('backup-folder-link');
+        if (folderLink && info.folderUrl) {
+          folderLink.href = info.folderUrl;
+        }
+
+        // สถานะ Trigger
+        const scheduleText = document.getElementById('backup-schedule-text');
+        if (scheduleText) {
+          scheduleText.innerText = info.triggerSchedule || "ทุกวัน เวลา 01:00 น.";
+        }
+
+        const badge = document.getElementById('backup-status-badge');
+        if (badge) {
+          badge.innerHTML = info.hasAutoTrigger ? "🟢 ทำงานอัตโนมัติ" : "🟡 พร้อมทำงาน";
+        }
+
+        const totalCount = document.getElementById('backup-total-count');
+        if (totalCount) {
+          totalCount.innerText = `${info.totalBackups || 0} ไฟล์ (คงไว้ ${info.maxFiles || 30} ไฟล์ล่าสุด)`;
+        }
+
+        const container = document.getElementById('backup-files-list');
+        if (!container) return;
+
+        if (!info.backups || info.backups.length === 0) {
+          container.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>📂 ยังไม่มีไฟล์สำรองในโฟลเดอร์<br><small>กดปุ่ม 'สำรองทันที' ด้านบนเพื่อสร้างไฟล์สำรองแรกได้เลยครับ</small></div>";
+          return;
+        }
+
+        let html = "";
+        info.backups.forEach((b, idx) => {
+          html += `
+            <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+              <div style="text-align: left; flex: 1; min-width: 0;">
+                <div style="font-weight: 700; color: var(--text-main); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px;">
+                  <span>📄</span>
+                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${b.name}</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); margin-top: 3px; white-space: nowrap;">
+                  📅 <b>${b.createdAt}</b> | ขนาด: <b>${b.size}</b>
+                </div>
+              </div>
+              <a href="${b.url}" target="_blank" style="padding: 6px 10px; font-size: 11px; font-weight: 600; background: #D8F3DC; color: #2D6A4F; border: none; border-radius: 8px; text-decoration: none; cursor: pointer; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; gap: 3px;">
+                👁️ เปิดดู
+              </a>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      function triggerManualBackup() {
+        const btn = document.getElementById('manual-backup-btn');
+        const msgDiv = document.getElementById('backup-action-msg');
+
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = "⏳ กำลังสำรองข้อมูล...";
+          btn.style.opacity = "0.7";
+        }
+
+        if (msgDiv) {
+          msgDiv.style.display = "block";
+          msgDiv.style.background = "#E8F5E9";
+          msgDiv.style.color = "#2D6A4F";
+          msgDiv.innerHTML = "⏳ กำลังคัดลอกและสร้างสแนปช็อตไฟล์ Google Sheets ไปยัง Google Drive...";
+        }
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = "⚡ สำรองทันที (Now)";
+              btn.style.opacity = "1";
+            }
+            if (res && res.status === 'success') {
+              if (msgDiv) {
+                msgDiv.style.display = "block";
+                msgDiv.style.background = "#D8F3DC";
+                msgDiv.style.color = "#1B4332";
+                msgDiv.innerHTML = `✅ ${res.msg} <br><small><a href="${res.fileUrl}" target="_blank" style="color: #2D6A4F; font-weight: 700;">เปิดไฟล์สำรองล่าสุดที่สร้างขึ้น</a></small>`;
+              }
+              loadBackupInfo();
+            } else {
+              if (msgDiv) {
+                msgDiv.style.display = "block";
+                msgDiv.style.background = "#FFD8D8";
+                msgDiv.style.color = "#D90429";
+                msgDiv.innerHTML = `❌ ${(res && res.msg) || 'เกิดข้อผิดพลาดในการสำรองข้อมูล'}`;
+              }
+            }
+          })
+          .withFailureHandler(function(err) {
+            console.error("Manual backup error:", err);
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = "⚡ สำรองทันที (Now)";
+              btn.style.opacity = "1";
+            }
+            if (msgDiv) {
+              msgDiv.style.display = "block";
+              msgDiv.style.background = "#FFD8D8";
+              msgDiv.style.color = "#D90429";
+              msgDiv.innerHTML = "❌ เกิดข้อผิดพลาด: " + err;
+            }
+          })
+          .createLibraryBackup();
       }
 
 
