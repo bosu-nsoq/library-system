@@ -14,23 +14,92 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL); 
 }
 
-// --- 1. Login System ---
+// --- 1. Login System & Role Management ---
+// ตรวจสอบและเพิ่มคอลัมน์ Role ใน Sheet 'Staff' หลังคอลัมน์ Name (คอลัมน์ D)
+function ensureStaffSheetRoleColumn(sheet) {
+  if (!sheet) return;
+  const lastCol = sheet.getLastColumn();
+  const lastRow = sheet.getLastRow();
+  
+  if (lastCol < 4) {
+    sheet.getRange(1, 4).setValue("Role");
+    sheet.getRange(1, 4).setFontWeight("bold").setBackground("#D8F3DC");
+  }
+  
+  if (lastRow > 1) {
+    const roles = sheet.getRange(2, 4, lastRow - 1, 1).getValues();
+    let updated = false;
+    for (let r = 0; r < roles.length; r++) {
+      if (!roles[r][0] || String(roles[r][0]).trim() === "") {
+        roles[r][0] = "admin"; // กำหนดให้ทุกคนมีบทบาทเริ่มต้นเป็น admin ตามคำสั่งของผู้ใช้
+        updated = true;
+      }
+    }
+    if (updated) {
+      sheet.getRange(2, 4, lastRow - 1, 1).setValues(roles);
+    }
+  }
+}
+
 function loginStaff(pin) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("Staff");
   if (!sheet) return { status: "error", msg: "ไม่พบ Sheet 'Staff'" };
+  
+  ensureStaffSheetRoleColumn(sheet);
+  
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][1]) === String(pin)) {
+    if (String(data[i][1]).trim() === String(pin).trim()) {
       checkAndAutoBackupOnLogin();
+      const rawRole = String(data[i][3] || 'admin').trim().toLowerCase();
+      const isStaff = (rawRole === 'staff' || rawRole === 'youth' || rawRole === 'ยุวบรรณารักษ์');
+      const role = isStaff ? 'staff' : 'admin';
       return { 
         status: "success", 
         name: data[i][2],
+        role: role,
         libraryData: getFullLibraryData() // โหลดข้อมูลทั้งหมดลงเครื่องทันทีที่ล็อกอิน
       };
     }
   }
   return { status: "fail" };
+}
+
+// ฟังก์ชันเพิ่มยุวบรรณารักษ์ (สำหรับครูบรรณารักษ์ / Admin)
+function addYouthStaff(pin, name) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("Staff");
+    if (!sheet) {
+      sheet = ss.insertSheet("Staff");
+      sheet.appendRow(["ID", "PIN", "Name", "Role"]);
+      sheet.getRange(1, 1, 1, 4).setFontWeight("bold").setBackground("#D8F3DC");
+    }
+    
+    ensureStaffSheetRoleColumn(sheet);
+    
+    pin = String(pin || '').trim();
+    name = String(name || '').trim();
+    
+    if (!pin) return { status: "error", msg: "กรุณาระบุรหัสใช้งาน (PIN)" };
+    if (!name) return { status: "error", msg: "กรุณาระบุชื่อยุวบรรณารักษ์" };
+    
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][1]).trim() === pin) {
+        return { status: "error", msg: `รหัสใช้งาน (PIN) นี้มีผู้ใช้งานแล้ว (${data[i][2]})` };
+      }
+    }
+    
+    const nextNum = Math.max(1, data.length);
+    const nextId = "ST-" + String(nextNum).padStart(3, '0');
+    
+    sheet.appendRow([nextId, pin, name, "staff"]);
+    return { status: "success", msg: `เพิ่มยุวบรรณารักษ์ "${name}" สำเร็จ!` };
+  } catch(e) {
+    return { status: "error", msg: "เกิดข้อผิดพลาด: " + e.toString() };
+  }
 }
 
 // --- 2. History & Print Data ---
@@ -1112,6 +1181,7 @@ function getOrCreateBackupLogSheet(ss) {
 }
 
 // สร้างไฟล์สำรองข้อมูล (Full Spreadsheet Snapshot) คัดลอกทุกชีต (Books, Students, Logs, Staff)
+// โดยจะลบไฟล์สำรองเดิมใน Google Drive และสำรองทับไฟล์เดิมเสมอ
 function createLibraryBackup(triggerType) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1126,13 +1196,34 @@ function createLibraryBackup(triggerType) {
     const timestamp = `${yearBE}${month}${day}_${hours}${minutes}${seconds}`;
     const backupName = `Backup_WNTK_Library_${timestamp}`;
 
-    // 1. สร้าง Google Spreadsheet ไฟล์ใหม่สำหรับเก็บสำรองข้อมูล
+    // 1. ลบไฟล์สำรองเดิมใน Google Drive และล้างประวัติเดิมเพื่อสำรองทับไฟล์เดิม
+    const logSheet = getOrCreateBackupLogSheet(ss);
+    const lastRow = logSheet.getLastRow();
+    if (lastRow > 1) {
+      const oldData = logSheet.getRange(2, 1, lastRow - 1, 6).getValues();
+      for (let i = 0; i < oldData.length; i++) {
+        const oldFileId = String(oldData[i][3] || '').trim();
+        if (oldFileId) {
+          try {
+            if (typeof DriveApp !== 'undefined') {
+              const oldFile = DriveApp.getFileById(oldFileId);
+              if (oldFile) oldFile.setTrashed(true);
+            }
+          } catch(e) {
+            console.warn("Could not trash old backup file:", e);
+          }
+        }
+      }
+      logSheet.deleteRows(2, lastRow - 1);
+    }
+
+    // 2. สร้าง Google Spreadsheet ไฟล์ใหม่สำหรับเก็บสำรองข้อมูล
     const newSs = SpreadsheetApp.create(backupName);
     const newSsId = newSs.getId();
     const newSsUrl = newSs.getUrl();
     const defaultSheet = newSs.getSheets()[0];
 
-    // 2. คัดลอกทุกชีตในระบบ (ยกเว้นชีต Backups เอง)
+    // 3. คัดลอกทุกชีตในระบบ (ยกเว้นชีต Backups เอง)
     const sheets = ss.getSheets();
     for (let i = 0; i < sheets.length; i++) {
       const s = sheets[i];
@@ -1147,7 +1238,7 @@ function createLibraryBackup(triggerType) {
       newSs.deleteSheet(defaultSheet);
     }
 
-    // 3. ถ้าผู้ใช้เปิดสิทธิ์ DriveApp ไว้ ให้พยายามย้ายเข้าโฟลเดอร์ WNTK_Library_Backups (แบบ Graceful)
+    // 4. ถ้าผู้ใช้เปิดสิทธิ์ DriveApp ไว้ ให้พยายามย้ายเข้าโฟลเดอร์ WNTK_Library_Backups (แบบ Graceful)
     try {
       if (typeof DriveApp !== 'undefined') {
         const folders = DriveApp.getFoldersByName("WNTK_Library_Backups");
@@ -1164,8 +1255,7 @@ function createLibraryBackup(triggerType) {
       // ทำงานต่อได้ปกติ แม้ DriveApp ยังไม่ได้รับสิทธิ์
     }
 
-    // 4. บันทึกประวัติลงชีต Backups
-    const logSheet = getOrCreateBackupLogSheet(ss);
+    // 5. บันทึกประวัติไฟล์สำรองใหม่ลงชีต Backups (มีไฟล์ปัจจุบัน 1 ไฟล์เสมอ)
     logSheet.appendRow([
       thaiDateStr,
       backupName,
@@ -1177,7 +1267,7 @@ function createLibraryBackup(triggerType) {
 
     return {
       status: "success",
-      msg: `สำรองข้อมูลสำเร็จเรียบร้อย (${thaiDateStr})`,
+      msg: `สำรองข้อมูลทับไฟล์เดิมสำเร็จเรียบร้อย (${thaiDateStr})`,
       fileName: backupName,
       fileUrl: newSsUrl,
       time: thaiDateStr
@@ -1186,6 +1276,48 @@ function createLibraryBackup(triggerType) {
     return {
       status: "error",
       msg: "เกิดข้อผิดพลาดในการสำรองข้อมูล: " + err.toString()
+    };
+  }
+}
+
+// ฟังก์ชันลบไฟล์สำรองข้อมูลที่เลือก
+function deleteLibraryBackup(fileId) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const logSheet = getOrCreateBackupLogSheet(ss);
+    const lastRow = logSheet.getLastRow();
+    fileId = String(fileId || '').trim();
+    if (!fileId) return { status: "error", msg: "ไม่พบรหัสไฟล์สำรอง" };
+    
+    let deletedName = "";
+    if (lastRow > 1) {
+      const data = logSheet.getRange(2, 1, lastRow - 1, 6).getValues();
+      for (let i = data.length - 1; i >= 0; i--) {
+        const rowFileId = String(data[i][3] || '').trim();
+        if (rowFileId === fileId) {
+          deletedName = String(data[i][1] || '').trim();
+          logSheet.deleteRow(i + 2);
+        }
+      }
+    }
+    
+    try {
+      if (typeof DriveApp !== 'undefined' && fileId) {
+        const file = DriveApp.getFileById(fileId);
+        if (file) file.setTrashed(true);
+      }
+    } catch (driveErr) {
+      console.warn("DriveApp trash warning:", driveErr);
+    }
+    
+    return { 
+      status: "success", 
+      msg: `ลบไฟล์สำรอง ${deletedName ? '"' + deletedName + '"' : ''} เรียบร้อยแล้ว` 
+    };
+  } catch (err) {
+    return { 
+      status: "error", 
+      msg: "เกิดข้อผิดพลาดในการลบไฟล์สำรอง: " + err.toString() 
     };
   }
 }
@@ -1204,17 +1336,19 @@ function getLibraryBackupInfo() {
         const dateStr = String(data[i][0] || '').trim();
         const name = String(data[i][1] || '').trim();
         const url = String(data[i][2] || '').trim();
+        const fileId = String(data[i][3] || '').trim();
         const type = String(data[i][4] || 'อัตโนมัติ').trim();
         if (name && url) {
           backups.push({
             name: name,
             createdAt: dateStr,
             url: url,
+            fileId: fileId,
             type: type,
             size: "Google Sheets"
           });
         }
-        if (backups.length >= 15) break; // คืนค่า 15 รายการล่าสุด
+        if (backups.length >= 15) break;
       }
     }
 
@@ -1234,8 +1368,8 @@ function getLibraryBackupInfo() {
       status: "success",
       folderUrl: "https://drive.google.com/drive/my-drive",
       hasAutoTrigger: true,
-      triggerSchedule: "ทำงานอัตโนมัติทุกวัน (และเมื่อล็อกอินเข้าใช้งานครั้งแรกของวัน)",
-      maxFiles: MAX_BACKUP_RECORDS,
+      triggerSchedule: "ทำงานเมื่อล็อกอินเข้าใช้งานครั้งแรกของวัน",
+      maxFiles: 1,
       totalBackups: Math.max(0, lastRow - 1),
       backedUpToday: backedUpToday,
       backups: backups

@@ -343,7 +343,7 @@
 
         <div class="app-title" style="justify-content:center; margin-bottom: 15px;">ระบบห้องสมุดดิจิทัล</div>
 
-        <input type="password" id="login-pin" class="pin-input" inputmode="numeric" maxlength="4" placeholder="กรอกรหัส" oninput="checkPinLogin(this)" autofocus>
+        <input type="password" id="login-pin" class="pin-input" inputmode="numeric" maxlength="6" placeholder="กรอกรหัส" oninput="checkPinLogin(this)" onkeypress="if(event.key==='Enter') checkPinLogin(this, true)" autofocus>
 
         <div id="login-loader" class="loader"></div>
 
@@ -383,15 +383,17 @@
 
         <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ (ประวัติล่าสุด)">🕒</div>
 
-        <div class="icon-btn" onclick="showCardModal()" title="พิมพ์บัตรสมาชิกห้องสมุด (พร้อมบาร์โค้ด)">🪪</div>
+        <div class="icon-btn admin-only" id="btn-menu-card" onclick="showCardModal()" title="พิมพ์บัตรสมาชิกห้องสมุด (พร้อมบาร์โค้ด)">🪪</div>
 
-        <div class="icon-btn" onclick="showBookBarcodeModal()" title="พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ">🏷️</div>
+        <div class="icon-btn admin-only" id="btn-menu-label" onclick="showBookBarcodeModal()" title="พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ">🏷️</div>
 
         <div class="icon-btn" onclick="showBorrowedBooks()" title="หนังสือที่ถูกยืมอยู่ขณะนี้">📚</div>
 
         <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
 
-        <div class="icon-btn" onclick="showBackupModal()" title="ระบบสำรองข้อมูลอัตโนมัติ (Google Drive)">💾</div>
+        <div class="icon-btn admin-only" id="btn-menu-add-staff" onclick="showAddStaffModal()" title="➕ เพิ่มยุวบรรณารักษ์ (สำหรับครู / Admin)">➕</div>
+
+        <div class="icon-btn admin-only" id="btn-menu-backup" onclick="showBackupModal()" title="ระบบสำรองข้อมูลอัตโนมัติ (Google Drive)">💾</div>
 
       </div>
 
@@ -883,6 +885,44 @@
        </div>
     </div>
 
+    <!-- Modal เพิ่มยุวบรรณารักษ์ (สำหรับครูบรรณารักษ์ / Admin) -->
+    <div id="addStaffModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 440px; width: 92vw; border-radius: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>➕</span> เพิ่มยุวบรรณารักษ์
+             </div>
+             <div style="background: #E0F2FE; color: #0284C7; font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+                Staff Mode
+             </div>
+          </div>
+
+          <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; text-align: left; font-size: 11.5px; color: #166534; line-height: 1.5;">
+             💡 <b>สิทธิ์การใช้งานโหมดยุวบรรณารักษ์ (Staff):</b><br>
+             เข้าถึงได้เฉพาะ: ยืม-คืน, เพิ่มหนังสือ, แลกของ, ประวัติล่าสุด, หนังสือที่ถูกยืม และสถิติการใช้งาน
+          </div>
+
+          <div style="text-align: left; margin-bottom: 12px;">
+             <label style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: block;">รหัสใช้งาน (PIN):</label>
+             <input type="password" id="new-staff-pin" class="modern-input" style="padding: 12px; font-size: 15px; text-align: left;" placeholder="เช่น 1234 (ตัวเลข 4 หลัก)" maxlength="10">
+          </div>
+
+          <div style="text-align: left; margin-bottom: 14px;">
+             <label style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; display: block;">ชื่อยุวบรรณารักษ์:</label>
+             <input type="text" id="new-staff-name" class="modern-input" style="padding: 12px; font-size: 14px; text-align: left;" placeholder="เช่น ด.ญ. กานดา รักดี">
+          </div>
+
+          <div id="add-staff-msg" style="display: none; padding: 8px 12px; border-radius: 10px; margin-bottom: 12px; font-size: 12px; font-weight: 600; text-align: center;"></div>
+
+          <button type="button" id="btn-save-staff" class="action-btn" style="width: 100%; padding: 12px; font-size: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-family: 'Mali', cursive, sans-serif !important; margin: 0;" onclick="submitAddYouthStaff()">
+             💾 บันทึกข้อมูลยุวบรรณารักษ์
+          </button>
+          <button type="button" class="action-btn" style="width: 100%; margin-top: 8px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('addStaffModal').style.display='none'">
+             ยกเลิก
+          </button>
+       </div>
+    </div>
+
     <!-- Modal ระบบสำรองข้อมูลอัตโนมัติ (Google Drive) -->
     <div id="backupModal" class="modal-overlay">
        <div class="modal-box" style="max-width: 520px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
@@ -899,10 +939,10 @@
           <div style="background: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 14px; padding: 12px; margin-bottom: 12px; text-align: left;">
              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
                 <span style="font-weight: 700; font-size: 13px; color: var(--primary);">⏱️ สำรองอัตโนมัติ:</span>
-                <span id="backup-schedule-text" style="font-size: 12px; font-weight: 600; color: #2D6A4F; background: #D8F3DC; padding: 2px 8px; border-radius: 10px;">ทุกวัน เวลา 01:00 น.</span>
+                <span id="backup-schedule-text" style="font-size: 12px; font-weight: 600; color: #2D6A4F; background: #D8F3DC; padding: 2px 8px; border-radius: 10px;">ทำงานเมื่อล็อกอินเข้าใช้งานครั้งแรกของวัน</span>
              </div>
              <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.45;">
-                ระบบสร้างไฟล์สำรองข้อมูล (Books, Students, Logs) ไปยังโฟลเดอร์ Google Drive ทุกวันโดยอัตโนมัติ และเก็บย้อนหลัง 30 ไฟล์ล่าสุด
+                ระบบสร้างไฟล์สำรองข้อมูล (Books, Students, Logs) ไปยัง Google Drive เมื่อล็อกอินเข้าใช้งานครั้งแรกของวันโดยอัตโนมัติ (สำรองทับไฟล์เดิม)
              </div>
              <div style="margin-top: 10px; display: flex; gap: 8px;">
                 <a id="backup-folder-link" href="#" target="_blank" class="action-btn" style="flex: 1; padding: 7px 10px; font-size: 12px; background: white; border: 1.5px solid #2D6A4F; color: #2D6A4F; text-decoration: none; border-radius: 10px; text-align: center; margin: 0; box-shadow: none; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
@@ -1060,13 +1100,37 @@
 
 
 
-      let studentCache = {}; let currentUser = ""; let loginAttempts = 0; let lockoutEnd = 0;
+      let studentCache = {}; let currentUser = ""; let currentUserRole = "admin"; let loginAttempts = 0; let lockoutEnd = 0;
 
       let bookQueue = []; // คิวหนังสือสำหรับยืม/คืนหลายเล่ม
 
       let localDB = { students: {}, books: {}, rewards: [], loaded: false };
 
+      // ฟังก์ชันจัดการสิทธิ์การแสดงผลเมนูตามบทบาท (admin vs staff)
+      function applyRolePermissions(role, userName) {
+        currentUserRole = (role === 'staff' || role === 'youth' || role === 'ยุวบรรณารักษ์') ? 'staff' : 'admin';
+        const displayEl = document.getElementById('staff-display');
+        const user = userName || currentUser || 'Guest';
+        if (displayEl) {
+          if (currentUserRole === 'admin') {
+            displayEl.innerHTML = `<span style="font-size:10px; background:#2D6A4F; color:white; padding:1px 5px; border-radius:6px; margin-right:4px; font-weight:700;">ครู</span>${user}`;
+            displayEl.title = "ผู้ทำรายการ: " + user + " (ครูบรรณารักษ์ / Admin)";
+          } else {
+            displayEl.innerHTML = `<span style="font-size:10px; background:#0284C7; color:white; padding:1px 5px; border-radius:6px; margin-right:4px; font-weight:700;">ยุวฯ</span>${user}`;
+            displayEl.title = "ผู้ทำรายการ: " + user + " (ยุวบรรณารักษ์ / Staff)";
+          }
+        }
 
+        // ซ่อน/แสดง ปุ่มเมนูตามบทบาท
+        const adminElements = document.querySelectorAll('.admin-only');
+        adminElements.forEach(el => {
+          if (currentUserRole === 'admin') {
+            el.style.display = 'flex';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      }
 
       // ⚡ ฟังก์ชันซิงก์ฐานข้อมูลทั้งหมดมาเก็บในเครื่อง เพื่อความเร็วสูงสุดระดับ 0.01 วินาที
 
@@ -1099,12 +1163,14 @@
          initPrintDate();
 
          let savedUser = sessionStorage.getItem('library_logged_in_user');
+         let savedRole = sessionStorage.getItem('library_logged_in_role') || 'admin';
 
          if (savedUser) {
 
              currentUser = savedUser;
+             currentUserRole = savedRole;
 
-             document.getElementById('staff-display').innerText = currentUser;
+             applyRolePermissions(currentUserRole, currentUser);
 
              document.getElementById('login-overlay').style.display = 'none';
 
@@ -1125,8 +1191,10 @@
          if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
 
              sessionStorage.removeItem('library_logged_in_user');
+             sessionStorage.removeItem('library_logged_in_role');
 
              currentUser = "";
+             currentUserRole = "admin";
 
              document.getElementById('main-app').style.display = 'none';
 
@@ -1642,9 +1710,9 @@
 
 
 
-      function checkPinLogin(input) {
+      function checkPinLogin(input, isEnter) {
 
-        if (input.value.length === 4) {
+        if (input.value.length === 4 || (isEnter && input.value.length >= 3)) {
 
           input.blur(); // ✅ ย่อคีย์บอร์ดมือถือลงทันทีเมื่อกรอกรหัส PIN ครบ 4 หลัก
 
@@ -1657,10 +1725,12 @@
             if (res.status === "success") { 
 
                currentUser = res.name; 
+               currentUserRole = res.role || "admin";
 
                sessionStorage.setItem('library_logged_in_user', currentUser);
+               sessionStorage.setItem('library_logged_in_role', currentUserRole);
 
-               document.getElementById('staff-display').innerText = currentUser; 
+               applyRolePermissions(currentUserRole, currentUser);
 
                document.getElementById('login-overlay').style.display = 'none'; 
 
@@ -1682,7 +1752,8 @@
 
                }
 
-               showModal("success:✅ เข้าสู่ระบบสำเร็จ\nยินดีต้อนรับ " + currentUser);
+               const roleTitle = currentUserRole === 'admin' ? 'ครูบรรณารักษ์' : 'ยุวบรรณารักษ์';
+               showModal("success:✅ เข้าสู่ระบบสำเร็จ (" + roleTitle + ")\nยินดีต้อนรับ " + currentUser);
 
             } else { 
 
@@ -3138,6 +3209,10 @@
       let cachedCardStudents = [];
 
       function showCardModal() {
+        if (currentUserRole !== 'admin') {
+          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          return;
+        }
         const modal = document.getElementById('cardModal');
         if (modal) modal.style.display = 'flex';
         
@@ -3555,6 +3630,10 @@
       let selectedBookLabelIds = new Set();
 
       function showBookBarcodeModal() {
+        if (currentUserRole !== 'admin') {
+          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          return;
+        }
         const modal = document.getElementById('bookBarcodeModal');
         if (modal) modal.style.display = 'flex';
 
@@ -4081,10 +4160,110 @@
         win.document.close();
       }
 
+      // ➕ ระบบเพิ่มยุวบรรณารักษ์ (สำหรับครูบรรณารักษ์ / Admin)
+      function showAddStaffModal() {
+        if (currentUserRole !== 'admin') {
+          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          return;
+        }
+        const modal = document.getElementById('addStaffModal');
+        if (modal) {
+          const pinInput = document.getElementById('new-staff-pin');
+          const nameInput = document.getElementById('new-staff-name');
+          if (pinInput) pinInput.value = '';
+          if (nameInput) nameInput.value = '';
+          const msg = document.getElementById('add-staff-msg');
+          if (msg) msg.style.display = 'none';
+          modal.style.display = 'flex';
+          setTimeout(() => {
+            if (pinInput) pinInput.focus();
+          }, 100);
+        }
+      }
+
+      function submitAddYouthStaff() {
+        const pinInput = document.getElementById('new-staff-pin');
+        const nameInput = document.getElementById('new-staff-name');
+        const msgDiv = document.getElementById('add-staff-msg');
+        const btn = document.getElementById('btn-save-staff');
+        
+        const pin = (pinInput ? pinInput.value : '').trim();
+        const name = (nameInput ? nameInput.value : '').trim();
+        
+        if (!pin) {
+          alert("⚠️ กรุณาระบุรหัสใช้งาน (PIN) สำหรับยุวบรรณารักษ์");
+          if (pinInput) pinInput.focus();
+          return;
+        }
+        if (!name) {
+          alert("⚠️ กรุณาระบุชื่อของยุวบรรณารักษ์");
+          if (nameInput) nameInput.focus();
+          return;
+        }
+        
+        if (btn) {
+          btn.disabled = true;
+          btn.innerText = "⏳ กำลังบันทึกข้อมูล...";
+        }
+        if (msgDiv) {
+          msgDiv.style.display = "block";
+          msgDiv.style.background = "#E8F5E9";
+          msgDiv.style.color = "#2D6A4F";
+          msgDiv.innerText = "⏳ กำลังบันทึกข้อมูลลงฐานข้อมูล...";
+        }
+        
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = "💾 บันทึกข้อมูลยุวบรรณารักษ์";
+            }
+            if (res && res.status === 'success') {
+              if (msgDiv) {
+                msgDiv.style.display = "block";
+                msgDiv.style.background = "#D8F3DC";
+                msgDiv.style.color = "#1B4332";
+                msgDiv.innerText = "✅ " + res.msg;
+              }
+              if (pinInput) pinInput.value = '';
+              if (nameInput) nameInput.value = '';
+              setTimeout(function() {
+                document.getElementById('addStaffModal').style.display = 'none';
+                if (msgDiv) msgDiv.style.display = 'none';
+                showModal("success:✅ " + res.msg + "\nยุวบรรณารักษ์สามารถใช้รหัส " + pin + " เข้าสู่ระบบได้ทันที");
+              }, 1200);
+            } else {
+              if (msgDiv) {
+                msgDiv.style.display = "block";
+                msgDiv.style.background = "#FFD8D8";
+                msgDiv.style.color = "#D90429";
+                msgDiv.innerText = "❌ " + ((res && res.msg) || "เกิดข้อผิดพลาดในการบันทึก");
+              }
+            }
+          })
+          .withFailureHandler(function(err) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerText = "💾 บันทึกข้อมูลยุวบรรณารักษ์";
+            }
+            if (msgDiv) {
+              msgDiv.style.display = "block";
+              msgDiv.style.background = "#FFD8D8";
+              msgDiv.style.color = "#D90429";
+              msgDiv.innerText = "❌ เกิดข้อผิดพลาด: " + err;
+            }
+          })
+          .addYouthStaff(pin, name);
+      }
+
       // 💾 ระบบสำรองข้อมูลอัตโนมัติ (Google Drive Automated Backup)
       let cachedBackupInfo = null;
 
       function showBackupModal() {
+        if (currentUserRole !== 'admin') {
+          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          return;
+        }
         const modal = document.getElementById('backupModal');
         if (modal) modal.style.display = 'flex';
 
@@ -4129,7 +4308,7 @@
         // สถานะ Trigger
         const scheduleText = document.getElementById('backup-schedule-text');
         if (scheduleText) {
-          scheduleText.innerText = info.triggerSchedule || "ทุกวัน เวลา 01:00 น.";
+          scheduleText.innerText = info.triggerSchedule || "ทำงานเมื่อล็อกอินเข้าใช้งานครั้งแรกของวัน";
         }
 
         const badge = document.getElementById('backup-status-badge');
@@ -4139,7 +4318,7 @@
 
         const totalCount = document.getElementById('backup-total-count');
         if (totalCount) {
-          totalCount.innerText = `${info.totalBackups || 0} ไฟล์ (คงไว้ ${info.maxFiles || 30} ไฟล์ล่าสุด)`;
+          totalCount.innerText = `${info.totalBackups || 0} ไฟล์ (สำรองทับไฟล์เดิม)`;
         }
 
         const container = document.getElementById('backup-files-list');
@@ -4163,13 +4342,63 @@
                   📅 <b>${b.createdAt}</b> | ขนาด: <b>${b.size}</b>
                 </div>
               </div>
-              <a href="${b.url}" target="_blank" style="padding: 6px 10px; font-size: 11px; font-weight: 600; background: #D8F3DC; color: #2D6A4F; border: none; border-radius: 8px; text-decoration: none; cursor: pointer; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; gap: 3px;">
-                👁️ เปิดดู
-              </a>
+              <div style="display: flex; gap: 6px; align-items: center; flex-shrink: 0;">
+                <a href="${b.url}" target="_blank" style="padding: 6px 10px; font-size: 11px; font-weight: 600; background: #D8F3DC; color: #2D6A4F; border: none; border-radius: 8px; text-decoration: none; cursor: pointer; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; gap: 3px;">
+                  👁️ เปิดดู
+                </a>
+                <button type="button" onclick="confirmDeleteBackup('${b.fileId || ''}', '${b.name}')" style="padding: 6px 10px; font-size: 11px; font-weight: 600; background: #FFD8D8; color: #D90429; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; gap: 3px;">
+                  🗑️ ลบ
+                </button>
+              </div>
             </div>
           `;
         });
         container.innerHTML = html;
+      }
+
+      function confirmDeleteBackup(fileId, name) {
+        if (!fileId) {
+          alert("⚠️ ไม่พบรหัสไฟล์สำรอง");
+          return;
+        }
+        if (!confirm("คุณต้องการลบไฟล์สำรอง '" + name + "' ใช่หรือไม่?\n(ไฟล์จะถูกย้ายไปถังขยะใน Google Drive)")) {
+          return;
+        }
+        const msgDiv = document.getElementById('backup-action-msg');
+        if (msgDiv) {
+          msgDiv.style.display = "block";
+          msgDiv.style.background = "#E8F5E9";
+          msgDiv.style.color = "#2D6A4F";
+          msgDiv.innerHTML = "⏳ กำลังลบไฟล์สำรองข้อมูล...";
+        }
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res && res.status === 'success') {
+              if (msgDiv) {
+                msgDiv.style.display = "block";
+                msgDiv.style.background = "#D8F3DC";
+                msgDiv.style.color = "#1B4332";
+                msgDiv.innerHTML = "✅ " + res.msg;
+              }
+              loadBackupInfo();
+            } else {
+              if (msgDiv) {
+                msgDiv.style.display = "block";
+                msgDiv.style.background = "#FFD8D8";
+                msgDiv.style.color = "#D90429";
+                msgDiv.innerHTML = "❌ " + ((res && res.msg) || "เกิดข้อผิดพลาดในการลบไฟล์");
+              }
+            }
+          })
+          .withFailureHandler(function(err) {
+            if (msgDiv) {
+              msgDiv.style.display = "block";
+              msgDiv.style.background = "#FFD8D8";
+              msgDiv.style.color = "#D90429";
+              msgDiv.innerHTML = "❌ ไม่สามารถลบไฟล์ได้: " + err;
+            }
+          })
+          .deleteLibraryBackup(fileId);
       }
 
       function triggerManualBackup() {
@@ -4186,7 +4415,7 @@
           msgDiv.style.display = "block";
           msgDiv.style.background = "#E8F5E9";
           msgDiv.style.color = "#2D6A4F";
-          msgDiv.innerHTML = "⏳ กำลังคัดลอกและสร้างสแนปช็อตไฟล์ Google Sheets ไปยัง Google Drive...";
+          msgDiv.innerHTML = "⏳ กำลังลบไฟล์เดิมและสำรองข้อมูลใหม่ไปยัง Google Drive...";
         }
 
         google.script.run
