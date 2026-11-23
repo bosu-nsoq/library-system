@@ -82,12 +82,22 @@
 
 
 
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100vw; height: 100vh; height: 100dvh;
+        background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
+        background-size: cover; background-position: center; background-repeat: no-repeat;
+        z-index: -1; pointer-events: none;
+        -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0);
+      }
+
       html, body { 
         overflow-x: hidden; overflow-y: auto; width: 100%; min-height: 100vh; min-height: 100dvh;
         overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y;
         font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 12px 0 calc(25px + env(safe-area-inset-bottom, 0px)) 0;
-        background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
-        background-size: cover; background-position: center; background-attachment: fixed;
+        background: transparent;
         display: flex; align-items: center; justify-content: center; box-sizing: border-box;
       }
 
@@ -216,7 +226,7 @@
 
       /* รายการคิวหนังสือหลายเล่ม */
 
-      .queue-box { display: none; margin-top: 15px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.7); border-radius: 16px; padding: 12px; border: 1.5px solid #D8F3DC; max-height: 105px; overflow-y: auto; }
+      .queue-box { display: none; margin-top: 0; margin-bottom: 12px; background: rgba(255, 255, 255, 0.85); border-radius: 16px; padding: 12px; border: 1.5px solid #D8F3DC; max-height: 175px; overflow-y: auto; }
 
       .queue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--primary); }
 
@@ -423,6 +433,8 @@
           <div id="b-status" style="font-size:12px; color:var(--text-sub)">-</div>
 
           <div id="b-borrower" style="font-size:12px; color:#2D6A4F; font-weight:600; margin-top:2px; display:none;"></div>
+
+          <div id="b-copies" style="font-size:12px; margin-top:5px; display:none; line-height:1.4;"></div>
 
         </div>
 
@@ -1740,6 +1752,9 @@
 
               document.getElementById('b-status').innerText = "-";
 
+              const copiesEl = document.getElementById('b-copies');
+              if (copiesEl) { copiesEl.innerHTML = ''; copiesEl.style.display = 'none'; }
+
               document.getElementById('box-book').classList.remove('active');
 
            }
@@ -1779,6 +1794,24 @@
           borrowerEl.style.display = "none";
         }
 
+        const copiesEl = document.getElementById('b-copies');
+        if (copiesEl) {
+          if (book.totalQty > 1 && book.copies && book.copies.length > 0) {
+            let copyHtml = '<div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(0,0,0,0.1);">';
+            book.copies.forEach(c => {
+              const dot = c.isAvailable ? '🟢' : '🔴';
+              const col = c.isAvailable ? '#2D6A4F' : '#D90429';
+              copyHtml += `<div style="font-size:12px; color:${col}; font-weight:500;">${dot} ${c.text}</div>`;
+            });
+            copyHtml += '</div>';
+            copiesEl.innerHTML = copyHtml;
+            copiesEl.style.display = 'block';
+          } else {
+            copiesEl.innerHTML = '';
+            copiesEl.style.display = 'none';
+          }
+        }
+
         document.getElementById('box-book').classList.add('active');
 
       }
@@ -1805,11 +1838,12 @@
 
 
 
-        // ⚡ ถ้ามีใน localDB ดึงขึ้นมาทันทีใน 0.001 วินาที!
+        // ⚡ ถ้ามีใน localDB หรือ dataCache ดึงขึ้นมาทันทีใน 0.001 วินาที!
+        const cachedBook = (localDB.books && localDB.books[bid]) || (dataCache.book && dataCache.book[bid]);
 
-        if (localDB.books && localDB.books[bid]) {
+        if (cachedBook) {
 
-          const b = localDB.books[bid];
+          const b = cachedBook;
 
           let avail = (b.available !== undefined && b.available !== null)
                       ? Number(b.available)
@@ -1817,7 +1851,14 @@
 
           let statusText = (avail > 0) ? `ว่าง จำนวน ${avail} เล่ม` : `ถูกยืม (ว่าง 0 เล่ม)`;
 
-          bookQueue.push({ id: bid, name: b.name, status: statusText, borrowerName: "" });
+          bookQueue.push({ 
+            id: bid, 
+            name: b.name, 
+            status: statusText, 
+            borrowerName: "",
+            totalQty: b.totalQty || 1,
+            copies: b.copies || []
+          });
 
           renderBookQueue();
 
@@ -1843,7 +1884,14 @@
 
         
 
-        bookQueue.push({ id: bid, name: displayName, status: currentStatus, borrowerName: "" });
+        bookQueue.push({ 
+          id: bid, 
+          name: displayName, 
+          status: currentStatus, 
+          borrowerName: "",
+          totalQty: 1,
+          copies: []
+        });
 
         renderBookQueue();
 
@@ -1866,6 +1914,13 @@
             bookQueue[itemIndex].status = statusText;
 
             bookQueue[itemIndex].borrowerName = "";
+
+            bookQueue[itemIndex].totalQty = data.book.totalQty || 1;
+
+            bookQueue[itemIndex].copies = data.book.copies || [];
+
+            if (!localDB.books) localDB.books = {};
+            localDB.books[bid] = data.book;
 
             renderBookQueue();
 
@@ -1891,6 +1946,14 @@
 
         renderBookQueue();
 
+        if (bookQueue.length === 0) {
+          document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
+          document.getElementById('b-status').innerText = "-";
+          const copiesEl = document.getElementById('b-copies');
+          if (copiesEl) { copiesEl.innerHTML = ''; copiesEl.style.display = 'none'; }
+          document.getElementById('box-book').classList.remove('active');
+        }
+
       }
 
 
@@ -1903,6 +1966,12 @@
 
           renderBookQueue();
 
+          document.getElementById('b-name').innerText = "รอข้อมูลหนังสือ...";
+          document.getElementById('b-status').innerText = "-";
+          const copiesEl = document.getElementById('b-copies');
+          if (copiesEl) { copiesEl.innerHTML = ''; copiesEl.style.display = 'none'; }
+          document.getElementById('box-book').classList.remove('active');
+
         }
 
       }
@@ -1912,6 +1981,7 @@
       function renderBookQueue() {
 
         const box = document.getElementById('book-queue-box');
+        const boxBook = document.getElementById('box-book');
 
         if (bookQueue.length === 0) {
 
@@ -1919,9 +1989,13 @@
 
           box.innerHTML = "";
 
+          if (boxBook) boxBook.style.display = 'block';
+
           return;
 
         }
+
+        if (boxBook) boxBook.style.display = 'none';
 
         box.style.display = 'block';
 
@@ -1945,7 +2019,16 @@
 
           const statusText = (b.status && b.status !== "-") ? b.status : "พร้อมทำรายการ";
 
-          const borrowerStr = '';
+          let copiesHtml = '';
+          if (b.totalQty > 1 && b.copies && b.copies.length > 0) {
+            copiesHtml = '<div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(0,0,0,0.08); font-size:11.5px; line-height:1.4;">';
+            b.copies.forEach(c => {
+              const dot = c.isAvailable ? '🟢' : '🔴';
+              const col = c.isAvailable ? '#2D6A4F' : '#D90429';
+              copiesHtml += `<div style="color:${col}; font-weight:500;">${dot} ${c.text}</div>`;
+            });
+            copiesHtml += '</div>';
+          }
 
           html += `
 
@@ -1967,9 +2050,9 @@
 
                 </div>
 
-                ${borrowerStr}
-
                 <div class="queue-badge ${badgeClass}" style="margin-top:4px;">${statusText}</div>
+
+                ${copiesHtml}
 
               </div>
 
@@ -2167,6 +2250,10 @@
            const borrowerEl = document.getElementById('b-borrower');
 
            if (borrowerEl) { borrowerEl.innerText = ""; borrowerEl.style.display = "none"; }
+
+           const copiesEl = document.getElementById('b-copies');
+
+           if (copiesEl) { copiesEl.innerHTML = ''; copiesEl.style.display = 'none'; }
 
            
 
