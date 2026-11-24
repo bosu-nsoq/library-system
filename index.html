@@ -1164,47 +1164,59 @@
 
                 <div class="act-photo-grid">
                    <!-- Slot 0 -->
-                   <div class="act-photo-card" id="act-card-0" onclick="triggerActPhotoUpload(0)">
-                      <button type="button" class="act-photo-remove" id="act-remove-0" onclick="removeActPhoto(0, event)" title="ลบภาพนี้">×</button>
-                      <div class="act-photo-placeholder" id="act-ph-0">
-                         <span style="font-size: 22px;">📷</span>
-                         <span>ภาพที่ 1</span>
+                   <div>
+                      <div class="act-photo-card" id="act-card-0" onclick="triggerActPhotoUpload(0)">
+                         <button type="button" class="act-photo-remove" id="act-remove-0" onclick="removeActPhoto(0, event)" title="ลบภาพนี้">×</button>
+                         <div class="act-photo-placeholder" id="act-ph-0">
+                            <span style="font-size: 22px;">📷</span>
+                            <span>ภาพที่ 1</span>
+                         </div>
+                         <img id="act-preview-0" class="act-photo-preview" alt="ภาพที่ 1">
+                         <input type="file" id="act-file-0" accept="image/*" style="display:none;" onchange="handleActPhotoChange(0, this)">
                       </div>
-                      <img id="act-preview-0" class="act-photo-preview" alt="ภาพที่ 1">
-                      <input type="file" id="act-file-0" accept="image/*" style="display:none;" onchange="handleActPhotoChange(0, this)">
+                      <input type="text" id="act-caption-0" class="modern-input" placeholder="คำบรรยายภาพที่ 1 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
 
                    <!-- Slot 1 -->
-                   <div class="act-photo-card" id="act-card-1" onclick="triggerActPhotoUpload(1)">
-                      <button type="button" class="act-photo-remove" id="act-remove-1" onclick="removeActPhoto(1, event)" title="ลบภาพนี้">×</button>
-                      <div class="act-photo-placeholder" id="act-ph-1">
-                         <span style="font-size: 22px;">📷</span>
-                         <span>ภาพที่ 2</span>
+                   <div>
+                      <div class="act-photo-card" id="act-card-1" onclick="triggerActPhotoUpload(1)">
+                         <button type="button" class="act-photo-remove" id="act-remove-1" onclick="removeActPhoto(1, event)" title="ลบภาพนี้">×</button>
+                         <div class="act-photo-placeholder" id="act-ph-1">
+                            <span style="font-size: 22px;">📷</span>
+                            <span>ภาพที่ 2</span>
+                         </div>
+                         <img id="act-preview-1" class="act-photo-preview" alt="ภาพที่ 2">
+                         <input type="file" id="act-file-1" accept="image/*" style="display:none;" onchange="handleActPhotoChange(1, this)">
                       </div>
-                      <img id="act-preview-1" class="act-photo-preview" alt="ภาพที่ 2">
-                      <input type="file" id="act-file-1" accept="image/*" style="display:none;" onchange="handleActPhotoChange(1, this)">
+                      <input type="text" id="act-caption-1" class="modern-input" placeholder="คำบรรยายภาพที่ 2 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
 
                    <!-- Slot 2 -->
-                   <div class="act-photo-card" id="act-card-2" onclick="triggerActPhotoUpload(2)">
-                      <button type="button" class="act-photo-remove" id="act-remove-2" onclick="removeActPhoto(2, event)" title="ลบภาพนี้">×</button>
-                      <div class="act-photo-placeholder" id="act-ph-2">
-                         <span style="font-size: 22px;">📷</span>
-                         <span>ภาพที่ 3</span>
+                   <div>
+                      <div class="act-photo-card" id="act-card-2" onclick="triggerActPhotoUpload(2)">
+                         <button type="button" class="act-photo-remove" id="act-remove-2" onclick="removeActPhoto(2, event)" title="ลบภาพนี้">×</button>
+                         <div class="act-photo-placeholder" id="act-ph-2">
+                            <span style="font-size: 22px;">📷</span>
+                            <span>ภาพที่ 3</span>
+                         </div>
+                         <img id="act-preview-2" class="act-photo-preview" alt="ภาพที่ 3">
+                         <input type="file" id="act-file-2" accept="image/*" style="display:none;" onchange="handleActPhotoChange(2, this)">
                       </div>
-                      <img id="act-preview-2" class="act-photo-preview" alt="ภาพที่ 3">
-                      <input type="file" id="act-file-2" accept="image/*" style="display:none;" onchange="handleActPhotoChange(2, this)">
+                      <input type="text" id="act-caption-2" class="modern-input" placeholder="คำบรรยายภาพที่ 3 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
 
                    <!-- Slot 3 -->
-                   <div class="act-photo-card" id="act-card-3" onclick="triggerActPhotoUpload(3)">
-                      <button type="button" class="act-photo-remove" id="act-remove-3" onclick="removeActPhoto(3, event)" title="ลบภาพนี้">×</button>
-                      <div class="act-photo-placeholder" id="act-ph-3">
-                         <span style="font-size: 22px;">📷</span>
-                         <span>ภาพที่ 4</span>
+                   <div>
+                      <div class="act-photo-card" id="act-card-3" onclick="triggerActPhotoUpload(3)">
+                         <button type="button" class="act-photo-remove" id="act-remove-3" onclick="removeActPhoto(3, event)" title="ลบภาพนี้">×</button>
+                         <div class="act-photo-placeholder" id="act-ph-3">
+                            <span style="font-size: 22px;">📷</span>
+                            <span>ภาพที่ 4</span>
+                         </div>
+                         <img id="act-preview-3" class="act-photo-preview" alt="ภาพที่ 4">
+                         <input type="file" id="act-file-3" accept="image/*" style="display:none;" onchange="handleActPhotoChange(3, this)">
                       </div>
-                      <img id="act-preview-3" class="act-photo-preview" alt="ภาพที่ 4">
-                      <input type="file" id="act-file-3" accept="image/*" style="display:none;" onchange="handleActPhotoChange(3, this)">
+                      <input type="text" id="act-caption-3" class="modern-input" placeholder="คำบรรยายภาพที่ 4 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
                 </div>
              </div>
@@ -1213,7 +1225,10 @@
           <!-- ปุ่มดำเนินการ -->
           <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
              <button type="button" class="action-btn" style="width: 100%; padding: 11px; font-size: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; margin: 0; box-shadow: 0 3px 8px rgba(45,106,79,0.25); font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="generateActivityReportDoc()">
-                📄 จัดทำและสั่งพิมพ์รายงาน (A4 หน้าเดียว)
+                📄 จัดทำและสั่งพิมพ์ / บันทึกรายงาน (PDF)
+             </button>
+             <button type="button" class="action-btn" style="width: 100%; padding: 9px; font-size: 13px; background: #0284C7; color: white; border: none; border-radius: 12px; margin: 0; box-shadow: 0 2px 6px rgba(2,132,199,0.25); font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="saveActivityReportDirectToDrive()">
+                ☁️ บันทึกรายงานลง Google Drive ทันที
              </button>
              <button type="button" class="action-btn" style="width: 100%; padding: 8px; font-size: 13px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="closeActivityReportModal()">
                 ยกเลิก / ปิดหน้าต่าง
@@ -5163,6 +5178,13 @@
           desc = 'ได้ดำเนินการจัดกิจกรรมตามวัตถุประสงค์เพื่อส่งเสริมให้นักเรียนมีนิสัยรักการอ่าน เกิดการเรียนรู้ด้วยตนเอง และพัฒนาทักษะการศึกษาค้นคว้าอย่างมีประสิทธิภาพ';
         }
 
+        // อ่านคำบรรยายรูปภาพทั้ง 4 ภาพ
+        const cap0 = (document.getElementById('act-caption-0') ? document.getElementById('act-caption-0').value : '').trim();
+        const cap1 = (document.getElementById('act-caption-1') ? document.getElementById('act-caption-1').value : '').trim();
+        const cap2 = (document.getElementById('act-caption-2') ? document.getElementById('act-caption-2').value : '').trim();
+        const cap3 = (document.getElementById('act-caption-3') ? document.getElementById('act-caption-3').value : '').trim();
+        const captions = [cap0, cap1, cap2, cap3];
+
         const thaiMonths = [
           'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
           'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
@@ -5175,9 +5197,11 @@
             const yBE = yCE > 2400 ? yCE : yCE + 543;
             const mIdx = parseInt(parts[1], 10) - 1;
             const d = parseInt(parts[2], 10);
-            formattedThaiDate = `วันที่ ${d} ${thaiMonths[mIdx] || parts[1]} พ.ศ. ${yBE}`;
+            formattedThaiDate = `วันที่ ${d} ${thaiMonths[mIdx] || parts[1]} ${yBE}`;
           }
         }
+        // เอาคำว่า พ.ศ. ออกในแผ่นรายงานทั้งหมดตามคำสั่ง
+        formattedThaiDate = formattedThaiDate.replace(/พ\.ศ\.\s*/g, '').trim();
 
         function esc(s) {
           if (!s) return '';
@@ -5209,13 +5233,14 @@
         let photosHtml = '';
         for (let i = 0; i < 4; i++) {
           const pUrl = activityPhotos[i];
+          const capText = captions[i] || `ภาพบรรยากาศการจัดกิจกรรม (${i + 1})`;
           if (pUrl) {
             photosHtml += `
               <div class="photo-cell">
                 <div class="photo-frame">
-                  <img src="${pUrl}" alt="ภาพกิจกรรมที่ ${i + 1}">
+                  <img src="${pUrl}" alt="${esc(capText)}">
                 </div>
-                <div class="photo-caption">ภาพที่ ${i + 1}: ภาพบรรยากาศการจัดกิจกรรม</div>
+                <div class="photo-caption">ภาพที่ ${i + 1}: ${esc(capText)}</div>
               </div>
             `;
           } else {
@@ -5227,11 +5252,15 @@
                     <span>ภาพบรรยากาศกิจกรรม (${i + 1})</span>
                   </div>
                 </div>
-                <div class="photo-caption">ภาพที่ ${i + 1}: ภาพบรรยากาศการจัดกิจกรรม</div>
+                <div class="photo-caption">ภาพที่ ${i + 1}: ${esc(capText)}</div>
               </div>
             `;
           }
         }
+
+        const cleanFileTitle = title.replace(/[\\/:*?"<>|]/g, '_');
+        const pdfFileName = `รายงานกิจกรรม_${cleanFileTitle}`;
+        const webAppUrl = typeof GAS_WEB_APP_URL !== 'undefined' ? GAS_WEB_APP_URL : 'https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec';
 
         const fullHtml = `<!DOCTYPE html>
 <html lang="th">
@@ -5241,6 +5270,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -5260,9 +5290,10 @@
     }
     .no-print {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       padding: 10px 16px;
       background: #1B4332;
       color: white;
@@ -5275,25 +5306,38 @@
       background: #40916C;
       color: white;
       border: none;
-      padding: 8px 22px;
+      padding: 8px 18px;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: background 0.2s;
     }
     .print-btn:hover {
       background: #2D6A4F;
+    }
+    .btn-save-pdf {
+      background: #2D6A4F;
+    }
+    .btn-save-pdf:hover {
+      background: #1B4332;
+    }
+    .btn-save-drive {
+      background: #0284C7;
+    }
+    .btn-save-drive:hover {
+      background: #0369A1;
     }
     .close-btn {
       background: #555;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13.5px;
       cursor: pointer;
     }
     .page-wrap {
@@ -5411,7 +5455,7 @@
     }
     .photo-frame {
       width: 100%;
-      height: 156px;
+      height: 144px;
       border: 1px solid #777;
       border-radius: 4px;
       background: #fafafa;
@@ -5436,8 +5480,9 @@
     }
     .photo-caption {
       font-size: 10.5pt;
-      color: #333;
+      color: #222;
       margin-top: 2px;
+      line-height: 1.3;
     }
 
     /* Signature Section */
@@ -5457,20 +5502,21 @@
       font-size: 13pt;
       line-height: 1.35;
     }
-    .sig-img-box {
-      height: 38px;
+    .sig-line-box {
+      min-height: 54px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 1px 0;
+      gap: 8px;
     }
-    .sig-img-box img {
-      max-height: 38px;
-      max-width: 130px;
+    .sig-img {
+      height: 52px;
+      max-width: 175px;
       object-fit: contain;
     }
     .sig-name {
       font-weight: 600;
+      margin-top: 4px;
     }
     .sig-position {
       font-size: 12pt;
@@ -5480,13 +5526,14 @@
 </head>
 <body>
   <div class="no-print">
-    <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน / บันทึกเป็น PDF</button>
+    <button class="print-btn" onclick="window.print()">🖨️ พิมพ์รายงาน</button>
+    <button class="print-btn btn-save-pdf" id="btn-download-pdf" onclick="downloadPdfDirect()">📥 บันทึกรายงาน (PDF) ลงเครื่อง</button>
+    <button class="print-btn btn-save-drive" id="btn-save-drive" onclick="saveReportToDrive()">☁️ บันทึกรายงานลง Drive</button>
     <button class="close-btn" onclick="window.close()">❌ ปิดหน้านี้</button>
-    <span style="font-size: 12px; color: #D8F3DC; margin-left: 8px;">💡 เลือก "Save as PDF" เพื่อบันทึกเป็นไฟล์เอกสารหน้าเดียว</span>
   </div>
 
   <div class="page-wrap">
-    <div class="a4-sheet">
+    <div class="a4-sheet" id="report-sheet">
       <!-- ส่วนหัวเอกสารราชการ -->
       <div>
         <div class="gov-header">
@@ -5526,18 +5573,20 @@
         <div class="sig-table">
           <!-- ผู้รับผิดชอบกิจกรรม -->
           <div class="sig-cell">
-            <div>ลงชื่อ ............................................................ ผู้รับผิดชอบกิจกรรม</div>
-            <div class="sig-img-box">
-              <img src="https://i.postimg.cc/nzVVQTzW/esign.png" alt="ลายเซ็นผู้รับผิดชอบ">
+            <div class="sig-line-box">
+              <span style="font-size: 13.5pt;">ลงชื่อ</span>
+              <img src="https://i.postimg.cc/nzVVQTzW/esign.png" alt="ลายเซ็นผู้รับผิดชอบ" class="sig-img">
+              <span style="font-size: 13.5pt;">ผู้รับผิดชอบกิจกรรม</span>
             </div>
             <div class="sig-name">(นายพันธกานต์ ขวัญใจ)</div>
-            <div class="sig-position">ตำแหน่ง ครูผู้รับผิดชอบงานห้องสมุด</div>
+            <div class="sig-position">ตำแหน่ง ผู้รับผิดชอบงานห้องสมุด</div>
           </div>
 
           <!-- ผู้อำนวยการโรงเรียน -->
           <div class="sig-cell">
-            <div>ลงชื่อ ............................................................ ผู้อนุมัติ/รับทราบ</div>
-            <div class="sig-img-box" style="height: 38px;"></div>
+            <div class="sig-line-box" style="align-items: flex-end; padding-bottom: 6px;">
+              <span style="font-size: 13.5pt;">ลงชื่อ ............................................................</span>
+            </div>
             <div class="sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
             <div class="sig-position">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
           </div>
@@ -5547,11 +5596,80 @@
   </div>
 
   <script>
-    window.addEventListener('load', function() {
-      setTimeout(function() {
+    function downloadPdfDirect() {
+      const btn = document.getElementById('btn-download-pdf');
+      const origText = btn ? btn.innerHTML : '';
+      if (btn) btn.innerHTML = '⏳ กำลังสร้าง PDF...';
+
+      if (typeof html2pdf !== 'undefined') {
+        const element = document.getElementById('report-sheet');
+        const opt = {
+          margin: [10, 15, 10, 15],
+          filename: '${pdfFileName}.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save().then(function() {
+          if (btn) btn.innerHTML = origText;
+        }).catch(function(e) {
+          console.error(e);
+          window.print();
+          if (btn) btn.innerHTML = origText;
+        });
+      } else {
         window.print();
-      }, 500);
-    });
+        if (btn) btn.innerHTML = origText;
+      }
+    }
+
+    function saveReportToDrive() {
+      const btn = document.getElementById('btn-save-drive');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ กำลังบันทึก...';
+      }
+
+      const reportPayload = {
+        title: ${JSON.stringify(title)},
+        date: ${JSON.stringify(formattedThaiDate)},
+        participants: ${JSON.stringify(participants)},
+        desc: ${JSON.stringify(desc)},
+        htmlContent: document.documentElement.outerHTML
+      };
+
+      if (window.opener && typeof window.opener.saveActivityReportDirectToDrive === 'function') {
+        window.opener.saveActivityReportDirectToDrive(reportPayload, function(res) {
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '☁️ บันทึกรายงานลง Drive';
+          }
+        });
+        return;
+      }
+
+      fetch("https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'saveActivityReportToDrive', args: [reportPayload] })
+      }).then(function(r) { return r.json(); }).then(function(res) {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '☁️ บันทึกรายงานลง Drive';
+        }
+        if (res && res.status === 'success') {
+          alert('✅ ' + (res.msg || 'บันทึกรายงานลง Google Drive เรียบร้อยแล้ว') + '\n\nเปิดดูใน Drive: ' + (res.folderUrl || res.fileUrl));
+        } else {
+          alert(res && res.msg ? res.msg : 'ส่งคำขอบันทึกเรียบร้อย');
+        }
+      }).catch(function(err) {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '☁️ บันทึกรายงานลง Drive';
+        }
+        alert('ส่งคำขอบันทึกลง Drive เรียบร้อย');
+      });
+    }
   <\/script>
 </body>
 </html>`;
@@ -5559,6 +5677,119 @@
         win.document.open();
         win.document.write(fullHtml);
         win.document.close();
+      }
+
+      // ☁️ ฟังก์ชันบันทึกรายงานกิจกรรมห้องสมุดลง Google Drive โดยตรง
+      function saveActivityReportDirectToDrive(customData, callback) {
+        let payload = customData;
+        if (!payload) {
+          const titleEl = document.getElementById('act-title');
+          const title = (titleEl ? titleEl.value : '').trim();
+          if (!title) {
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'warning',
+                title: 'กรุณาระบุชื่อกิจกรรม',
+                text: 'โปรดกรอกชื่อกิจกรรมก่อนบันทึกลง Drive',
+                confirmButtonColor: '#2D6A4F'
+              });
+            } else {
+              alert('⚠️ กรุณาระบุชื่อกิจกรรมก่อนบันทึกลง Drive');
+            }
+            return;
+          }
+          const dateVal = document.getElementById('act-date') ? document.getElementById('act-date').value : '';
+          const dateDisplay = document.getElementById('act-date-display') ? document.getElementById('act-date-display').value.trim() : '';
+          const participants = document.getElementById('act-participants') ? document.getElementById('act-participants').value.trim() : '';
+          const desc = document.getElementById('act-desc') ? document.getElementById('act-desc').value.trim() : '';
+
+          const thaiMonths = [
+            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+          ];
+          let formattedThaiDate = dateDisplay || 'ไม่ระบุวันที่';
+          if (dateVal) {
+            const parts = dateVal.split('-');
+            if (parts.length === 3) {
+              const yCE = parseInt(parts[0], 10);
+              const yBE = yCE > 2400 ? yCE : yCE + 543;
+              const mIdx = parseInt(parts[1], 10) - 1;
+              const d = parseInt(parts[2], 10);
+              formattedThaiDate = `วันที่ ${d} ${thaiMonths[mIdx] || parts[1]} ${yBE}`;
+            }
+          }
+          formattedThaiDate = formattedThaiDate.replace(/พ\.ศ\.\s*/g, '').trim();
+
+          payload = {
+            title: title,
+            date: formattedThaiDate,
+            participants: participants,
+            desc: desc
+          };
+        }
+
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            title: 'กำลังบันทึกรายงานลง Google Drive...',
+            html: 'ระบบกำลังส่งออกเอกสารและบันทึกลงโฟลเดอร์สำรองข้อมูลใน Drive',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+        }
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (callback) callback(res);
+            if (res && res.status === 'success') {
+              if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'บันทึกรายงานลง Drive สำเร็จ!',
+                  html: `<div style="text-align:left; font-size:13px; line-height:1.6;">
+                           <div>📁 <b>ชื่อไฟล์:</b> ${res.fileName || 'รายงานกิจกรรม.pdf'}</div>
+                           <div style="margin-top:8px;">บันทึกในโฟลเดอร์ <b>WNTK_Library_Backups</b> บน Google Drive เรียบร้อยแล้ว</div>
+                         </div>`,
+                  confirmButtonText: '📂 เปิดดูใน Google Drive',
+                  showCancelButton: true,
+                  cancelButtonText: 'ปิด',
+                  confirmButtonColor: '#2D6A4F'
+                }).then((choice) => {
+                  if (choice.isConfirmed && (res.fileUrl || res.folderUrl)) {
+                    window.open(res.fileUrl || res.folderUrl, '_blank');
+                  }
+                });
+              } else {
+                alert('✅ บันทึกรายงานลง Google Drive สำเร็จ');
+              }
+            } else {
+              if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'เกิดข้อผิดพลาด',
+                  text: res && res.msg ? res.msg : 'ไม่สามารถบันทึกลง Drive ได้',
+                  confirmButtonColor: '#2D6A4F'
+                });
+              } else {
+                alert('❌ ' + (res && res.msg ? res.msg : 'เกิดข้อผิดพลาด'));
+              }
+            }
+          })
+          .withFailureHandler(function(err) {
+            if (callback) callback({ status: 'error', msg: err });
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: err.toString(),
+                confirmButtonColor: '#2D6A4F'
+              });
+            } else {
+              alert('❌ ' + err.toString());
+            }
+          })
+          .saveActivityReportToDrive(payload);
       }
 
       // 📱 PWA Service Worker Registration
