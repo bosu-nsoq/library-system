@@ -302,6 +302,70 @@
         touch-action: pan-y;
       }
 
+      
+      /* 🖼️ สไตล์ช่องอัปโหลดรูปภาพกิจกรรม 4 ช่อง (Modal รายงานจัดกิจกรรม) */
+      .act-photo-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 6px;
+        margin-bottom: 12px;
+      }
+      .act-photo-card {
+        border: 1.5px dashed #2D6A4F;
+        border-radius: 12px;
+        background: #F8FBF9;
+        padding: 6px;
+        text-align: center;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 95px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+      .act-photo-card:hover {
+        background: #E8F5E9;
+        border-color: #1B4332;
+      }
+      .act-photo-preview {
+        width: 100%;
+        height: 82px;
+        object-fit: cover;
+        border-radius: 8px;
+        display: none;
+      }
+      .act-photo-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        color: var(--primary);
+        font-size: 11.5px;
+        font-weight: 600;
+      }
+      .act-photo-remove {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        font-size: 11px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+        line-height: 1;
+      }
+
       .history-list {
         text-align: left;
         max-height: 300px;
@@ -450,6 +514,8 @@
         <div class="icon-btn" onclick="showBorrowedBooks()" title="หนังสือที่ถูกยืมอยู่ขณะนี้">📚</div>
 
         <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
+
+        <div class="icon-btn admin-only" id="btn-menu-report" onclick="showActivityReportModal()" title="รายงานจัดกิจกรรมห้องสมุด (สำหรับครู / Admin)">📋</div>
 
         <div class="icon-btn admin-only" id="btn-menu-add-staff" onclick="showAddStaffModal()" title="➕ เพิ่มยุวบรรณารักษ์ (สำหรับครู / Admin)">➕</div>
 
@@ -1032,6 +1098,129 @@
        </div>
     </div>
 
+
+
+    
+    <!-- Modal ระบบรายงานจัดกิจกรรมห้องสมุด (Admin) -->
+    <div id="activityReportModal" class="modal-overlay">
+       <div class="modal-box" style="max-width: 540px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>📋</span> รายงานจัดกิจกรรมห้องสมุด
+             </div>
+             <div style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
+                โหมด Admin
+             </div>
+          </div>
+
+          <div style="flex: 1; overflow-y: auto; padding-right: 4px; overscroll-behavior: contain;">
+             <!-- ชื่อกิจกรรม -->
+             <div style="margin-bottom: 10px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                   🏷️ ชื่อกิจกรรม <span style="color: #dc3545;">*</span>
+                </label>
+                <input type="text" id="act-title" class="modern-input" placeholder="เช่น กิจกรรมสัปดาห์ส่งเสริมการอ่าน ประจำปีการศึกษา 2567" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px;">
+             </div>
+
+             <!-- วันที่จัดกิจกรรม และ จำนวนผู้เข้าร่วม -->
+             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                   <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                      📅 วันที่จัดกิจกรรม
+                   </label>
+                   <div style="position: relative; display: flex; align-items: center;">
+                      <input type="text" id="act-date-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px; cursor: pointer; text-align: center; background: #fff;" onclick="openActivityCalendar()" title="คลิกเพื่อเลือกวันที่">
+                      <input type="date" id="act-date" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="onActivityDateChange(this.value)">
+                   </div>
+                </div>
+
+                <div style="flex: 1;">
+                   <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                      👥 ผู้เข้าร่วมกิจกรรม
+                   </label>
+                   <div style="display: flex; align-items: center; gap: 6px;">
+                      <input type="number" id="act-participants" class="modern-input" placeholder="เช่น 120" min="1" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px; text-align: center;">
+                      <span style="font-size: 13px; font-weight: 600; color: var(--text-sub); white-space: nowrap;">คน</span>
+                   </div>
+                </div>
+             </div>
+
+             <!-- รายละเอียด / คำบรรยาย -->
+             <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
+                   📝 รายละเอียด (คำบรรยายสรุปกิจกรรม)
+                </label>
+                <textarea id="act-desc" class="modern-input" rows="3" placeholder="ระบุวัตถุประสงค์ ผลการจัดกิจกรรม หรือประโยชน์ที่นักเรียนและผู้เข้าร่วมได้รับ..." style="width: 100%; box-sizing: border-box; font-size: 12.5px; padding: 9px 12px; resize: vertical; line-height: 1.45;"></textarea>
+             </div>
+
+             <!-- รูปภาพกิจกรรม 4 ภาพ -->
+             <div style="margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                   <label style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">
+                      🖼️ แทรกรูปภาพกิจกรรม (4 ภาพ)
+                   </label>
+                   <span style="font-size: 11px; color: var(--text-sub);">แตะเพื่อเลือกภาพ</span>
+                </div>
+
+                <div class="act-photo-grid">
+                   <!-- Slot 0 -->
+                   <div class="act-photo-card" id="act-card-0" onclick="triggerActPhotoUpload(0)">
+                      <button type="button" class="act-photo-remove" id="act-remove-0" onclick="removeActPhoto(0, event)" title="ลบภาพนี้">×</button>
+                      <div class="act-photo-placeholder" id="act-ph-0">
+                         <span style="font-size: 22px;">📷</span>
+                         <span>ภาพที่ 1</span>
+                      </div>
+                      <img id="act-preview-0" class="act-photo-preview" alt="ภาพที่ 1">
+                      <input type="file" id="act-file-0" accept="image/*" style="display:none;" onchange="handleActPhotoChange(0, this)">
+                   </div>
+
+                   <!-- Slot 1 -->
+                   <div class="act-photo-card" id="act-card-1" onclick="triggerActPhotoUpload(1)">
+                      <button type="button" class="act-photo-remove" id="act-remove-1" onclick="removeActPhoto(1, event)" title="ลบภาพนี้">×</button>
+                      <div class="act-photo-placeholder" id="act-ph-1">
+                         <span style="font-size: 22px;">📷</span>
+                         <span>ภาพที่ 2</span>
+                      </div>
+                      <img id="act-preview-1" class="act-photo-preview" alt="ภาพที่ 2">
+                      <input type="file" id="act-file-1" accept="image/*" style="display:none;" onchange="handleActPhotoChange(1, this)">
+                   </div>
+
+                   <!-- Slot 2 -->
+                   <div class="act-photo-card" id="act-card-2" onclick="triggerActPhotoUpload(2)">
+                      <button type="button" class="act-photo-remove" id="act-remove-2" onclick="removeActPhoto(2, event)" title="ลบภาพนี้">×</button>
+                      <div class="act-photo-placeholder" id="act-ph-2">
+                         <span style="font-size: 22px;">📷</span>
+                         <span>ภาพที่ 3</span>
+                      </div>
+                      <img id="act-preview-2" class="act-photo-preview" alt="ภาพที่ 3">
+                      <input type="file" id="act-file-2" accept="image/*" style="display:none;" onchange="handleActPhotoChange(2, this)">
+                   </div>
+
+                   <!-- Slot 3 -->
+                   <div class="act-photo-card" id="act-card-3" onclick="triggerActPhotoUpload(3)">
+                      <button type="button" class="act-photo-remove" id="act-remove-3" onclick="removeActPhoto(3, event)" title="ลบภาพนี้">×</button>
+                      <div class="act-photo-placeholder" id="act-ph-3">
+                         <span style="font-size: 22px;">📷</span>
+                         <span>ภาพที่ 4</span>
+                      </div>
+                      <img id="act-preview-3" class="act-photo-preview" alt="ภาพที่ 4">
+                      <input type="file" id="act-file-3" accept="image/*" style="display:none;" onchange="handleActPhotoChange(3, this)">
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <!-- ปุ่มดำเนินการ -->
+          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+             <button type="button" class="action-btn" style="width: 100%; padding: 11px; font-size: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; margin: 0; box-shadow: 0 3px 8px rgba(45,106,79,0.25); font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="generateActivityReportDoc()">
+                📄 จัดทำและสั่งพิมพ์รายงาน (A4 หน้าเดียว)
+             </button>
+             <button type="button" class="action-btn" style="width: 100%; padding: 8px; font-size: 13px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="closeActivityReportModal()">
+                ยกเลิก / ปิดหน้าต่าง
+             </button>
+          </div>
+       </div>
+    </div>
 
 
     <!-- หน้าต่างสแกนบาร์โค้ดแบบเรียลไทม์ (รองรับสแกนต่อเนื่อง) -->
@@ -4805,6 +4994,571 @@
 
          document.getElementById('cameraModal').style.display='none'; 
 
+      }
+
+      
+      // ==============================================================
+      // 📋 ระบบการทำรายงานจัดกิจกรรมห้องสมุด (Admin Mode)
+      // ==============================================================
+
+      let activityPhotos = [null, null, null, null];
+
+      function showActivityReportModal() {
+        if (typeof currentUserRole !== 'undefined' && currentUserRole !== 'admin') {
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'warning',
+              title: 'สงวนสิทธิ์เฉพาะครูบรรณารักษ์',
+              text: 'ฟังก์ชันรายงานจัดกิจกรรมห้องสมุดสามารถเข้าถึงได้เฉพาะครูบรรณารักษ์ (Admin) เท่านั้น',
+              confirmButtonColor: '#2D6A4F'
+            });
+          } else {
+            alert('⚠️ สงวนสิทธิ์เฉพาะครูบรรณารักษ์ (Admin)');
+          }
+          return;
+        }
+        initActivityReportDate();
+        const m = document.getElementById('activityReportModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeActivityReportModal() {
+        const m = document.getElementById('activityReportModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function initActivityReportDate() {
+        const dateInput = document.getElementById('act-date');
+        const dateDisplay = document.getElementById('act-date-display');
+        if (dateInput && !dateInput.value) {
+          const today = new Date();
+          const yyyy = today.getFullYear();
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const dd = String(today.getDate()).padStart(2, '0');
+          dateInput.value = `${yyyy}-${mm}-${dd}`;
+          if (dateDisplay) {
+            dateDisplay.value = `${dd}/${mm}/${yyyy + 543}`;
+          }
+        }
+      }
+
+      function openActivityCalendar() {
+        const el = document.getElementById('act-date');
+        if (el) {
+          if (typeof el.showPicker === 'function') {
+            try {
+              el.showPicker();
+              return;
+            } catch (e) {}
+          }
+          el.focus();
+          el.click();
+        }
+      }
+
+      function onActivityDateChange(val) {
+        const dayDisplay = document.getElementById('act-date-display');
+        if (!val) {
+          if (dayDisplay) dayDisplay.value = '';
+          return;
+        }
+        const parts = val.split('-');
+        if (parts.length === 3) {
+          const d = parts[2].padStart(2, '0');
+          const m = parts[1].padStart(2, '0');
+          const yCE = parseInt(parts[0], 10);
+          const yBE = yCE > 2400 ? yCE : yCE + 543;
+          if (dayDisplay) dayDisplay.value = `${d}/${m}/${yBE}`;
+        }
+      }
+
+      function triggerActPhotoUpload(slot) {
+        const fileInput = document.getElementById('act-file-' + slot);
+        if (fileInput) fileInput.click();
+      }
+
+      function handleActPhotoChange(slot, input) {
+        if (input.files && input.files[0]) {
+          const file = input.files[0];
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+              const maxDim = 1200;
+              let w = img.width;
+              let h = img.height;
+              if (w > maxDim || h > maxDim) {
+                if (w > h) {
+                  h = Math.round((h * maxDim) / w);
+                  w = maxDim;
+                } else {
+                  w = Math.round((w * maxDim) / h);
+                  h = maxDim;
+                }
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+              activityPhotos[slot] = dataUrl;
+
+              const preview = document.getElementById('act-preview-' + slot);
+              const placeholder = document.getElementById('act-ph-' + slot);
+              const removeBtn = document.getElementById('act-remove-' + slot);
+
+              if (preview) {
+                preview.src = dataUrl;
+                preview.style.display = 'block';
+              }
+              if (placeholder) placeholder.style.display = 'none';
+              if (removeBtn) removeBtn.style.display = 'flex';
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function removeActPhoto(slot, ev) {
+        if (ev) ev.stopPropagation();
+        activityPhotos[slot] = null;
+        const fileInput = document.getElementById('act-file-' + slot);
+        if (fileInput) fileInput.value = '';
+        const preview = document.getElementById('act-preview-' + slot);
+        const placeholder = document.getElementById('act-ph-' + slot);
+        const removeBtn = document.getElementById('act-remove-' + slot);
+        if (preview) {
+          preview.src = '';
+          preview.style.display = 'none';
+        }
+        if (placeholder) placeholder.style.display = 'flex';
+        if (removeBtn) removeBtn.style.display = 'none';
+      }
+
+      function generateActivityReportDoc() {
+        const titleEl = document.getElementById('act-title');
+        const title = (titleEl ? titleEl.value : '').trim();
+        if (!title) {
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'warning',
+              title: 'กรุณาระบุชื่อกิจกรรม',
+              text: 'โปรดกรอกชื่อกิจกรรมก่อนจัดทำรายงาน',
+              confirmButtonColor: '#2D6A4F'
+            });
+          } else {
+            alert('⚠️ กรุณาระบุชื่อกิจกรรมก่อนจัดทำรายงาน');
+          }
+          return;
+        }
+
+        const dateVal = document.getElementById('act-date') ? document.getElementById('act-date').value : '';
+        const dateDisplay = document.getElementById('act-date-display') ? document.getElementById('act-date-display').value.trim() : '';
+        const participants = document.getElementById('act-participants') ? document.getElementById('act-participants').value.trim() : '';
+        let desc = document.getElementById('act-desc') ? document.getElementById('act-desc').value.trim() : '';
+        if (!desc) {
+          desc = 'ได้ดำเนินการจัดกิจกรรมตามวัตถุประสงค์เพื่อส่งเสริมให้นักเรียนมีนิสัยรักการอ่าน เกิดการเรียนรู้ด้วยตนเอง และพัฒนาทักษะการศึกษาค้นคว้าอย่างมีประสิทธิภาพ';
+        }
+
+        const thaiMonths = [
+          'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+          'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+        let formattedThaiDate = dateDisplay || 'ไม่ระบุวันที่';
+        if (dateVal) {
+          const parts = dateVal.split('-');
+          if (parts.length === 3) {
+            const yCE = parseInt(parts[0], 10);
+            const yBE = yCE > 2400 ? yCE : yCE + 543;
+            const mIdx = parseInt(parts[1], 10) - 1;
+            const d = parseInt(parts[2], 10);
+            formattedThaiDate = `วันที่ ${d} ${thaiMonths[mIdx] || parts[1]} พ.ศ. ${yBE}`;
+          }
+        }
+
+        function esc(s) {
+          if (!s) return '';
+          return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        }
+
+        const win = window.open('', '_blank');
+        if (!win) {
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'warning',
+              title: 'เบราว์เซอร์บล็อกหน้าต่างใหม่',
+              text: 'กรุณาอนุญาต Pop-up เพื่อเปิดหน้าพิมพ์รายงาน',
+              confirmButtonColor: '#2D6A4F'
+            });
+          } else {
+            alert('⚠️ กรุณาอนุญาต Pop-up เพื่อเปิดหน้าพิมพ์รายงาน');
+          }
+          return;
+        }
+
+        win.document.write("<h3 style='font-family:Sarabun,sans-serif; text-align:center; padding:30px;'>⏳ กำลังจัดทำเอกสารรายงาน...</h3>");
+
+        let photosHtml = '';
+        for (let i = 0; i < 4; i++) {
+          const pUrl = activityPhotos[i];
+          if (pUrl) {
+            photosHtml += `
+              <div class="photo-cell">
+                <div class="photo-frame">
+                  <img src="${pUrl}" alt="ภาพกิจกรรมที่ ${i + 1}">
+                </div>
+                <div class="photo-caption">ภาพที่ ${i + 1}: ภาพบรรยากาศการจัดกิจกรรม</div>
+              </div>
+            `;
+          } else {
+            photosHtml += `
+              <div class="photo-cell">
+                <div class="photo-frame" style="border: 1px dashed #aaa; background: #fafafa;">
+                  <div class="photo-placeholder">
+                    <span style="font-size: 20px;">🖼️</span>
+                    <span>ภาพบรรยากาศกิจกรรม (${i + 1})</span>
+                  </div>
+                </div>
+                <div class="photo-caption">ภาพที่ ${i + 1}: ภาพบรรยากาศการจัดกิจกรรม</div>
+              </div>
+            `;
+          }
+        }
+
+        const fullHtml = `<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>แบบรายงานผลการจัดกิจกรรม - ${esc(title)}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      font-family: 'Sarabun', 'TH Sarabun New', sans-serif !important;
+    }
+    @page {
+      size: A4 portrait;
+      margin: 10mm 15mm 10mm 15mm;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      color: #000;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .no-print {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #1B4332;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .print-btn {
+      background: #40916C;
+      color: white;
+      border: none;
+      padding: 8px 22px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .print-btn:hover {
+      background: #2D6A4F;
+    }
+    .close-btn {
+      background: #555;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .page-wrap {
+      padding: 20px 10px;
+      display: flex;
+      justify-content: center;
+    }
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      padding: 12mm 15mm 10mm 15mm;
+      background: white;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+      margin: 0 auto;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      page-break-inside: avoid;
+      page-break-after: avoid;
+    }
+    @media print {
+      body {
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .page-wrap {
+        padding: 0 !important;
+      }
+      .a4-sheet {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100% !important;
+        max-height: 277mm !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+      }
+    }
+
+    /* Official Government Layout */
+    .gov-header {
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .gov-logo {
+      height: 52px;
+      width: auto;
+      margin-bottom: 3px;
+    }
+    .gov-org {
+      font-size: 16pt;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .gov-area {
+      font-size: 13pt;
+      color: #111;
+      line-height: 1.25;
+    }
+    .gov-doc-title {
+      font-size: 15pt;
+      font-weight: 700;
+      margin-top: 4px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .gov-divider {
+      border: none;
+      border-bottom: 1.5px solid #000;
+      margin: 6px 0 8px 0;
+    }
+
+    /* Activity Details */
+    .gov-details {
+      font-size: 13.5pt;
+      line-height: 1.45;
+      color: #000;
+    }
+    .gov-row {
+      margin-bottom: 3px;
+    }
+    .gov-bold {
+      font-weight: 700;
+    }
+    .gov-desc {
+      text-indent: 2.2cm;
+      text-align: justify;
+      margin-top: 2px;
+      line-height: 1.42;
+      font-size: 13pt;
+    }
+
+    /* Photo Grid 2x2 */
+    .photo-container {
+      margin-top: 6px;
+    }
+    .photo-title {
+      font-size: 13pt;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-align: left;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 8px 12px;
+    }
+    .photo-cell {
+      text-align: center;
+    }
+    .photo-frame {
+      width: 100%;
+      height: 156px;
+      border: 1px solid #777;
+      border-radius: 4px;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-placeholder {
+      font-size: 11pt;
+      color: #888;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .photo-caption {
+      font-size: 10.5pt;
+      color: #333;
+      margin-top: 2px;
+    }
+
+    /* Signature Section */
+    .gov-signatures {
+      margin-top: 8px;
+      padding-top: 6px;
+    }
+    .sig-table {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .sig-cell {
+      width: 48%;
+      text-align: center;
+      font-size: 13pt;
+      line-height: 1.35;
+    }
+    .sig-img-box {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 1px 0;
+    }
+    .sig-img-box img {
+      max-height: 38px;
+      max-width: 130px;
+      object-fit: contain;
+    }
+    .sig-name {
+      font-weight: 600;
+    }
+    .sig-position {
+      font-size: 12pt;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน / บันทึกเป็น PDF</button>
+    <button class="close-btn" onclick="window.close()">❌ ปิดหน้านี้</button>
+    <span style="font-size: 12px; color: #D8F3DC; margin-left: 8px;">💡 เลือก "Save as PDF" เพื่อบันทึกเป็นไฟล์เอกสารหน้าเดียว</span>
+  </div>
+
+  <div class="page-wrap">
+    <div class="a4-sheet">
+      <!-- ส่วนหัวเอกสารราชการ -->
+      <div>
+        <div class="gov-header">
+          <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="gov-logo" alt="ตราโรงเรียน">
+          <div class="gov-org">โรงเรียนวัดหนองตะเฆ่</div>
+          <div class="gov-area">สำนักงานเขตพื้นที่การศึกษาประถมศึกษาสระบุรี เขต ๒</div>
+          <div class="gov-doc-title">แบบรายงานผลการจัดกิจกรรมส่งเสริมการเรียนรู้ห้องสมุด</div>
+        </div>
+        <hr class="gov-divider">
+
+        <!-- รายละเอียดกิจกรรม -->
+        <div class="gov-details">
+          <div class="gov-row">
+            <span class="gov-bold">ชื่อกิจกรรม:</span> ${esc(title)}
+          </div>
+          <div class="gov-row" style="display: flex; justify-content: space-between;">
+            <div><span class="gov-bold">วันที่จัดกิจกรรม:</span> ${esc(formattedThaiDate)}</div>
+            <div><span class="gov-bold">จำนวนผู้เข้าร่วม:</span> ${participants ? esc(participants) + ' คน' : '-'}</div>
+          </div>
+          <div class="gov-row" style="margin-top: 4px;">
+            <span class="gov-bold">รายละเอียดและผลการดำเนินงาน:</span>
+            <div class="gov-desc">${esc(desc)}</div>
+          </div>
+        </div>
+
+        <!-- รูปภาพกิจกรรม 4 ภาพ จัดวางสมมาตร -->
+        <div class="photo-container">
+          <div class="photo-title">ภาพบรรยากาศการจัดกิจกรรม</div>
+          <div class="photo-grid">
+            ${photosHtml}
+          </div>
+        </div>
+      </div>
+
+      <!-- ส่วนลงชื่อท้ายเอกสาร (รูปแบบราชการไทย) -->
+      <div class="gov-signatures">
+        <div class="sig-table">
+          <!-- ผู้รับผิดชอบกิจกรรม -->
+          <div class="sig-cell">
+            <div>ลงชื่อ ............................................................ ผู้รับผิดชอบกิจกรรม</div>
+            <div class="sig-img-box">
+              <img src="https://i.postimg.cc/nzVVQTzW/esign.png" alt="ลายเซ็นผู้รับผิดชอบ">
+            </div>
+            <div class="sig-name">(นายพันธกานต์ ขวัญใจ)</div>
+            <div class="sig-position">ตำแหน่ง ครูผู้รับผิดชอบงานห้องสมุด</div>
+          </div>
+
+          <!-- ผู้อำนวยการโรงเรียน -->
+          <div class="sig-cell">
+            <div>ลงชื่อ ............................................................ ผู้อนุมัติ/รับทราบ</div>
+            <div class="sig-img-box" style="height: 38px;"></div>
+            <div class="sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
+            <div class="sig-position">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    });
+  <\/script>
+</body>
+</html>`;
+
+        win.document.open();
+        win.document.write(fullHtml);
+        win.document.close();
       }
 
       // 📱 PWA Service Worker Registration
