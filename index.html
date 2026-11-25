@@ -3514,15 +3514,20 @@
 
 
       function showHistory() { 
-        document.getElementById('historyModal').style.display = 'flex'; 
+        const histModal = document.getElementById('historyModal');
+        if (histModal) histModal.style.display = 'none';
         const container = document.getElementById('hist-content');
         if (container) container.innerHTML = "";
         showLoadingPopup();
 
-        google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => {
+        google.script.run.withFailureHandler(() => {
+          hideLoadingPopup();
+          if (histModal) histModal.style.display = 'flex';
+        }).withSuccessHandler(data => {
           hideLoadingPopup(); 
           if (!data || data.length === 0) {
             document.getElementById('hist-content').innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>❌ ยังไม่มีประวัติการทำรายการ</div>";
+            if (histModal) histModal.style.display = 'flex';
             return;
           }
 
@@ -3580,6 +3585,7 @@
             `;
           }); 
           document.getElementById('hist-content').innerHTML = html; 
+          if (histModal) histModal.style.display = 'flex';
         }).getRecentLogs(); 
       }
 
@@ -3591,8 +3597,7 @@
 
       function showBorrowedBooks() {
 
-        document.getElementById('borrowedBooksModal').style.display = 'flex';
-
+        const borrowedModal = document.getElementById('borrowedBooksModal');
         const contentEl = document.getElementById('borrowed-books-content');
 
         const badgeEl = document.getElementById('borrowed-count-badge');
@@ -3644,19 +3649,25 @@
           cachedBorrowedBooks = localList;
 
           renderBorrowedBooks(localList);
+          if (borrowedModal) borrowedModal.style.display = 'flex';
 
         } else {
+          if (borrowedModal) borrowedModal.style.display = 'none';
           contentEl.innerHTML = "";
           showLoadingPopup();
         }
 
         // 2. ดึงข้อมูลแบบสมบูรณ์จาก Apps Script
-        google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => {
+        google.script.run.withFailureHandler(() => {
+          hideLoadingPopup();
+          if (borrowedModal && borrowedModal.style.display === 'none') borrowedModal.style.display = 'flex';
+        }).withSuccessHandler(data => {
           hideLoadingPopup();
 
           cachedBorrowedBooks = data || [];
 
           renderBorrowedBooks(cachedBorrowedBooks);
+          if (borrowedModal && localList.length === 0) borrowedModal.style.display = 'flex';
 
         }).getCurrentlyBorrowedBooks();
 
@@ -3770,7 +3781,8 @@
 
         cuteConfirm(`ยืนยันว่าต้องการลบรายการหนังสือ ${displayTitle}${displayBorrower} ออกจากรายการยืมใช่หรือไม่?`, "ยืนยันคืนหนังสือ", "📚").then(ok => { if (!ok) return;
 
-
+        const borrowedModal = document.getElementById('borrowedBooksModal');
+        if (borrowedModal) borrowedModal.style.display = 'none';
 
         if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
 
@@ -3799,6 +3811,7 @@
             }
 
             renderBorrowedBooks(cachedBorrowedBooks);
+            if (borrowedModal) borrowedModal.style.display = 'flex';
 
             showModal(res.msg || "success:✅ คืนหนังสือสำเร็จเรียบร้อย", "คืนสำเร็จ");
 
@@ -3815,6 +3828,7 @@
             }).getCurrentlyBorrowedBooks();
 
             syncLibraryData();
+            if (borrowedModal) borrowedModal.style.display = 'flex';
 
             showModal(msg);
 
@@ -3823,6 +3837,7 @@
         }).withFailureHandler(err => {
 
           document.getElementById('tx-loader').style.display = 'none';
+          if (borrowedModal) borrowedModal.style.display = 'flex';
 
           cuteAlert("เกิดข้อผิดพลาดในการบันทึกการคืน: " + err, "เกิดข้อผิดพลาด", "❌");
 
@@ -3865,7 +3880,8 @@
       function deleteLog(idx) { 
 
          cuteConfirm("ต้องการลบรายการประวัตินี้ใช่หรือไม่?", "ลบรายการ", "🗑️").then(ok => { if(ok) {
-
+             const histModal = document.getElementById('historyModal');
+             if (histModal) histModal.style.display = 'none';
              if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
 
              document.getElementById('tx-loader').style.display = 'flex';
@@ -3886,8 +3902,6 @@
 
       function showStats() { 
 
-         document.getElementById('statsModal').style.display='flex'; 
-
          let btn = document.getElementById('stats-nav').children[0];
 
          loadStats('day', btn);
@@ -3897,6 +3911,8 @@
 
 
       function loadStats(range, btnElement) {
+         const statsModal = document.getElementById('statsModal');
+         if (statsModal) statsModal.style.display = 'none';
 
          if(btnElement) {
 
@@ -3924,7 +3940,10 @@
          document.getElementById('st-top-books').innerHTML = "";
          showLoadingPopup();
 
-         google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => {
+         google.script.run.withFailureHandler(() => {
+            hideLoadingPopup();
+            if (statsModal) statsModal.style.display = 'flex';
+         }).withSuccessHandler(data => {
             hideLoadingPopup(); 
 
             document.getElementById('st-borrows').innerText = data.borrows; 
@@ -3966,6 +3985,7 @@
             }); 
 
             document.getElementById('st-top-books').innerHTML = htmlB || "<div style='text-align:center; color:var(--text-sub);'>ไม่มีข้อมูล</div>"; 
+            if (statsModal) statsModal.style.display = 'flex';
 
          }).getAdvancedStats(range);
 
@@ -4185,17 +4205,19 @@
           return;
         }
         const modal = document.getElementById('cardModal');
-        if (modal) modal.style.display = 'flex';
         
         const gradeSelect = document.getElementById('card-grade-filter');
         if (gradeSelect) gradeSelect.value = 'all';
         const searchInput = document.getElementById('card-search-input');
         if (searchInput) searchInput.value = '';
 
-        if (cachedCardStudents && cachedCardStudents.length > 0) {
+        const hasCachedCards = (cachedCardStudents && cachedCardStudents.length > 0);
+        if (hasCachedCards) {
           populateGradeOptions(cachedCardStudents);
           filterStudentCards();
+          if (modal) modal.style.display = 'flex';
         } else {
+          if (modal) modal.style.display = 'none';
           const listContainer = document.getElementById('card-students-list');
           if (listContainer) listContainer.innerHTML = "";
           showLoadingPopup();
@@ -4220,6 +4242,7 @@
                 listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>❌ ไม่พบรายชื่อในระบบ</div>";
               }
             }
+            if (!hasCachedCards && modal) modal.style.display = 'flex';
           })
           .withFailureHandler(function(err) {
             hideLoadingPopup();
@@ -4230,6 +4253,7 @@
                 listContainer.innerHTML = "<div style='text-align: center; color: #E63946; padding: 30px;'>❌ เกิดข้อผิดพลาดในการโหลดข้อมูลนักเรียน</div>";
               }
             }
+            if (!hasCachedCards && modal) modal.style.display = 'flex';
           })
           .getAllStudentsForCards();
       }
@@ -4607,7 +4631,6 @@
           return;
         }
         const modal = document.getElementById('bookBarcodeModal');
-        if (modal) modal.style.display = 'flex';
 
         const catSelect = document.getElementById('book-category-filter');
         if (catSelect) catSelect.value = 'all';
@@ -4615,7 +4638,8 @@
         if (searchInput) searchInput.value = '';
 
         // ถ้ามีข้อมูลใน localDB.books ให้แสดงก่อนทันทีใน 0.01 วินาที
-        if (localDB && localDB.books && Object.keys(localDB.books).length > 0) {
+        const hasLocalBooks = (localDB && localDB.books && Object.keys(localDB.books).length > 0);
+        if (hasLocalBooks) {
           const arr = [];
           for (let id in localDB.books) {
             const b = localDB.books[id];
@@ -4633,7 +4657,9 @@
             selectedBookLabelIds = new Set(arr.map(b => b.id));
           }
           filterBookLabels();
+          if (modal) modal.style.display = 'flex';
         } else {
+          if (modal) modal.style.display = 'none';
           const listContainer = document.getElementById('book-labels-list');
           if (listContainer) listContainer.innerHTML = "";
           showLoadingPopup();
@@ -4663,6 +4689,7 @@
                 listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>❌ ไม่พบรายการหนังสือในระบบ</div>";
               }
             }
+            if (!hasLocalBooks && modal) modal.style.display = 'flex';
           })
           .withFailureHandler(function(err) {
             hideLoadingPopup();
@@ -4673,6 +4700,7 @@
                 listContainer.innerHTML = "<div style='text-align: center; color: #E63946; padding: 30px;'>❌ เกิดข้อผิดพลาดในการโหลดรายการหนังสือ</div>";
               }
             }
+            if (!hasLocalBooks && modal) modal.style.display = 'flex';
           })
           .getAllBooksForLabels();
       }
@@ -5237,7 +5265,7 @@
           return;
         }
         const modal = document.getElementById('backupModal');
-        if (modal) modal.style.display = 'flex';
+        if (modal) modal.style.display = 'none';
 
         const msgDiv = document.getElementById('backup-action-msg');
         if (msgDiv) msgDiv.style.display = 'none';
@@ -5246,7 +5274,9 @@
         if (filesContainer) filesContainer.innerHTML = "";
         showLoadingPopup();
 
-        loadBackupInfo();
+        loadBackupInfo(function() {
+          if (modal) modal.style.display = 'flex';
+        });
       }
 
       function loadBackupInfo(onDone) {
@@ -5255,6 +5285,8 @@
             hideLoadingPopup();
             cachedBackupInfo = info;
             renderBackupInfo(info);
+            const modal = document.getElementById('backupModal');
+            if (modal && modal.style.display === 'none' && !onDone) modal.style.display = 'flex';
             if (onDone) onDone(info);
           })
           .withFailureHandler(function(err) {
@@ -5264,6 +5296,8 @@
             if (filesContainer) {
               filesContainer.innerHTML = "<div style='text-align: center; color: #E63946; padding: 30px;'>❌ ไม่สามารถโหลดข้อมูลสำรองได้: " + err + "</div>";
             }
+            const modal = document.getElementById('backupModal');
+            if (modal && modal.style.display === 'none' && !onDone) modal.style.display = 'flex';
             if (onDone) onDone(null);
           })
           .getLibraryBackupInfo();
@@ -5352,12 +5386,13 @@
         });
       }
       function _executeDeleteBackup(fileId) {
+        const modal = document.getElementById('backupModal');
+        if (modal) modal.style.display = 'none';
         const msgDiv = document.getElementById('backup-action-msg');
         if (msgDiv) msgDiv.style.display = "none";
         showLoadingPopup();
         google.script.run
           .withSuccessHandler(function(res) {
-            hideLoadingPopup();
             if (res && res.status === 'success') {
               if (msgDiv) {
                 msgDiv.style.display = "block";
@@ -5365,8 +5400,10 @@
                 msgDiv.style.color = "#1B4332";
                 msgDiv.innerHTML = "✅ " + res.msg;
               }
-              loadBackupInfo();
+              loadBackupInfo(function() { if (modal) modal.style.display = 'flex'; });
             } else {
+              hideLoadingPopup();
+              if (modal) modal.style.display = 'flex';
               if (msgDiv) {
                 msgDiv.style.display = "block";
                 msgDiv.style.background = "#FFD8D8";
@@ -5377,6 +5414,7 @@
           })
           .withFailureHandler(function(err) {
             hideLoadingPopup();
+            if (modal) modal.style.display = 'flex';
             if (msgDiv) {
               msgDiv.style.display = "block";
               msgDiv.style.background = "#FFD8D8";
@@ -5388,6 +5426,8 @@
       }
 
       function triggerManualBackup() {
+        const modal = document.getElementById('backupModal');
+        if (modal) modal.style.display = 'none';
         const btn = document.getElementById('manual-backup-btn');
         const msgDiv = document.getElementById('backup-action-msg');
 
@@ -5400,7 +5440,6 @@
 
         google.script.run
           .withSuccessHandler(function(res) {
-            hideLoadingPopup();
             if (btn) {
               btn.disabled = false;
               btn.innerHTML = "⚡ สำรองทันที (Now)";
@@ -5413,8 +5452,10 @@
                 msgDiv.style.color = "#1B4332";
                 msgDiv.innerHTML = `✅ ${res.msg} <br><small><a href="${res.fileUrl}" target="_blank" style="color: #2D6A4F; font-weight: 700;">เปิดไฟล์สำรองล่าสุดที่สร้างขึ้น</a></small>`;
               }
-              loadBackupInfo();
+              loadBackupInfo(function() { if (modal) modal.style.display = 'flex'; });
             } else {
+              hideLoadingPopup();
+              if (modal) modal.style.display = 'flex';
               if (msgDiv) {
                 msgDiv.style.display = "block";
                 msgDiv.style.background = "#FFD8D8";
@@ -5425,6 +5466,7 @@
           })
           .withFailureHandler(function(err) {
             hideLoadingPopup();
+            if (modal) modal.style.display = 'flex';
             console.error("Manual backup error:", err);
             if (btn) {
               btn.disabled = false;
