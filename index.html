@@ -58,6 +58,8 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
       *, *::before, *::after, html, body, button, input, select, textarea, optgroup, option {
@@ -286,12 +288,23 @@
       }
       #msgModal { z-index: 99999 !important; }
 
+      @keyframes cutePopIn {
+        0% { opacity: 0; transform: scale(0.88) translateY(10px); }
+        70% { opacity: 1; transform: scale(1.02) translateY(-2px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      @keyframes cuteBounceIcon {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
       .modal-box {
-        background: white;
-        padding: 25px;
-        border-radius: 20px;
-        width: 90%;
-        max-width: 380px;
+        background: linear-gradient(180deg, #FFFFFF 0%, #F7FCF9 100%);
+        padding: 24px;
+        border-radius: 26px;
+        border: 2.5px solid #D8F3DC;
+        box-shadow: 0 18px 42px rgba(27, 67, 50, 0.22), 0 0 0 4px rgba(255, 255, 255, 0.45);
+        width: 92%;
+        max-width: 390px;
         text-align: center;
         box-sizing: border-box;
         max-height: 85vh;
@@ -300,6 +313,39 @@
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
+        animation: cutePopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .cute-icon-circle {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #D8F3DC, #B7E4C7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        margin: 0 auto 12px auto;
+        box-shadow: 0 6px 15px rgba(82, 183, 136, 0.25);
+        animation: cuteBounceIcon 1.8s ease-in-out infinite;
+      }
+      .cute-close-x {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: #F1F5F9;
+        color: #475569;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .cute-close-x:hover {
+        background: #FFE5E5;
+        color: #E63946;
       }
 
       
@@ -312,31 +358,142 @@
         margin-bottom: 12px;
       }
       .act-photo-card {
-        border: 1.5px dashed #2D6A4F;
-        border-radius: 12px;
+        border: 2px dashed #52B788;
+        border-radius: 14px;
         background: #F8FBF9;
-        padding: 6px;
+        padding: 4px;
         text-align: center;
         position: relative;
         cursor: pointer;
         transition: all 0.2s ease;
-        min-height: 95px;
+        width: 100%;
+        aspect-ratio: 4 / 3;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
+        overflow: hidden;
       }
       .act-photo-card:hover {
         background: #E8F5E9;
-        border-color: #1B4332;
+        border-color: #2D6A4F;
       }
       .act-photo-preview {
         width: 100%;
-        height: 82px;
+        height: 100%;
+        aspect-ratio: 4 / 3;
         object-fit: cover;
-        border-radius: 8px;
+        border-radius: 10px;
         display: none;
+      }
+
+      /* หน้าถัดไป: พรีวิวรายงานกิจกรรม 1 หน้า A4 + พิมพ์ */
+      .activity-preview-shell {
+        max-width: 850px !important;
+        width: 96vw !important;
+        max-height: 92vh !important;
+        max-height: 92dvh !important;
+        padding: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: left !important;
+        background: #EEF6F1 !important;
+      }
+      .activity-preview-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 10px 14px;
+        border-radius: 18px;
+        border: 1.5px solid #D8F3DC;
+        margin-bottom: 12px;
+      }
+      .activity-preview-scroll {
+        flex: 1;
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 4px;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      .a4-scale-box {
+        transform-origin: top center;
+      }
+      .a4-sheet, #print-only-report-container .a4-sheet {
+        width: 794px;
+        height: 1122px;
+        padding: 40px 56px 34px 56px;
+        background: #FFFFFF;
+        color: #000000;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+      }
+      .a4-sheet, .a4-sheet *, #print-only-report-container .a4-sheet, #print-only-report-container .a4-sheet * {
+        font-family: 'Sarabun', 'TH Sarabun New', sans-serif !important;
+      }
+      .a4-sheet .gov-header { text-align: center; margin-bottom: 6px; }
+      .a4-sheet .gov-logo { height: 54px; width: auto; margin-bottom: 3px; }
+      .a4-sheet .gov-org { font-size: 21px; font-weight: 700; line-height: 1.25; color: #000; }
+      .a4-sheet .gov-doc-title { font-size: 20px; font-weight: 700; margin-top: 4px; text-decoration: underline; text-underline-offset: 4px; color: #000; }
+      .a4-sheet .gov-divider { border: none; border-bottom: 1.5px solid #000; margin: 8px 0 10px 0; }
+      .a4-sheet .gov-details { font-size: 17.5px; line-height: 1.48; color: #000; }
+      .a4-sheet .gov-row { margin-bottom: 4px; }
+      .a4-sheet .gov-bold { font-weight: 700; }
+      .a4-sheet .gov-desc { text-indent: 64px; text-align: justify; margin-top: 3px; line-height: 1.45; font-size: 17px; }
+      .a4-sheet .photo-container { margin-top: 10px; }
+      .a4-sheet .photo-title { font-size: 17.5px; font-weight: 700; margin-bottom: 8px; text-align: left; }
+      .a4-sheet .photo-grid { display: grid; grid-template-columns: 276px 276px; grid-gap: 10px 20px; justify-content: center; margin: 0 auto; }
+      .a4-sheet .photo-cell { text-align: center; width: 276px; }
+      .a4-sheet .photo-frame { width: 276px; height: 207px; border: 1px solid #666; border-radius: 4px; background: #fafafa; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+      .a4-sheet .photo-frame img { width: 100%; height: 100%; display: block; }
+      .a4-sheet .photo-placeholder { font-size: 14px; color: #888; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+      .a4-sheet .photo-caption { font-size: 14px; color: #222; margin-top: 4px; line-height: 1.3; word-break: break-word; }
+      .a4-sheet .gov-signatures { margin-top: 8px; padding-top: 4px; }
+      .a4-sheet .sig-table { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }
+      .a4-sheet .sig-cell { width: 48%; text-align: center; font-size: 17px; line-height: 1.38; }
+      .a4-sheet .sig-line-box { height: 104px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+      .a4-sheet .sig-line-director { align-items: center; padding-bottom: 0; }
+      .a4-sheet .sig-img { height: 104px; width: auto; max-width: 240px; object-fit: contain; }
+      .a4-sheet .sig-name { font-weight: 600; margin-top: 2px; }
+      .a4-sheet .sig-position { font-size: 16px; color: #222; }
+
+      #print-only-report-container { display: none; }
+      @media print {
+        @page { size: A4 portrait; margin: 0; }
+        body.printing-activity-report {
+          background: white !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          position: static !important;
+          height: auto !important;
+        }
+        body.printing-activity-report > *:not(#print-only-report-container) {
+          display: none !important;
+        }
+        body.printing-activity-report #print-only-report-container {
+          display: block !important;
+          width: 210mm !important;
+          margin: 0 auto !important;
+        }
+        body.printing-activity-report #print-only-report-container .a4-sheet {
+          width: 210mm !important;
+          height: 297mm !important;
+          box-shadow: none !important;
+          margin: 0 !important;
+          page-break-after: avoid !important;
+          page-break-inside: avoid !important;
+        }
       }
       .act-photo-placeholder {
         display: flex;
@@ -515,7 +672,7 @@
 
         <div class="icon-btn" onclick="showStats()" title="สถิติและพิมพ์รายงาน">📊</div>
 
-        <div class="icon-btn admin-only" id="btn-menu-report" onclick="showActivityReportModal()" title="รายงานจัดกิจกรรมห้องสมุด (สำหรับครู / Admin)">📋</div>
+        <div class="icon-btn admin-only" id="btn-menu-report" onclick="showActivityReportModal()" title="รายงานกิจกรรม (สำหรับครู / Admin)">📋</div>
 
         <div class="icon-btn admin-only" id="btn-menu-add-staff" onclick="showAddStaffModal()" title="➕ เพิ่มยุวบรรณารักษ์ (สำหรับครู / Admin)">➕</div>
 
@@ -651,7 +808,28 @@
 
     <!-- Modals -->
 
-    <div id="msgModal" class="modal-overlay" style="z-index: 99999;"><div class="modal-box"><div id="m-icon" style="font-size:50px">✅</div><div id="m-title" style="font-weight:700; font-size: 20px; margin:10px 0;"></div><div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line;"></div><button class="action-btn" style="width:100%; margin-top:20px; background:var(--text-main); font-family: 'Mali', cursive, sans-serif !important;" onclick="closeModal()">ตกลง</button></div></div>
+    <div id="msgModal" class="modal-overlay" style="z-index: 99999;">
+      <div class="modal-box" style="max-width: 360px;">
+        <div class="cute-icon-circle" id="m-icon-wrap"><span id="m-icon">✅</span></div>
+        <div id="m-title" style="font-weight:700; font-size: 19px; color: var(--text-main); margin:6px 0 8px 0;"></div>
+        <div id="m-text" style="font-size:14px; color:var(--text-sub); white-space: pre-line; line-height: 1.55;"></div>
+        <button class="action-btn" style="width:100%; margin-top:18px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); box-shadow: 0 4px 12px rgba(45,106,79,0.25);" onclick="closeModal()">ตกลง ✨</button>
+      </div>
+    </div>
+
+    <!-- 💖 ป๊อปอัพน่ารักเอนกประสงค์ (Alert / Confirm / Prompt กรอกข้อมูล) -->
+    <div id="cuteDialogModal" class="modal-overlay" style="z-index: 100000;">
+      <div class="modal-box" style="max-width: 390px;">
+        <div class="cute-icon-circle" id="cd-icon-wrap"><span id="cd-icon">🌸</span></div>
+        <div id="cd-title" style="font-weight:700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;"></div>
+        <div id="cd-msg" style="font-size: 13.5px; color: var(--text-sub); white-space: pre-line; line-height: 1.5;"></div>
+        <div id="cd-inputs" style="display: none; margin-top: 12px; text-align: left;"></div>
+        <div id="cd-actions" style="display: flex; gap: 10px; margin-top: 18px;">
+          <button type="button" id="cd-btn-cancel" class="action-btn" style="flex: 1; margin: 0; border-radius: 16px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 14px;">ยกเลิก</button>
+          <button type="button" id="cd-btn-ok" class="action-btn" style="flex: 1; margin: 0; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #52B788); color: white; box-shadow: 0 4px 12px rgba(45,106,79,0.25); font-size: 14px;">ตกลง ✨</button>
+        </div>
+      </div>
+    </div>
 
     
 
@@ -1101,15 +1279,16 @@
 
 
     
-    <!-- Modal ระบบรายงานจัดกิจกรรมห้องสมุด (Admin) -->
+    <!-- Modal รายงานกิจกรรม (Admin) -->
     <div id="activityReportModal" class="modal-overlay">
        <div class="modal-box" style="max-width: 540px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column; text-align: left;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #D8F3DC; padding-bottom: 10px;">
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
-                <span>📋</span> รายงานจัดกิจกรรมห้องสมุด
+                <span>📋</span> รายงานกิจกรรม
              </div>
-             <div style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
-                โหมด Admin
+             <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 11.5px; padding: 3px 10px; border-radius: 20px;">โหมด Admin</span>
+                <button type="button" class="cute-close-x" onclick="closeActivityReportModal()" title="ปิดหน้าต่าง">✕</button>
              </div>
           </div>
 
@@ -1119,7 +1298,7 @@
                 <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">
                    🏷️ ชื่อกิจกรรม <span style="color: #dc3545;">*</span>
                 </label>
-                <input type="text" id="act-title" class="modern-input" placeholder="เช่น กิจกรรมสัปดาห์ส่งเสริมการอ่าน ประจำปีการศึกษา 2567" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px;">
+                <input type="text" id="act-title" class="modern-input" placeholder="เช่น กิจกรรมสัปดาห์ส่งเสริมการอ่าน" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px;">
              </div>
 
              <!-- วันที่จัดกิจกรรม และ จำนวนผู้เข้าร่วม -->
@@ -1153,13 +1332,19 @@
                 <textarea id="act-desc" class="modern-input" rows="3" placeholder="ระบุวัตถุประสงค์ ผลการจัดกิจกรรม หรือประโยชน์ที่นักเรียนและผู้เข้าร่วมได้รับ..." style="width: 100%; box-sizing: border-box; font-size: 12.5px; padding: 9px 12px; resize: vertical; line-height: 1.45;"></textarea>
              </div>
 
-             <!-- รูปภาพกิจกรรม 4 ภาพ -->
-             <div style="margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+             <!-- รูปภาพกิจกรรม 4 ภาพ (อัตราส่วน 4:3 + เลือกพร้อมกัน 4 ภาพได้) -->
+             <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                    <label style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">
-                      🖼️ แทรกรูปภาพกิจกรรม (4 ภาพ)
+                      🖼️ แทรกรูปภาพกิจกรรม (4 ภาพ อัตราส่วน 4:3)
                    </label>
-                   <span style="font-size: 11px; color: var(--text-sub);">แตะเพื่อเลือกภาพ</span>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                   <button type="button" class="action-btn" style="width: 100%; padding: 9px 12px; font-size: 12.5px; background: linear-gradient(135deg, #52B788, #2D6A4F); color: white; border: none; border-radius: 14px; margin: 0; box-shadow: 0 3px 8px rgba(45,106,79,0.2); display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.getElementById('act-file-multi').click()">
+                      <span>📷</span> เลือกรูปภาพพร้อมกันทีเดียว 4 ภาพ
+                   </button>
+                   <input type="file" id="act-file-multi" accept="image/*" multiple style="display:none;" onchange="handleActMultiPhotoChange(this)">
                 </div>
 
                 <div class="act-photo-grid">
@@ -1169,12 +1354,12 @@
                          <button type="button" class="act-photo-remove" id="act-remove-0" onclick="removeActPhoto(0, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-0">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 1</span>
+                            <span>ภาพที่ 1 (4:3)</span>
                          </div>
                          <img id="act-preview-0" class="act-photo-preview" alt="ภาพที่ 1">
                          <input type="file" id="act-file-0" accept="image/*" style="display:none;" onchange="handleActPhotoChange(0, this)">
                       </div>
-                      <input type="text" id="act-caption-0" class="modern-input" placeholder="คำบรรยายภาพที่ 1 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
+                      <input type="text" id="act-caption-0" class="modern-input" placeholder="คำบรรยายภาพที่ 1" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
 
                    <!-- Slot 1 -->
@@ -1183,12 +1368,12 @@
                          <button type="button" class="act-photo-remove" id="act-remove-1" onclick="removeActPhoto(1, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-1">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 2</span>
+                            <span>ภาพที่ 2 (4:3)</span>
                          </div>
                          <img id="act-preview-1" class="act-photo-preview" alt="ภาพที่ 2">
                          <input type="file" id="act-file-1" accept="image/*" style="display:none;" onchange="handleActPhotoChange(1, this)">
                       </div>
-                      <input type="text" id="act-caption-1" class="modern-input" placeholder="คำบรรยายภาพที่ 2 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
+                      <input type="text" id="act-caption-1" class="modern-input" placeholder="คำบรรยายภาพที่ 2" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
 
                    <!-- Slot 2 -->
@@ -1197,12 +1382,12 @@
                          <button type="button" class="act-photo-remove" id="act-remove-2" onclick="removeActPhoto(2, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-2">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 3</span>
+                            <span>ภาพที่ 3 (4:3)</span>
                          </div>
                          <img id="act-preview-2" class="act-photo-preview" alt="ภาพที่ 3">
                          <input type="file" id="act-file-2" accept="image/*" style="display:none;" onchange="handleActPhotoChange(2, this)">
                       </div>
-                      <input type="text" id="act-caption-2" class="modern-input" placeholder="คำบรรยายภาพที่ 3 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
+                      <input type="text" id="act-caption-2" class="modern-input" placeholder="คำบรรยายภาพที่ 3" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
 
                    <!-- Slot 3 -->
@@ -1211,32 +1396,97 @@
                          <button type="button" class="act-photo-remove" id="act-remove-3" onclick="removeActPhoto(3, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-3">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 4</span>
+                            <span>ภาพที่ 4 (4:3)</span>
                          </div>
                          <img id="act-preview-3" class="act-photo-preview" alt="ภาพที่ 4">
                          <input type="file" id="act-file-3" accept="image/*" style="display:none;" onchange="handleActPhotoChange(3, this)">
                       </div>
-                      <input type="text" id="act-caption-3" class="modern-input" placeholder="คำบรรยายภาพที่ 4 (ถ้ามี)" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
+                      <input type="text" id="act-caption-3" class="modern-input" placeholder="คำบรรยายภาพที่ 4" style="width: 100%; box-sizing: border-box; font-size: 11px; padding: 5px 8px; margin-top: 4px; text-align: center;">
                    </div>
                 </div>
              </div>
           </div>
 
-          <!-- ปุ่มดำเนินการ -->
-          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-             <button type="button" class="action-btn" style="width: 100%; padding: 11px; font-size: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; margin: 0; box-shadow: 0 3px 8px rgba(45,106,79,0.25); font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="generateActivityReportDoc()">
-                📄 จัดทำและสั่งพิมพ์ / บันทึกรายงาน (PDF)
-             </button>
-             <button type="button" class="action-btn" style="width: 100%; padding: 9px; font-size: 13px; background: #0284C7; color: white; border: none; border-radius: 12px; margin: 0; box-shadow: 0 2px 6px rgba(2,132,199,0.25); font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 6px;" onclick="saveActivityReportDirectToDrive()">
-                ☁️ บันทึกรายงานลง Google Drive ทันที
-             </button>
-             <button type="button" class="action-btn" style="width: 100%; padding: 8px; font-size: 13px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="closeActivityReportModal()">
-                ยกเลิก / ปิดหน้าต่าง
+          <!-- ปุ่มด้านล่าง: เหลือแค่ "จัดทำ" -->
+          <div style="margin-top: 10px;">
+             <button type="button" class="action-btn" style="width: 100%; padding: 12px; font-size: 15px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; border: none; border-radius: 16px; margin: 0; box-shadow: 0 4px 12px rgba(45,106,79,0.28); display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="generateActivityReportDoc()">
+                ✨ จัดทำ
              </button>
           </div>
        </div>
     </div>
 
+    <!-- หน้าถัดไป: พรีวิวรายงานกิจกรรม + สั่งพิมพ์ / บันทึกไฟล์ -->
+    <div id="activityPreviewModal" class="modal-overlay" style="z-index: 2500;">
+       <div class="modal-box activity-preview-shell">
+          <div class="activity-preview-toolbar no-print">
+             <button type="button" class="action-btn" style="margin:0; padding: 7px 12px; font-size: 12.5px; border-radius: 12px; background: #F1F5F9; color: #334155; box-shadow: none;" onclick="backToActivityEdit()">
+                ⬅️ แก้ไข
+             </button>
+             <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <button type="button" class="action-btn" style="margin:0; padding: 8px 14px; font-size: 13px; border-radius: 12px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white;" onclick="printActivityReport()">
+                   🖨️ สั่งพิมพ์
+                </button>
+                <button type="button" class="action-btn" style="margin:0; padding: 8px 14px; font-size: 13px; border-radius: 12px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white;" onclick="openSaveFormatModal()">
+                   💾 บันทึกไฟล์
+                </button>
+                <button type="button" class="cute-close-x" onclick="closeActivityPreviewModal()" title="ปิด">✕</button>
+             </div>
+          </div>
+
+          <div class="activity-preview-scroll" id="activityPreviewScroll">
+             <div class="a4-scale-box" id="activityScaleBox">
+                <div id="activityReportSheetMount"></div>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <!-- ป๊อปอัพขั้นตอนการบันทึกไฟล์ (ขั้นตอนที่ 1: เลือกรูปแบบ -> ขั้นตอนที่ 2: เลือกสถานที่เก็บ) -->
+    <div id="saveOptionModal" class="modal-overlay" style="z-index: 3000;">
+       <div class="modal-box" style="max-width: 380px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+             <button type="button" class="cute-close-x" onclick="closeSaveOptionModal()">✕</button>
+          </div>
+          <div class="cute-icon-circle" id="save-opt-icon-wrap"><span id="save-opt-icon">💾</span></div>
+          <div id="save-opt-title" style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">เลือกรูปแบบไฟล์</div>
+          <div id="save-opt-sub" style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px;">ต้องการบันทึกเป็นไฟล์ประเภทใด?</div>
+
+          <!-- ขั้นตอนที่ 1: เลือกรูปแบบไฟล์ -->
+          <div id="save-step-format" style="display: flex; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #52B788, #2D6A4F); color: white; font-size: 14.5px;" onclick="chooseSaveFormat('image')">
+                🖼️ รูปภาพ (PNG)
+             </button>
+             <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 14.5px;" onclick="chooseSaveFormat('pdf')">
+                📄 เอกสาร PDF
+             </button>
+          </div>
+
+          <!-- ขั้นตอนที่ 2: เลือกสถานที่เก็บไฟล์ -->
+          <div id="save-step-dest" style="display: none; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 14.5px;" onclick="executeReportExport('device')">
+                📱 บันทึกลงเครื่อง (มือถือ / คอมฯ)
+             </button>
+             <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 14.5px;" onclick="executeReportExport('drive')">
+                ☁️ บันทึกลง Google Drive
+             </button>
+             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width:100%; padding: 9px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="backToSaveFormatStep()">
+                ⬅️ เปลี่ยนรูปแบบไฟล์
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- ป๊อปอัพสำหรับบันทึกรูปภาพ/PDF บนมือถือ iOS (Fallback & Quick Save) -->
+    <div id="iosSaveFallbackModal" class="modal-overlay" style="z-index: 3500;">
+       <div class="modal-box" style="max-width: 420px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+             <div id="ios-save-title" style="font-weight: 700; font-size: 16px; color: var(--primary);">📱 บันทึกไฟล์ลงมือถือ</div>
+             <button type="button" class="cute-close-x" onclick="document.getElementById('iosSaveFallbackModal').style.display='none'">✕</button>
+          </div>
+          <div id="ios-save-body" style="font-size: 13px; color: var(--text-sub); line-height: 1.5;"></div>
+       </div>
+    </div>
 
     <!-- หน้าต่างสแกนบาร์โค้ดแบบเรียลไทม์ (รองรับสแกนต่อเนื่อง) -->
 
@@ -1302,7 +1552,7 @@
 
                      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_APPS_SCRIPT_WEB_APP_URL")) {
 
-                        alert("⚠️ กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ของไฟล์ index.html ก่อนใช้งานครับ");
+                        cuteAlert("กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ก่อนใช้งานค่ะ", "ตั้งค่าระบบ", "⚙️");
 
                         if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
 
@@ -1338,7 +1588,7 @@
 
                         if (failureCb) failureCb(err);
 
-                        else alert("❌ ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กรุณาตรวจสอบสิทธิ์การ Deploy (Anyone)");
+                        else cuteAlert("ไม่สามารถเชื่อมต่อกับ Google Apps Script ได้ กรุณาตรวจสอบสิทธิ์การ Deploy", "การเชื่อมต่อขัดข้อง", "❌");
 
                      });
 
@@ -1521,7 +1771,7 @@
 
       function logoutStaff() {
 
-         if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+         cuteConfirm("คุณต้องการออกจากระบบใช่หรือไม่?", "ออกจากระบบ", "👋").then(ok => { if(ok) {
 
              sessionStorage.removeItem('library_logged_in_user');
              sessionStorage.removeItem('library_logged_in_role');
@@ -1537,7 +1787,7 @@
 
              document.getElementById('login-pin').focus();
 
-         }
+         }});
 
       }
 
@@ -1713,7 +1963,23 @@
           filenameSuffix = 'ทั้งหมด';
         }
 
-        if (!val) { alert('⚠️ กรุณาระบุเวลาที่ต้องการดาวน์โหลดให้ครบถ้วน'); return; }
+        if (!val) {
+          const fType = type === 'day' ? 'date' : (type === 'month' ? 'month' : 'number');
+          const tId = type === 'day' ? 'excel-c-day' : (type === 'month' ? 'excel-c-month' : 'excel-c-year');
+          const lbl = type === 'day' ? '📅 เลือกวันที่' : (type === 'month' ? '🗓️ เลือกเดือน' : '📆 ระบุปี พ.ศ.');
+          cutePromptInputs({
+            icon: '📊',
+            title: 'ระบุช่วงเวลาดาวน์โหลด Excel',
+            message: 'กรุณาเลือกหรือกรอกช่วงเวลาที่ต้องการด้านล่าง',
+            fields: [{ key: 'timeVal', targetId: tId, type: fType, label: lbl, placeholder: 'เช่น 2569' }],
+            confirmText: 'ดาวน์โหลดเลย ✨',
+            onSubmit: function(v) {
+              if (type === 'day' && typeof onExcelDateChange === 'function') onExcelDateChange(v.timeVal);
+              triggerDownloadExcelCustom(type);
+            }
+          });
+          return;
+        }
 
         document.getElementById('excelModal').style.display = 'none';
         document.getElementById('tx-loader-text').innerText = 'กำลังเตรียมไฟล์ Excel...';
@@ -1724,13 +1990,13 @@
         google.script.run.withSuccessHandler(function(data) {
           document.getElementById('tx-loader').style.display = 'none';
           if (!data || data.length === 0) {
-            alert('⚠️ ไม่มีข้อมูลสำหรับ ' + rangeText);
+            cuteAlert("ไม่มีข้อมูลสำหรับ " + rangeText, "ไม่พบข้อมูล", "📭");
             return;
           }
           exportToExcelFile(data, filenameSuffix, rangeText);
         }).withFailureHandler(function(err) {
           document.getElementById('tx-loader').style.display = 'none';
-          alert('❌ ไม่สามารถดึงข้อมูลได้: ' + err);
+          cuteAlert("ไม่สามารถดึงข้อมูลได้: " + err, "เกิดข้อผิดพลาด", "❌");
         }).getPrintData(rangeObj);
       }
 
@@ -1895,7 +2161,23 @@
 
          
 
-         if (!val) { alert("⚠️ กรุณาระบุเวลาที่ต้องการพิมพ์ให้ครบถ้วน"); return; }
+         if (!val) {
+          const fType = type === 'day' ? 'date' : (type === 'month' ? 'month' : 'number');
+          const tId = type === 'day' ? 'print-c-day' : (type === 'month' ? 'print-c-month' : 'print-c-year');
+          const lbl = type === 'day' ? '📅 เลือกวันที่' : (type === 'month' ? '🗓️ เลือกเดือน' : '📆 ระบุปี พ.ศ.');
+          cutePromptInputs({
+            icon: '🖨️',
+            title: 'ระบุช่วงเวลาพิมพ์รายงาน',
+            message: 'กรุณาเลือกหรือกรอกช่วงเวลาที่ต้องการพิมพ์ด้านล่าง',
+            fields: [{ key: 'timeVal', targetId: tId, type: fType, label: lbl, placeholder: 'เช่น 2569' }],
+            confirmText: 'พิมพ์รายงาน ✨',
+            onSubmit: function(v) {
+              if (type === 'day' && typeof onPrintDateChange === 'function') onPrintDateChange(v.timeVal);
+              triggerPrintCustom(type);
+            }
+          });
+          return;
+        }
 
          triggerPrint({ type: 'custom_' + type, value: val, text: rangeText });
 
@@ -1909,7 +2191,7 @@
 
         let win = window.open("", "_blank");
 
-        if (!win) { alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนครับ"); return; }
+        if (!win) { cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนนะคะ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️"); return; }
 
         win.document.write("<h3 style='font-family:Sarabun, sans-serif; text-align:center; padding:20px;'>⏳ กำลังดึงข้อมูล...</h3>");
 
@@ -2031,7 +2313,8 @@
 
           
 
-          html += `</tbody></table></body></html>`;
+          html += `</tbody></table>  <div id="print-only-report-container"></div>
+  </body></html>`;
 
           win.document.open(); win.document.write(html); win.document.close(); 
 
@@ -2490,7 +2773,7 @@
 
       function clearBookQueue() {
 
-        if (bookQueue.length > 0 && confirm("ต้องการล้างคิวหนังสือทั้งหมดหรือไม่?")) {
+        if (bookQueue.length > 0) { cuteConfirm("ต้องการล้างคิวหนังสือทั้งหมดหรือไม่?", "ล้างคิวหนังสือ", "🗑️").then(ok => { if(ok) {
 
           bookQueue = [];
 
@@ -2502,7 +2785,7 @@
           if (copiesEl) { copiesEl.innerHTML = ''; copiesEl.style.display = 'none'; }
           document.getElementById('box-book').classList.remove('active');
 
-        }
+        }}); }
 
       }
 
@@ -2625,11 +2908,21 @@
 
 
         if (!sid || bookIds.length === 0) {
-
-            showModal("error:❌ กรุณากรอกรหัสนักเรียนและรหัสหนังสือให้ครบ");
-
+            const missingFields = [];
+            if (!sid) missingFields.push({ key: 'sid', targetId: 'sid', label: '🪪 รหัสนักเรียน', placeholder: 'กรอกรหัสนักเรียน...' });
+            if (bookIds.length === 0) missingFields.push({ key: 'bid', targetId: 'bid', label: '📖 รหัสหนังสือ', placeholder: 'กรอกรหัสหนังสือ...' });
+            cutePromptInputs({
+              icon: '📚',
+              title: 'กรอกข้อมูลให้ครบนะ',
+              message: 'กรุณากรอกข้อมูลที่ยังขาดด้านล่างเพื่อทำรายการทันที',
+              fields: missingFields,
+              confirmText: 'ทำรายการเลย ✨',
+              onSubmit: function(vals) {
+                if (vals.sid && typeof lookupStudent === 'function') lookupStudent(document.getElementById('sid'));
+                submitAction(type);
+              }
+            });
             return;
-
         }
 
         // 📚 หากกรณีที่มีหนังสือหลายเล่ม ให้แสดงป๊อปอัพขึ้นมายืนยันหลังจากกดยืม
@@ -2726,24 +3019,19 @@
 
 
           if (heldBooks.length > 0) {
-
-            const confirmMsg = `⚠️ พบหนังสือที่ยังไม่ได้คืน ${heldBooks.length} เล่ม:\n` +
-
+            const confirmMsg = `พบหนังสือที่ยังไม่ได้คืน ${heldBooks.length} เล่ม:\n` +
                                heldBooks.join("\n") +
-
-                               `\n\nระบบจะทำการบันทึกคืนหนังสือ (คิด/หักคะแนนผู้ยืมเดิม) ก่อน แล้วจึงบันทึกการยืมให้นักเรียนคนใหม่ ต้องการดำเนินการต่อหรือไม่?`;
-
-            if (!confirm(confirmMsg)) {
-
-              return;
-
-            }
-
+                               `\n\nระบบจะทำการบันทึกคืนหนังสือก่อน แล้วจึงบันทึกการยืมให้นักเรียนคนใหม่ ต้องการดำเนินการต่อหรือไม่?`;
+            cuteConfirm(confirmMsg, "พบหนังสือค้างคืน", "📚").then(ok => {
+              if (ok) _dispatchBorrowOrReturnTx(type, sid, bookIds, currentStudentName);
+            });
+            return;
           }
-
         }
+        _dispatchBorrowOrReturnTx(type, sid, bookIds, currentStudentName);
+      }
 
-        
+      function _dispatchBorrowOrReturnTx(type, sid, bookIds, currentStudentName) {
 
         document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
 
@@ -2856,11 +3144,19 @@
         
 
         if (id === "" || name === "" || author === "") {
-
-            showModal("error:❌ กรุณากรอกข้อมูลให้ครบทุกช่องก่อนบันทึกครับ");
-
+            const missingFields = [];
+            if (id === "") missingFields.push({ key: 'id', targetId: 'n-bid', label: '🏷️ รหัสหนังสือ', placeholder: 'ระบุรหัสหนังสือ...' });
+            if (name === "") missingFields.push({ key: 'name', targetId: 'n-name', label: '📖 ชื่อหนังสือ', placeholder: 'ระบุชื่อหนังสือ...' });
+            if (author === "") missingFields.push({ key: 'author', targetId: 'n-author', label: '✍️ ชื่อผู้แต่ง', placeholder: 'ระบุชื่อผู้แต่ง...' });
+            cutePromptInputs({
+              icon: '📖',
+              title: 'กรอกข้อมูลหนังสือให้ครบนะ',
+              message: 'กรุณากรอกข้อมูลที่ยังขาดเพื่อบันทึกเข้าคลังห้องสมุด',
+              fields: missingFields,
+              confirmText: 'บันทึกหนังสือ ✨',
+              onSubmit: function() { saveNewBook(); }
+            });
             return;
-
         }
 
 
@@ -2909,7 +3205,7 @@
 
             let safeName = String(r.name || '').replace(/'/g, "\\'");
 
-            html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`alert('คะแนนสะสมไม่พอแลกรายการนี้ครับ')`}">
+            html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`cuteAlert('คะแนนสะสมไม่พอแลกรายการนี้ค่ะ', 'คะแนนไม่พอ', '🌟')`}">
 
                         <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
 
@@ -3019,7 +3315,7 @@
 
       function redeem(sid, rid, cost, name) { 
 
-         if(confirm(`ยืนยันการแลกของรางวัล: ${name} (ใช้ ${cost} แต้ม)?`)) {
+         cuteConfirm(`ยืนยันการแลกของรางวัล: ${name} (ใช้ ${cost} แต้ม)?`, "แลกของรางวัล", "🎁").then(ok => { if(ok) {
 
             document.getElementById('tx-loader-text').innerText = "กำลังประมวลผลการแลกของรางวัล...";
 
@@ -3039,7 +3335,7 @@
 
             }).processRedemption(sid, rid, cost, name, currentUser); 
 
-         }
+         }});
 
       }
 
@@ -3303,11 +3599,7 @@
 
         const displayBorrower = (borrowerName && borrowerName !== '-' && borrowerName !== 'ไม่ระบุชื่อ') ? ` โดย ${borrowerName}` : '';
 
-        if (!confirm(`ยืนยันว่าต้องการลบรายการหนังสือ ${displayTitle}${displayBorrower} ออกจากรายการยืมใช่หรือไม่?`)) {
-
-          return;
-
-        }
+        cuteConfirm(`ยืนยันว่าต้องการลบรายการหนังสือ ${displayTitle}${displayBorrower} ออกจากรายการยืมใช่หรือไม่?`, "ยืนยันคืนหนังสือ", "📚").then(ok => { if (!ok) return;
 
 
 
@@ -3363,9 +3655,9 @@
 
           document.getElementById('tx-loader').style.display = 'none';
 
-          alert("❌ เกิดข้อผิดพลาดในการบันทึกการคืน: " + err);
+          cuteAlert("เกิดข้อผิดพลาดในการบันทึกการคืน: " + err, "เกิดข้อผิดพลาด", "❌");
 
-        }).markBookAsReturned(bookId, studentId, borrowerName, currentUser);
+        }).markBookAsReturned(bookId, studentId, borrowerName, currentUser); });
 
       }
 
@@ -3403,7 +3695,7 @@
 
       function deleteLog(idx) { 
 
-         if(confirm("ลบรายการ?")) {
+         cuteConfirm("ต้องการลบรายการประวัตินี้ใช่หรือไม่?", "ลบรายการ", "🗑️").then(ok => { if(ok) {
 
              document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
 
@@ -3417,7 +3709,7 @@
 
              }).deleteSpecificLog(idx); 
 
-         }
+         }});
 
       }
 
@@ -3515,10 +3807,8 @@
 
 
 
-      function showModal(msg, customTitle) { 
-
-          const m = document.getElementById('msgModal'); 
-
+      function showModal(msg, customTitle) {
+          const m = document.getElementById('msgModal');
           let title = "แจ้งเตือน";
           if (customTitle) {
             title = customTitle;
@@ -3528,15 +3818,185 @@
             title = "สำเร็จ";
           }
 
-          document.getElementById('m-title').innerText = title; 
+          const isSuccess = msg.includes("success") || msg.includes("✅");
+          const isError = msg.includes("error") || msg.includes("❌");
+          document.getElementById('m-title').innerText = title;
+          document.getElementById('m-text').innerText = msg.includes(":") && (msg.startsWith("success:") || msg.startsWith("error:") || msg.startsWith("warning:")) ? msg.split(":").slice(1).join(":") : msg;
+          document.getElementById('m-icon').innerText = isSuccess ? "✅" : (isError ? "❌" : "⚠️");
 
-          document.getElementById('m-text').innerText = msg.split(":")[1] || msg; 
+          const wrap = document.getElementById('m-icon-wrap');
+          if (wrap) {
+            if (isSuccess) wrap.style.background = 'linear-gradient(135deg, #D8F3DC, #B7E4C7)';
+            else if (isError) wrap.style.background = 'linear-gradient(135deg, #FFE3E3, #FFC9C9)';
+            else wrap.style.background = 'linear-gradient(135deg, #FFF3BF, #FFE066)';
+          }
 
-          document.getElementById('m-icon').innerText = msg.includes("success") ? "✅" : "⚠️"; 
-
-          m.style.display = 'flex'; 
+          m.style.display = 'flex';
           if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+      }
 
+      // 💖 ระบบป๊อปอัพน่ารักเอนกประสงค์ (Alert / Confirm / Prompt กรอกข้อมูลในป๊อปอัพ)
+      function _applyCuteIconTheme(icon) {
+        const wrap = document.getElementById('cd-icon-wrap');
+        if (!wrap) return;
+        if (icon === '✅' || icon === '🎉' || icon === '✨') {
+          wrap.style.background = 'linear-gradient(135deg, #D8F3DC, #B7E4C7)';
+        } else if (icon === '❌' || icon === '🗑️') {
+          wrap.style.background = 'linear-gradient(135deg, #FFE3E3, #FFC9C9)';
+        } else {
+          wrap.style.background = 'linear-gradient(135deg, #FFF3BF, #FFE066)';
+        }
+      }
+
+      function cuteAlert(msg, title = 'แจ้งเตือน', icon = '🌸') {
+        return new Promise((resolve) => {
+          const modal = document.getElementById('cuteDialogModal');
+          if (!modal) { alert(msg); resolve(); return; }
+          if (String(msg).includes('❌') && icon === '🌸') icon = '❌';
+          else if (String(msg).includes('✅') && icon === '🌸') icon = '✅';
+          else if (String(msg).includes('⚠️') && icon === '🌸') icon = '⚠️';
+
+          document.getElementById('cd-icon').innerText = icon;
+          _applyCuteIconTheme(icon);
+          document.getElementById('cd-title').innerText = title;
+          document.getElementById('cd-msg').innerText = String(msg).replace(/^([⚠️✅❌]\s*)/, '');
+          const inputsBox = document.getElementById('cd-inputs');
+          inputsBox.style.display = 'none';
+          inputsBox.innerHTML = '';
+
+          const cancelBtn = document.getElementById('cd-btn-cancel');
+          const okBtn = document.getElementById('cd-btn-ok');
+          cancelBtn.style.display = 'none';
+          okBtn.innerText = 'ตกลง ✨';
+          okBtn.onclick = function() {
+            modal.style.display = 'none';
+            if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+            resolve();
+          };
+          modal.style.display = 'flex';
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        });
+      }
+
+      function cuteConfirm(msg, title = 'ยืนยันรายการ', icon = '🤔') {
+        return new Promise((resolve) => {
+          const modal = document.getElementById('cuteDialogModal');
+          if (!modal) { resolve(confirm(msg)); return; }
+          document.getElementById('cd-icon').innerText = icon;
+          _applyCuteIconTheme(icon);
+          document.getElementById('cd-title').innerText = title;
+          document.getElementById('cd-msg').innerText = String(msg).replace(/^([⚠️✅❌]\s*)/, '');
+          const inputsBox = document.getElementById('cd-inputs');
+          inputsBox.style.display = 'none';
+          inputsBox.innerHTML = '';
+
+          const cancelBtn = document.getElementById('cd-btn-cancel');
+          const okBtn = document.getElementById('cd-btn-ok');
+          cancelBtn.style.display = 'block';
+          cancelBtn.innerText = 'ยกเลิก';
+          okBtn.innerText = 'ยืนยัน ✨';
+
+          cancelBtn.onclick = function() {
+            modal.style.display = 'none';
+            if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+            resolve(false);
+          };
+          okBtn.onclick = function() {
+            modal.style.display = 'none';
+            if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+            resolve(true);
+          };
+          modal.style.display = 'flex';
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        });
+      }
+
+      // 📝 ป๊อปอัพแจ้งเตือนพร้อมช่องกรอกข้อมูลได้ทันที (Item 12)
+      function cutePromptInputs(cfg) {
+        const modal = document.getElementById('cuteDialogModal');
+        if (!modal) return;
+        const icon = cfg.icon || '✏️';
+        document.getElementById('cd-icon').innerText = icon;
+        _applyCuteIconTheme(icon);
+        document.getElementById('cd-title').innerText = cfg.title || 'กรุณากรอกข้อมูล';
+        document.getElementById('cd-msg').innerText = cfg.message || 'กรอกข้อมูลให้ครบถ้วนแล้วกดตกลงได้เลยค่ะ';
+
+        const inputsBox = document.getElementById('cd-inputs');
+        inputsBox.style.display = 'block';
+        let html = '';
+        (cfg.fields || []).forEach((f, idx) => {
+          const t = f.type || 'text';
+          const val = (f.value !== undefined && f.value !== null) ? String(f.value).replace(/"/g, '&quot;') : '';
+          html += `
+            <div style="margin-bottom: 10px;">
+              <label style="display:block; font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px;">${f.label || ''}</label>
+              <input type="${t}" id="cd-prompt-field-${idx}" class="modern-input" value="${val}" placeholder="${f.placeholder || ''}" style="width:100%; box-sizing:border-box; padding: 9px 12px; font-size:13.5px; border-radius: 14px;">
+            </div>
+          `;
+        });
+        inputsBox.innerHTML = html;
+
+        const cancelBtn = document.getElementById('cd-btn-cancel');
+        const okBtn = document.getElementById('cd-btn-ok');
+        cancelBtn.style.display = 'block';
+        cancelBtn.innerText = 'ยกเลิก';
+        okBtn.innerText = cfg.confirmText || 'บันทึกและดำเนินการต่อ ✨';
+
+        cancelBtn.onclick = function() {
+          modal.style.display = 'none';
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        };
+
+        const submitPrompt = function() {
+          const result = {};
+          for (let i = 0; i < (cfg.fields || []).length; i++) {
+            const f = cfg.fields[i];
+            const el = document.getElementById('cd-prompt-field-' + i);
+            const val = el ? el.value.trim() : '';
+            if (f.required !== false && !val) {
+              if (el) {
+                el.style.borderColor = '#E63946';
+                el.focus();
+              }
+              return;
+            }
+            if (f.targetId) {
+              const targetEl = document.getElementById(f.targetId);
+              if (targetEl) {
+                targetEl.value = val;
+                if (typeof targetEl.onchange === 'function' && f.type === 'date') {
+                  targetEl.onchange(val);
+                }
+              }
+            }
+            result[f.key || ('field' + i)] = val;
+          }
+          modal.style.display = 'none';
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+          if (typeof cfg.onSubmit === 'function') cfg.onSubmit(result);
+        };
+
+        okBtn.onclick = submitPrompt;
+
+        // กด Enter ในช่องสุดท้ายเพื่อส่งฟอร์มทันที
+        (cfg.fields || []).forEach((f, idx) => {
+          const el = document.getElementById('cd-prompt-field-' + idx);
+          if (el) {
+            el.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                submitPrompt();
+              }
+            });
+          }
+        });
+
+        modal.style.display = 'flex';
+        if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        setTimeout(() => {
+          const first = document.getElementById('cd-prompt-field-0');
+          if (first) first.focus();
+        }, 80);
       }
 
       // 🪪 ระบบพิมพ์บัตรสมาชิกห้องสมุดพร้อมบาร์โค้ด
@@ -3544,7 +4004,7 @@
 
       function showCardModal() {
         if (currentUserRole !== 'admin') {
-          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('cardModal');
@@ -3688,7 +4148,7 @@
         });
 
         if (filtered.length === 0) {
-          alert("⚠️ ไม่มีรายชื่อนักเรียนตามตัวกรองที่เลือกครับ");
+          cuteAlert("ไม่มีรายชื่อนักเรียนตามตัวกรองที่เลือกค่ะ", "ไม่พบข้อมูล", "📭");
           return;
         }
 
@@ -3702,13 +4162,13 @@
 
       function generateAndPrintCards(studentList, docTitle) {
         if (!studentList || studentList.length === 0) {
-          alert("⚠️ ไม่มีรายชื่อนักเรียนสำหรับพิมพ์บัตรครับ");
+          cuteAlert("ไม่มีรายชื่อนักเรียนสำหรับพิมพ์บัตรค่ะ", "ไม่พบข้อมูล", "📭");
           return;
         }
 
         let win = window.open("", "_blank");
         if (!win) {
-          alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือการเปิดแท็บใหม่ในเบราว์เซอร์ก่อนครับ");
+          cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือแท็บใหม่ก่อนนะคะ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️");
           return;
         }
 
@@ -3965,7 +4425,7 @@
 
       function showBookBarcodeModal() {
         if (currentUserRole !== 'admin') {
-          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('bookBarcodeModal');
@@ -4205,7 +4665,7 @@
         });
 
         if (labelsToPrint.length === 0) {
-          alert("⚠️ กรุณาเลือกหนังสืออย่างน้อย 1 รายการเพื่อพิมพ์สติกเกอร์ครับ");
+          cuteAlert("กรุณาเลือกหนังสืออย่างน้อย 1 รายการเพื่อพิมพ์สติกเกอร์ค่ะ", "เลือกหนังสือ", "🏷️");
           return;
         }
 
@@ -4233,13 +4693,13 @@
 
       function generateAndPrintBookLabels(labelsList, docTitle) {
         if (!labelsList || labelsList.length === 0) {
-          alert("⚠️ ไม่มีรายการสติกเกอร์สำหรับพิมพ์ครับ");
+          cuteAlert("ไม่มีรายการสติกเกอร์สำหรับพิมพ์ค่ะ", "ไม่พบข้อมูล", "📭");
           return;
         }
 
         let win = window.open("", "_blank");
         if (!win) {
-          alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือการเปิดแท็บใหม่ในเบราว์เซอร์ก่อนครับ");
+          cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือแท็บใหม่ก่อนนะคะ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️");
           return;
         }
 
@@ -4497,7 +4957,7 @@
       // ➕ ระบบเพิ่มยุวบรรณารักษ์ (สำหรับครูบรรณารักษ์ / Admin)
       function showAddStaffModal() {
         if (currentUserRole !== 'admin') {
-          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('addStaffModal');
@@ -4524,14 +4984,18 @@
         const pin = (pinInput ? pinInput.value : '').trim();
         const name = (nameInput ? nameInput.value : '').trim();
         
-        if (!pin) {
-          alert("⚠️ กรุณาระบุรหัสใช้งาน (PIN) สำหรับยุวบรรณารักษ์");
-          if (pinInput) pinInput.focus();
-          return;
-        }
-        if (!name) {
-          alert("⚠️ กรุณาระบุชื่อของยุวบรรณารักษ์");
-          if (nameInput) nameInput.focus();
+        if (!pin || !name) {
+          const missingFields = [];
+          if (!pin) missingFields.push({ key: 'pin', targetId: 'new-staff-pin', label: '🔑 รหัสใช้งาน (PIN)', placeholder: 'ระบุรหัส 4-6 หลัก...' });
+          if (!name) missingFields.push({ key: 'name', targetId: 'new-staff-name', label: '👤 ชื่อยุวบรรณารักษ์', placeholder: 'ระบุชื่อ-นามสกุล...' });
+          cutePromptInputs({
+            icon: '🪪',
+            title: 'กรอกข้อมูลยุวบรรณารักษ์',
+            message: 'กรุณากรอกข้อมูลที่ยังขาดเพื่อเพิ่มเจ้าหน้าที่ทันที',
+            fields: missingFields,
+            confirmText: 'บันทึกเลย ✨',
+            onSubmit: function() { saveNewStaff(); }
+          });
           return;
         }
         
@@ -4595,7 +5059,7 @@
 
       function showBackupModal() {
         if (currentUserRole !== 'admin') {
-          alert("⚠️ ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('backupModal');
@@ -4692,12 +5156,15 @@
 
       function confirmDeleteBackup(fileId, name) {
         if (!fileId) {
-          alert("⚠️ ไม่พบรหัสไฟล์สำรอง");
+          cuteAlert("ไม่พบรหัสไฟล์สำรองค่ะ", "แจ้งเตือน", "⚠️");
           return;
         }
-        if (!confirm("คุณต้องการลบไฟล์สำรอง '" + name + "' ใช่หรือไม่?\n(ไฟล์จะถูกย้ายไปถังขยะใน Google Drive)")) {
-          return;
-        }
+        cuteConfirm("คุณต้องการลบไฟล์สำรอง '" + name + "' ใช่หรือไม่?\n(ไฟล์จะถูกย้ายไปถังขยะใน Google Drive)", "ลบไฟล์สำรอง", "🗑️").then(ok => {
+          if (!ok) return;
+          _executeDeleteBackup(fileId);
+        });
+      }
+      function _executeDeleteBackup(fileId) {
         const msgDiv = document.getElementById('backup-action-msg');
         if (msgDiv) {
           msgDiv.style.display = "block";
@@ -5013,26 +5480,21 @@
 
       
       // ==============================================================
-      // 📋 ระบบการทำรายงานจัดกิจกรรมห้องสมุด (Admin Mode)
+      // 📋 ระบบรายงานกิจกรรม (Admin Mode) - v92 (4:3, iOS Export, Cute Popups)
       // ==============================================================
 
       let activityPhotos = [null, null, null, null];
+      let cachedReportAssets = { logo: null, esign: null };
+      let currentActivityMeta = null;
+      let selectedSaveFormat = 'pdf';
 
       function showActivityReportModal() {
         if (typeof currentUserRole !== 'undefined' && currentUserRole !== 'admin') {
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              icon: 'warning',
-              title: 'สงวนสิทธิ์เฉพาะครูบรรณารักษ์',
-              text: 'ฟังก์ชันรายงานจัดกิจกรรมห้องสมุดสามารถเข้าถึงได้เฉพาะครูบรรณารักษ์ (Admin) เท่านั้น',
-              confirmButtonColor: '#2D6A4F'
-            });
-          } else {
-            alert('⚠️ สงวนสิทธิ์เฉพาะครูบรรณารักษ์ (Admin)');
-          }
+          cuteAlert('ฟังก์ชันรายงานกิจกรรมสามารถเข้าถึงได้เฉพาะครูบรรณารักษ์ (Admin) เท่านั้นค่ะ', 'สงวนสิทธิ์ Admin', '🔒');
           return;
         }
         initActivityReportDate();
+        preloadOfficialReportAssets();
         const m = document.getElementById('activityReportModal');
         if (m) m.style.display = 'flex';
       }
@@ -5040,6 +5502,17 @@
       function closeActivityReportModal() {
         const m = document.getElementById('activityReportModal');
         if (m) m.style.display = 'none';
+      }
+
+      function closeActivityPreviewModal() {
+        const m = document.getElementById('activityPreviewModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function backToActivityEdit() {
+        closeActivityPreviewModal();
+        const m = document.getElementById('activityReportModal');
+        if (m) m.style.display = 'flex';
       }
 
       function initActivityReportDate() {
@@ -5061,10 +5534,7 @@
         const el = document.getElementById('act-date');
         if (el) {
           if (typeof el.showPicker === 'function') {
-            try {
-              el.showPicker();
-              return;
-            } catch (e) {}
+            try { el.showPicker(); return; } catch (e) {}
           }
           el.focus();
           el.click();
@@ -5087,6 +5557,66 @@
         }
       }
 
+      function preloadOfficialReportAssets() {
+        const assets = [
+          { key: 'logo', url: 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png' },
+          { key: 'esign', url: 'https://i.postimg.cc/nzVVQTzW/esign.png' }
+        ];
+        assets.forEach(a => {
+          if (cachedReportAssets[a.key]) return;
+          fetch(a.url, { mode: 'cors' })
+            .then(r => r.blob())
+            .then(blob => {
+              const reader = new FileReader();
+              reader.onloadend = () => { cachedReportAssets[a.key] = reader.result; };
+              reader.readAsDataURL(blob);
+            })
+            .catch(() => {});
+        });
+      }
+
+      // 🖼️ แปลงและครอบภาพให้อยู่ในอัตราส่วน 4:3 (1000x750) ทุกภาพอัตโนมัติ (Item 1)
+      function processActivityImageTo4x3(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const targetRatio = 4 / 3;
+            const srcRatio = img.width / img.height;
+            let sx = 0, sy = 0, sw = img.width, sh = img.height;
+            if (srcRatio > targetRatio) {
+              sw = img.height * targetRatio;
+              sx = (img.width - sw) / 2;
+            } else if (srcRatio < targetRatio) {
+              sh = img.width / targetRatio;
+              sy = (img.height - sh) / 2;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = 1000;
+            canvas.height = 750;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 1000, 750);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+            callback(dataUrl);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function setActPhotoSlot(slot, dataUrl) {
+        activityPhotos[slot] = dataUrl;
+        const preview = document.getElementById('act-preview-' + slot);
+        const placeholder = document.getElementById('act-ph-' + slot);
+        const removeBtn = document.getElementById('act-remove-' + slot);
+        if (preview) {
+          preview.src = dataUrl;
+          preview.style.display = 'block';
+        }
+        if (placeholder) placeholder.style.display = 'none';
+        if (removeBtn) removeBtn.style.display = 'flex';
+      }
+
       function triggerActPhotoUpload(slot) {
         const fileInput = document.getElementById('act-file-' + slot);
         if (fileInput) fileInput.click();
@@ -5094,47 +5624,40 @@
 
       function handleActPhotoChange(slot, input) {
         if (input.files && input.files[0]) {
-          const file = input.files[0];
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const img = new Image();
-            img.onload = function() {
-              const maxDim = 1200;
-              let w = img.width;
-              let h = img.height;
-              if (w > maxDim || h > maxDim) {
-                if (w > h) {
-                  h = Math.round((h * maxDim) / w);
-                  w = maxDim;
-                } else {
-                  w = Math.round((w * maxDim) / h);
-                  h = maxDim;
-                }
-              }
-              const canvas = document.createElement('canvas');
-              canvas.width = w;
-              canvas.height = h;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, w, h);
-              const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
-
-              activityPhotos[slot] = dataUrl;
-
-              const preview = document.getElementById('act-preview-' + slot);
-              const placeholder = document.getElementById('act-ph-' + slot);
-              const removeBtn = document.getElementById('act-remove-' + slot);
-
-              if (preview) {
-                preview.src = dataUrl;
-                preview.style.display = 'block';
-              }
-              if (placeholder) placeholder.style.display = 'none';
-              if (removeBtn) removeBtn.style.display = 'flex';
-            };
-            img.src = e.target.result;
-          };
-          reader.readAsDataURL(file);
+          processActivityImageTo4x3(input.files[0], function(dataUrl) {
+            setActPhotoSlot(slot, dataUrl);
+          });
         }
+      }
+
+      // 🖼️ เลือกภาพพร้อมกัน 4 ภาพได้เลย (Item 9)
+      function handleActMultiPhotoChange(input) {
+        if (!input.files || input.files.length === 0) return;
+        let files = Array.from(input.files);
+        if (files.length > 4) {
+          cuteAlert('เลือกได้สูงสุด 4 ภาพนะคะ ระบบจะนำเข้า 4 ภาพแรกให้อัตโนมัติค่ะ', 'แจ้งเตือนรูปภาพ', '🖼️');
+          files = files.slice(0, 4);
+        }
+
+        if (files.length === 4) {
+          files.forEach((file, idx) => {
+            processActivityImageTo4x3(file, dataUrl => setActPhotoSlot(idx, dataUrl));
+          });
+        } else {
+          // ใส่ลงช่องที่ว่างก่อน หากเต็มแล้วเริ่มแทนที่จากช่อง 0
+          let targetSlots = [];
+          for (let i = 0; i < 4 && targetSlots.length < files.length; i++) {
+            if (!activityPhotos[i]) targetSlots.push(i);
+          }
+          for (let i = 0; i < 4 && targetSlots.length < files.length; i++) {
+            if (!targetSlots.includes(i)) targetSlots.push(i);
+          }
+          files.forEach((file, i) => {
+            const slot = targetSlots[i];
+            processActivityImageTo4x3(file, dataUrl => setActPhotoSlot(slot, dataUrl));
+          });
+        }
+        input.value = '';
       }
 
       function removeActPhoto(slot, ev) {
@@ -5153,20 +5676,45 @@
         if (removeBtn) removeBtn.style.display = 'none';
       }
 
+      function _escReportHtml(s) {
+        if (!s) return '';
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function scaleActivityReportPreview() {
+        const scrollWrap = document.getElementById('activityPreviewScroll');
+        const scaleBox = document.getElementById('activityScaleBox');
+        if (!scrollWrap || !scaleBox) return;
+        const availW = scrollWrap.clientWidth - 12;
+        const sheetW = 794;
+        const sheetH = 1122;
+        const scale = Math.min(1, availW / sheetW);
+        scaleBox.style.transform = 'scale(' + scale + ')';
+        scaleBox.style.width = sheetW + 'px';
+        scaleBox.style.height = Math.ceil(sheetH * scale) + 'px';
+      }
+      window.addEventListener('resize', scaleActivityReportPreview);
+
+      // ✨ จัดทำเอกสารและเปิดหน้าพรีวิว (หน้าถัดไป: สั่งพิมพ์ / บันทึกไฟล์)
       function generateActivityReportDoc() {
         const titleEl = document.getElementById('act-title');
         const title = (titleEl ? titleEl.value : '').trim();
         if (!title) {
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              icon: 'warning',
-              title: 'กรุณาระบุชื่อกิจกรรม',
-              text: 'โปรดกรอกชื่อกิจกรรมก่อนจัดทำรายงาน',
-              confirmButtonColor: '#2D6A4F'
-            });
-          } else {
-            alert('⚠️ กรุณาระบุชื่อกิจกรรมก่อนจัดทำรายงาน');
-          }
+          cutePromptInputs({
+            icon: '📋',
+            title: 'กรอกชื่อกิจกรรมก่อนจัดทำนะ',
+            message: 'กรุณาระบุชื่อกิจกรรมด้านล่างเพื่อจัดทำรายงานทันทีค่ะ',
+            fields: [
+              { key: 'title', targetId: 'act-title', label: '🏷️ ชื่อกิจกรรม', placeholder: 'เช่น กิจกรรมสัปดาห์ส่งเสริมการอ่าน' }
+            ],
+            confirmText: 'จัดทำเลย ✨',
+            onSubmit: function() { generateActivityReportDoc(); }
+          });
           return;
         }
 
@@ -5178,12 +5726,10 @@
           desc = 'ได้ดำเนินการจัดกิจกรรมตามวัตถุประสงค์เพื่อส่งเสริมให้นักเรียนมีนิสัยรักการอ่าน เกิดการเรียนรู้ด้วยตนเอง และพัฒนาทักษะการศึกษาค้นคว้าอย่างมีประสิทธิภาพ';
         }
 
-        // อ่านคำบรรยายรูปภาพทั้ง 4 ภาพ
-        const cap0 = (document.getElementById('act-caption-0') ? document.getElementById('act-caption-0').value : '').trim();
-        const cap1 = (document.getElementById('act-caption-1') ? document.getElementById('act-caption-1').value : '').trim();
-        const cap2 = (document.getElementById('act-caption-2') ? document.getElementById('act-caption-2').value : '').trim();
-        const cap3 = (document.getElementById('act-caption-3') ? document.getElementById('act-caption-3').value : '').trim();
-        const captions = [cap0, cap1, cap2, cap3];
+        const captions = [0, 1, 2, 3].map(i => {
+          const el = document.getElementById('act-caption-' + i);
+          return (el ? el.value : '').trim();
+        });
 
         const thaiMonths = [
           'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
@@ -5200,35 +5746,16 @@
             formattedThaiDate = `วันที่ ${d} ${thaiMonths[mIdx] || parts[1]} ${yBE}`;
           }
         }
-        // เอาคำว่า พ.ศ. ออกในแผ่นรายงานทั้งหมดตามคำสั่ง
+        // เอาคำว่า พ.ศ. ออกในแผ่นรายงาน
         formattedThaiDate = formattedThaiDate.replace(/พ\.ศ\.\s*/g, '').trim();
 
-        function esc(s) {
-          if (!s) return '';
-          return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-        }
-
-        const win = window.open('', '_blank');
-        if (!win) {
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              icon: 'warning',
-              title: 'เบราว์เซอร์บล็อกหน้าต่างใหม่',
-              text: 'กรุณาอนุญาต Pop-up เพื่อเปิดหน้าพิมพ์รายงาน',
-              confirmButtonColor: '#2D6A4F'
-            });
-          } else {
-            alert('⚠️ กรุณาอนุญาต Pop-up เพื่อเปิดหน้าพิมพ์รายงาน');
-          }
-          return;
-        }
-
-        win.document.write("<h3 style='font-family:Sarabun,sans-serif; text-align:center; padding:30px;'>⏳ กำลังจัดทำเอกสารรายงาน...</h3>");
+        currentActivityMeta = {
+          title: title,
+          date: formattedThaiDate,
+          participants: participants,
+          desc: desc,
+          fileBaseName: 'รายงานกิจกรรม_' + title.replace(/[\\/:*?"<>|]/g, '_')
+        };
 
         let photosHtml = '';
         for (let i = 0; i < 4; i++) {
@@ -5238,9 +5765,9 @@
             photosHtml += `
               <div class="photo-cell">
                 <div class="photo-frame">
-                  <img src="${pUrl}" alt="${esc(capText)}">
+                  <img src="${pUrl}" alt="${_escReportHtml(capText)}">
                 </div>
-                <div class="photo-caption">ภาพที่ ${i + 1}: ${esc(capText)}</div>
+                <div class="photo-caption">ภาพที่ ${i + 1}: ${_escReportHtml(capText)}</div>
               </div>
             `;
           } else {
@@ -5248,551 +5775,315 @@
               <div class="photo-cell">
                 <div class="photo-frame" style="border: 1px dashed #aaa; background: #fafafa;">
                   <div class="photo-placeholder">
-                    <span style="font-size: 20px;">🖼️</span>
-                    <span>ภาพบรรยากาศกิจกรรม (${i + 1})</span>
+                    <span style="font-size: 24px;">🖼️</span>
+                    <span>ภาพกิจกรรม (${i + 1}) (4:3)</span>
                   </div>
                 </div>
-                <div class="photo-caption">ภาพที่ ${i + 1}: ${esc(capText)}</div>
+                <div class="photo-caption">ภาพที่ ${i + 1}: ${_escReportHtml(capText)}</div>
               </div>
             `;
           }
         }
 
-        const cleanFileTitle = title.replace(/[\\/:*?"<>|]/g, '_');
-        const pdfFileName = `รายงานกิจกรรม_${cleanFileTitle}`;
-        const webAppUrl = typeof GAS_WEB_APP_URL !== 'undefined' ? GAS_WEB_APP_URL : 'https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec';
+        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        const esignSrc = cachedReportAssets.esign || 'https://i.postimg.cc/nzVVQTzW/esign.png';
 
-        const fullHtml = `<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <title>แบบรายงานผลการจัดกิจกรรม - ${esc(title)}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      font-family: 'Sarabun', 'TH Sarabun New', sans-serif !important;
-    }
-    @page {
-      size: A4 portrait;
-      margin: 10mm 15mm 10mm 15mm;
-    }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: #f0f2f5;
-      color: #000;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .no-print {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 16px;
-      background: #1B4332;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    .print-btn {
-      background: #40916C;
-      color: white;
-      border: none;
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-size: 13.5px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.2s;
-    }
-    .print-btn:hover {
-      background: #2D6A4F;
-    }
-    .btn-save-pdf {
-      background: #2D6A4F;
-    }
-    .btn-save-pdf:hover {
-      background: #1B4332;
-    }
-    .btn-save-drive {
-      background: #0284C7;
-    }
-    .btn-save-drive:hover {
-      background: #0369A1;
-    }
-    .close-btn {
-      background: #555;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13.5px;
-      cursor: pointer;
-    }
-    .page-wrap {
-      padding: 20px 10px;
-      display: flex;
-      justify-content: center;
-    }
-    .a4-sheet {
-      width: 210mm;
-      min-height: 297mm;
-      max-height: 297mm;
-      padding: 12mm 15mm 10mm 15mm;
-      background: white;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
-      margin: 0 auto;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
-      page-break-inside: avoid;
-      page-break-after: avoid;
-    }
-    @media print {
-      body {
-        background: white;
-      }
-      .no-print {
-        display: none !important;
-      }
-      .page-wrap {
-        padding: 0 !important;
-      }
-      .a4-sheet {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-height: 100% !important;
-        max-height: 277mm !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        margin: 0 !important;
-      }
-    }
+        const sheetHtml = `
+          <div class="a4-sheet" id="active-a4-sheet">
+            <div>
+              <div class="gov-header">
+                <img src="${logoSrc}" crossorigin="anonymous" class="gov-logo" alt="ตราโรงเรียน">
+                <div class="gov-org">โรงเรียนวัดหนองตะเฆ่</div>
+                <div class="gov-doc-title">รายงานกิจกรรม</div>
+              </div>
+              <hr class="gov-divider">
 
-    /* Official Government Layout */
-    .gov-header {
-      text-align: center;
-      margin-bottom: 6px;
-    }
-    .gov-logo {
-      height: 52px;
-      width: auto;
-      margin-bottom: 3px;
-    }
-    .gov-org {
-      font-size: 16pt;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-    .gov-area {
-      font-size: 13pt;
-      color: #111;
-      line-height: 1.25;
-    }
-    .gov-doc-title {
-      font-size: 15pt;
-      font-weight: 700;
-      margin-top: 4px;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .gov-divider {
-      border: none;
-      border-bottom: 1.5px solid #000;
-      margin: 6px 0 8px 0;
-    }
+              <div class="gov-details">
+                <div class="gov-row">
+                  <span class="gov-bold">ชื่อกิจกรรม:</span> ${_escReportHtml(title)}
+                </div>
+                <div class="gov-row" style="display: flex; justify-content: space-between;">
+                  <div><span class="gov-bold">วันที่จัดกิจกรรม:</span> ${_escReportHtml(formattedThaiDate)}</div>
+                  <div><span class="gov-bold">จำนวนผู้เข้าร่วม:</span> ${participants ? _escReportHtml(participants) + ' คน' : '-'}</div>
+                </div>
+                <div class="gov-row" style="margin-top: 4px;">
+                  <span class="gov-bold">รายละเอียดและผลการดำเนินงาน:</span>
+                  <div class="gov-desc">${_escReportHtml(desc)}</div>
+                </div>
+              </div>
 
-    /* Activity Details */
-    .gov-details {
-      font-size: 13.5pt;
-      line-height: 1.45;
-      color: #000;
-    }
-    .gov-row {
-      margin-bottom: 3px;
-    }
-    .gov-bold {
-      font-weight: 700;
-    }
-    .gov-desc {
-      text-indent: 2.2cm;
-      text-align: justify;
-      margin-top: 2px;
-      line-height: 1.42;
-      font-size: 13pt;
-    }
-
-    /* Photo Grid 2x2 */
-    .photo-container {
-      margin-top: 6px;
-    }
-    .photo-title {
-      font-size: 13pt;
-      font-weight: 700;
-      margin-bottom: 4px;
-      text-align: left;
-    }
-    .photo-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-gap: 8px 12px;
-    }
-    .photo-cell {
-      text-align: center;
-    }
-    .photo-frame {
-      width: 100%;
-      height: 144px;
-      border: 1px solid #777;
-      border-radius: 4px;
-      background: #fafafa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    .photo-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .photo-placeholder {
-      font-size: 11pt;
-      color: #888;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-    .photo-caption {
-      font-size: 10.5pt;
-      color: #222;
-      margin-top: 2px;
-      line-height: 1.3;
-    }
-
-    /* Signature Section */
-    .gov-signatures {
-      margin-top: 8px;
-      padding-top: 6px;
-    }
-    .sig-table {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .sig-cell {
-      width: 48%;
-      text-align: center;
-      font-size: 13pt;
-      line-height: 1.35;
-    }
-    .sig-line-box {
-      min-height: 54px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .sig-img {
-      height: 52px;
-      max-width: 175px;
-      object-fit: contain;
-    }
-    .sig-name {
-      font-weight: 600;
-      margin-top: 4px;
-    }
-    .sig-position {
-      font-size: 12pt;
-      color: #333;
-    }
-  </style>
-</head>
-<body>
-  <div class="no-print">
-    <button class="print-btn" onclick="window.print()">🖨️ พิมพ์รายงาน</button>
-    <button class="print-btn btn-save-pdf" id="btn-download-pdf" onclick="downloadPdfDirect()">📥 บันทึกรายงาน (PDF) ลงเครื่อง</button>
-    <button class="print-btn btn-save-drive" id="btn-save-drive" onclick="saveReportToDrive()">☁️ บันทึกรายงานลง Drive</button>
-    <button class="close-btn" onclick="window.close()">❌ ปิดหน้านี้</button>
-  </div>
-
-  <div class="page-wrap">
-    <div class="a4-sheet" id="report-sheet">
-      <!-- ส่วนหัวเอกสารราชการ -->
-      <div>
-        <div class="gov-header">
-          <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="gov-logo" alt="ตราโรงเรียน">
-          <div class="gov-org">โรงเรียนวัดหนองตะเฆ่</div>
-          <div class="gov-area">สำนักงานเขตพื้นที่การศึกษาประถมศึกษาสระบุรี เขต ๒</div>
-          <div class="gov-doc-title">แบบรายงานผลการจัดกิจกรรมส่งเสริมการเรียนรู้ห้องสมุด</div>
-        </div>
-        <hr class="gov-divider">
-
-        <!-- รายละเอียดกิจกรรม -->
-        <div class="gov-details">
-          <div class="gov-row">
-            <span class="gov-bold">ชื่อกิจกรรม:</span> ${esc(title)}
-          </div>
-          <div class="gov-row" style="display: flex; justify-content: space-between;">
-            <div><span class="gov-bold">วันที่จัดกิจกรรม:</span> ${esc(formattedThaiDate)}</div>
-            <div><span class="gov-bold">จำนวนผู้เข้าร่วม:</span> ${participants ? esc(participants) + ' คน' : '-'}</div>
-          </div>
-          <div class="gov-row" style="margin-top: 4px;">
-            <span class="gov-bold">รายละเอียดและผลการดำเนินงาน:</span>
-            <div class="gov-desc">${esc(desc)}</div>
-          </div>
-        </div>
-
-        <!-- รูปภาพกิจกรรม 4 ภาพ จัดวางสมมาตร -->
-        <div class="photo-container">
-          <div class="photo-title">ภาพบรรยากาศการจัดกิจกรรม</div>
-          <div class="photo-grid">
-            ${photosHtml}
-          </div>
-        </div>
-      </div>
-
-      <!-- ส่วนลงชื่อท้ายเอกสาร (รูปแบบราชการไทย) -->
-      <div class="gov-signatures">
-        <div class="sig-table">
-          <!-- ผู้รับผิดชอบกิจกรรม -->
-          <div class="sig-cell">
-            <div class="sig-line-box">
-              <span style="font-size: 13.5pt;">ลงชื่อ</span>
-              <img src="https://i.postimg.cc/nzVVQTzW/esign.png" alt="ลายเซ็นผู้รับผิดชอบ" class="sig-img">
-              <span style="font-size: 13.5pt;">ผู้รับผิดชอบกิจกรรม</span>
+              <div class="photo-container">
+                <div class="photo-title">ภาพบรรยากาศการจัดกิจกรรม</div>
+                <div class="photo-grid">
+                  ${photosHtml}
+                </div>
+              </div>
             </div>
-            <div class="sig-name">(นายพันธกานต์ ขวัญใจ)</div>
-            <div class="sig-position">ตำแหน่ง ผู้รับผิดชอบงานห้องสมุด</div>
-          </div>
 
-          <!-- ผู้อำนวยการโรงเรียน -->
-          <div class="sig-cell">
-            <div class="sig-line-box" style="align-items: flex-end; padding-bottom: 6px;">
-              <span style="font-size: 13.5pt;">ลงชื่อ ............................................................</span>
+            <div class="gov-signatures">
+              <div class="sig-table">
+                <div class="sig-cell">
+                  <div class="sig-line-box">
+                    <span>ลงชื่อ</span>
+                    <img src="${esignSrc}" crossorigin="anonymous" alt="ลายเซ็น" class="sig-img">
+                  </div>
+                  <div class="sig-name">(นายพันธกานต์ ขวัญใจ)</div>
+                  <div class="sig-position">ผู้รับผิดชอบกิจกรรม</div>
+                </div>
+
+                <div class="sig-cell">
+                  <div class="sig-line-box sig-line-director">
+                    <span>ลงชื่อ ............................................................</span>
+                  </div>
+                  <div class="sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
+                  <div class="sig-position">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
+                </div>
+              </div>
             </div>
-            <div class="sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
-            <div class="sig-position">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
+        `;
 
-  <script>
-    function downloadPdfDirect() {
-      const btn = document.getElementById('btn-download-pdf');
-      const origText = btn ? btn.innerHTML : '';
-      if (btn) btn.innerHTML = '⏳ กำลังสร้าง PDF...';
+        document.getElementById('activityReportSheetMount').innerHTML = sheetHtml;
+        closeActivityReportModal();
+        const prevModal = document.getElementById('activityPreviewModal');
+        if (prevModal) prevModal.style.display = 'flex';
+        if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        setTimeout(scaleActivityReportPreview, 30);
+      }
 
-      if (typeof html2pdf !== 'undefined') {
-        const element = document.getElementById('report-sheet');
-        const opt = {
-          margin: [10, 15, 10, 15],
-          filename: '${pdfFileName}.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save().then(function() {
-          if (btn) btn.innerHTML = origText;
-        }).catch(function(e) {
-          console.error(e);
+      // 🖨️ สั่งพิมพ์รายงาน (1 หน้า A4)
+      function printActivityReport() {
+        const mount = document.getElementById('activityReportSheetMount');
+        const printContainer = document.getElementById('print-only-report-container');
+        if (!mount || !printContainer) return;
+        printContainer.innerHTML = mount.innerHTML;
+        document.body.classList.add('printing-activity-report');
+        setTimeout(() => {
           window.print();
-          if (btn) btn.innerHTML = origText;
-        });
-      } else {
-        window.print();
-        if (btn) btn.innerHTML = origText;
-      }
-    }
-
-    function saveReportToDrive() {
-      const btn = document.getElementById('btn-save-drive');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '⏳ กำลังบันทึก...';
+          setTimeout(() => {
+            document.body.classList.remove('printing-activity-report');
+          }, 500);
+        }, 120);
       }
 
-      const reportPayload = {
-        title: ${JSON.stringify(title)},
-        date: ${JSON.stringify(formattedThaiDate)},
-        participants: ${JSON.stringify(participants)},
-        desc: ${JSON.stringify(desc)},
-        htmlContent: document.documentElement.outerHTML
-      };
-
-      if (window.opener && typeof window.opener.saveActivityReportDirectToDrive === 'function') {
-        window.opener.saveActivityReportDirectToDrive(reportPayload, function(res) {
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '☁️ บันทึกรายงานลง Drive';
-          }
-        });
-        return;
+      // 💾 ระบบบันทึกไฟล์ 2 ขั้นตอน: เลือกรูปแบบ (รูปภาพ/PDF) -> เลือกสถานที่ (ลงเครื่อง/Drive) (Item 8)
+      function openSaveFormatModal() {
+        document.getElementById('save-opt-icon').innerText = '💾';
+        document.getElementById('save-opt-title').innerText = 'เลือกรูปแบบไฟล์';
+        document.getElementById('save-opt-sub').innerText = 'ต้องการบันทึกเป็นรูปภาพ หรือเอกสาร PDF คะ?';
+        document.getElementById('save-step-format').style.display = 'flex';
+        document.getElementById('save-step-dest').style.display = 'none';
+        document.getElementById('saveOptionModal').style.display = 'flex';
       }
 
-      fetch("https://script.google.com/macros/s/AKfycbw1QC6HBH8N1oyCpYleXnXBx7u5TS32wYjbxNe309VCQQhtOE4Mpe2KlUwMo67yqXN1LA/exec", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'saveActivityReportToDrive', args: [reportPayload] })
-      }).then(function(r) { return r.json(); }).then(function(res) {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '☁️ บันทึกรายงานลง Drive';
-        }
-        if (res && res.status === 'success') {
-          alert('✅ ' + (res.msg || 'บันทึกรายงานลง Google Drive เรียบร้อยแล้ว') + '\n\nเปิดดูใน Drive: ' + (res.folderUrl || res.fileUrl));
-        } else {
-          alert(res && res.msg ? res.msg : 'ส่งคำขอบันทึกเรียบร้อย');
-        }
-      }).catch(function(err) {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '☁️ บันทึกรายงานลง Drive';
-        }
-        alert('ส่งคำขอบันทึกลง Drive เรียบร้อย');
-      });
-    }
-  <\/script>
-</body>
-</html>`;
-
-        win.document.open();
-        win.document.write(fullHtml);
-        win.document.close();
+      function closeSaveOptionModal() {
+        document.getElementById('saveOptionModal').style.display = 'none';
       }
 
-      // ☁️ ฟังก์ชันบันทึกรายงานกิจกรรมห้องสมุดลง Google Drive โดยตรง
-      function saveActivityReportDirectToDrive(customData, callback) {
-        let payload = customData;
-        if (!payload) {
-          const titleEl = document.getElementById('act-title');
-          const title = (titleEl ? titleEl.value : '').trim();
-          if (!title) {
-            if (typeof Swal !== 'undefined') {
-              Swal.fire({
-                icon: 'warning',
-                title: 'กรุณาระบุชื่อกิจกรรม',
-                text: 'โปรดกรอกชื่อกิจกรรมก่อนบันทึกลง Drive',
-                confirmButtonColor: '#2D6A4F'
-              });
-            } else {
-              alert('⚠️ กรุณาระบุชื่อกิจกรรมก่อนบันทึกลง Drive');
-            }
-            return;
-          }
-          const dateVal = document.getElementById('act-date') ? document.getElementById('act-date').value : '';
-          const dateDisplay = document.getElementById('act-date-display') ? document.getElementById('act-date-display').value.trim() : '';
-          const participants = document.getElementById('act-participants') ? document.getElementById('act-participants').value.trim() : '';
-          const desc = document.getElementById('act-desc') ? document.getElementById('act-desc').value.trim() : '';
+      function chooseSaveFormat(format) {
+        selectedSaveFormat = format;
+        const label = format === 'image' ? '🖼️ รูปภาพ (PNG)' : '📄 เอกสาร PDF';
+        document.getElementById('save-opt-icon').innerText = format === 'image' ? '🖼️' : '📄';
+        document.getElementById('save-opt-title').innerText = 'เลือกสถานที่เก็บไฟล์';
+        document.getElementById('save-opt-sub').innerText = 'รูปแบบที่เลือก: ' + label;
+        document.getElementById('save-step-format').style.display = 'none';
+        document.getElementById('save-step-dest').style.display = 'flex';
+      }
 
-          const thaiMonths = [
-            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-          ];
-          let formattedThaiDate = dateDisplay || 'ไม่ระบุวันที่';
-          if (dateVal) {
-            const parts = dateVal.split('-');
-            if (parts.length === 3) {
-              const yCE = parseInt(parts[0], 10);
-              const yBE = yCE > 2400 ? yCE : yCE + 543;
-              const mIdx = parseInt(parts[1], 10) - 1;
-              const d = parseInt(parts[2], 10);
-              formattedThaiDate = `วันที่ ${d} ${thaiMonths[mIdx] || parts[1]} ${yBE}`;
-            }
-          }
-          formattedThaiDate = formattedThaiDate.replace(/พ\.ศ\.\s*/g, '').trim();
+      function backToSaveFormatStep() {
+        openSaveFormatModal();
+      }
 
-          payload = {
-            title: title,
-            date: formattedThaiDate,
-            participants: participants,
-            desc: desc
-          };
-        }
+      // 📸 แปลง A4 Sheet เป็น Canvas ความละเอียดสูง (ไม่เพี้ยนบนมือถือ iOS/Android)
+      async function _renderReportToCanvas() {
+        const srcSheet = document.getElementById('active-a4-sheet');
+        if (!srcSheet) throw new Error('ไม่พบเอกสารรายงาน');
+        if (typeof html2canvas === 'undefined') throw new Error('กำลังโหลดตัวแปลงไฟล์ กรุณารอสักครู่แล้วลองใหม่ค่ะ');
 
-        if (typeof Swal !== 'undefined') {
-          Swal.fire({
-            title: 'กำลังบันทึกรายงานลง Google Drive...',
-            html: 'ระบบกำลังส่งออกเอกสารและบันทึกลงโฟลเดอร์สำรองข้อมูลใน Drive',
-            allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            }
+        const host = document.createElement('div');
+        host.style.position = 'fixed';
+        host.style.left = '-99999px';
+        host.style.top = '0';
+        host.style.width = '794px';
+        host.style.height = '1122px';
+        host.style.zIndex = '-1';
+        host.style.background = '#ffffff';
+        const clone = srcSheet.cloneNode(true);
+        clone.id = '';
+        clone.style.boxShadow = 'none';
+        clone.style.margin = '0';
+        host.appendChild(clone);
+        document.body.appendChild(host);
+
+        // รอให้รูปภาพทั้งหมดใน clone โหลดสมบูรณ์
+        const imgs = Array.from(clone.querySelectorAll('img'));
+        await Promise.all(imgs.map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(res => { img.onload = res; img.onerror = res; });
+        }));
+
+        try {
+          const canvas = await html2canvas(clone, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: '#ffffff',
+            width: 794,
+            height: 1122,
+            windowWidth: 794,
+            windowHeight: 1122
           });
+          return canvas;
+        } finally {
+          document.body.removeChild(host);
         }
+      }
+
+      async function executeReportExport(dest) {
+        closeSaveOptionModal();
+        const loader = document.getElementById('tx-loader');
+        const loaderTxt = document.getElementById('tx-loader-text');
+        if (loaderTxt) {
+          loaderTxt.innerText = dest === 'drive'
+            ? 'กำลังสร้างไฟล์และบันทึกลง Google Drive...'
+            : 'กำลังเตรียมไฟล์สำหรับบันทึกลงเครื่อง...';
+        }
+        if (loader) loader.style.display = 'flex';
+
+        try {
+          const canvas = await _renderReportToCanvas();
+          const meta = currentActivityMeta || { title: 'รายงานกิจกรรม', date: '', fileBaseName: 'รายงานกิจกรรม' };
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+          if (selectedSaveFormat === 'image') {
+            const pngDataUrl = canvas.toDataURL('image/png');
+            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const fileName = meta.fileBaseName + '.png';
+
+            if (dest === 'device') {
+              if (loader) loader.style.display = 'none';
+              await _saveBlobToDevice(pngBlob, pngDataUrl, fileName, 'image/png', isIOS);
+            } else {
+              await _uploadReportFileToDrive('image', pngDataUrl, meta, loader);
+            }
+          } else {
+            // PDF
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+              throw new Error('กำลังโหลดตัวสร้าง PDF กรุณาลองอีกครั้งค่ะ');
+            }
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            pdf.addImage(jpegDataUrl, 'JPEG', 0, 0, 210, 297);
+            const fileName = meta.fileBaseName + '.pdf';
+
+            if (dest === 'device') {
+              const pdfBlob = pdf.output('blob');
+              const pdfDataUri = pdf.output('datauristring');
+              if (loader) loader.style.display = 'none';
+              await _saveBlobToDevice(pdfBlob, pdfDataUri, fileName, 'application/pdf', isIOS);
+            } else {
+              const pdfBase64 = pdf.output('datauristring');
+              await _uploadReportFileToDrive('pdf', pdfBase64, meta, loader);
+            }
+          }
+        } catch (err) {
+          if (loader) loader.style.display = 'none';
+          cuteAlert('เกิดข้อผิดพลาดในการสร้างไฟล์: ' + (err.message || err), 'บันทึกไฟล์ไม่สำเร็จ', '❌');
+        }
+      }
+
+      // 📱 บันทึกไฟล์ลงเครื่องรองรับทั้ง iOS (Share Sheet + Image Fallback) และ Android/PC (Item 6)
+      async function _saveBlobToDevice(blob, dataUrl, fileName, mimeType, isIOS) {
+        const file = new File([blob], fileName, { type: mimeType });
+
+        // 1. บนมือถือ iOS / Android: ลองใช้ Native Share Sheet (บันทึกรูปลง Photos หรือบันทึกลงแอป "ไฟล์" ได้ทันที!)
+        if (isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: fileName
+            });
+            cuteAlert('บันทึกไฟล์เรียบร้อยแล้วค่ะ (หากเลือก "บันทึกรูปภาพ" หรือ "บันทึกลงแอปไฟล์" ไฟล์จะอยู่ในเครื่องทันที)', 'บันทึกสำเร็จ', '✅');
+            return;
+          } catch (shareErr) {
+            if (shareErr && shareErr.name === 'AbortError') return;
+          }
+        }
+
+        // 2. Fallback สำหรับ iOS (กรณี PWA / WebView ที่ไม่รองรับ Web Share File)
+        if (isIOS) {
+          const fallbackModal = document.getElementById('iosSaveFallbackModal');
+          const titleEl = document.getElementById('ios-save-title');
+          const bodyEl = document.getElementById('ios-save-body');
+          const blobUrl = URL.createObjectURL(blob);
+
+          if (mimeType === 'image/png') {
+            titleEl.innerText = '🖼️ บันทึกรูปภาพลง iPhone / iPad';
+            bodyEl.innerHTML = `
+              <div style="margin-bottom: 10px; color: var(--primary); font-weight: 700;">👇 แตะค้างที่รูปภาพด้านล่าง แล้วเลือก "บันทึกรูปภาพ" (Save to Photos)</div>
+              <img src="${dataUrl}" style="width: 100%; border-radius: 10px; border: 1.5px solid #D8F3DC; margin-bottom: 12px;">
+              <a href="${blobUrl}" download="${_escReportHtml(fileName)}" class="action-btn" style="display: inline-flex; align-items:center; justify-content:center; width:100%; box-sizing:border-box; margin:0; text-decoration:none; border-radius: 14px;">📥 ดาวน์โหลดไฟล์รูปภาพ</a>
+            `;
+          } else {
+            titleEl.innerText = '📄 บันทึก PDF ลง iPhone / iPad';
+            bodyEl.innerHTML = `
+              <div style="margin-bottom: 12px;">กดปุ่มด้านล่างเพื่อเปิดเอกสาร PDF จากนั้นแตะไอคอน <b>แชร์ (⬆️)</b> ด้านล่างหน้าจอ แล้วเลือก <b>"บันทึกลงแอปไฟล์" (Save to Files)</b> ค่ะ</div>
+              <a href="${blobUrl}" target="_blank" download="${_escReportHtml(fileName)}" class="action-btn" style="display: inline-flex; align-items:center; justify-content:center; width:100%; box-sizing:border-box; margin:0; text-decoration:none; border-radius: 14px; background: linear-gradient(135deg, #F59E0B, #D97706);">📄 เปิด / ดาวน์โหลด PDF</a>
+            `;
+          }
+          fallbackModal.style.display = 'flex';
+          return;
+        }
+
+        // 3. บน PC / Android: ดาวน์โหลดไฟล์ลงเครื่องอัตโนมัติทันที
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        cuteAlert('ดาวน์โหลดไฟล์ "' + fileName + '" ลงเครื่องเรียบร้อยแล้วค่ะ', 'บันทึกสำเร็จ', '✅');
+      }
+
+      // ☁️ อัปโหลดไฟล์รูปภาพ/PDF ขึ้น Google Drive
+      function _uploadReportFileToDrive(fileType, base64Data, meta, loader) {
+        const payload = {
+          title: meta.title,
+          date: meta.date,
+          participants: meta.participants,
+          desc: meta.desc,
+          fileType: fileType,
+          base64Data: base64Data
+        };
 
         google.script.run
           .withSuccessHandler(function(res) {
-            if (callback) callback(res);
+            if (loader) loader.style.display = 'none';
             if (res && res.status === 'success') {
-              if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'บันทึกรายงานลง Drive สำเร็จ!',
-                  html: `<div style="text-align:left; font-size:13px; line-height:1.6;">
-                           <div>📁 <b>ชื่อไฟล์:</b> ${res.fileName || 'รายงานกิจกรรม.pdf'}</div>
-                           <div style="margin-top:8px;">บันทึกในโฟลเดอร์ <b>WNTK_Library_Backups</b> บน Google Drive เรียบร้อยแล้ว</div>
-                         </div>`,
-                  confirmButtonText: '📂 เปิดดูใน Google Drive',
-                  showCancelButton: true,
-                  cancelButtonText: 'ปิด',
-                  confirmButtonColor: '#2D6A4F'
-                }).then((choice) => {
-                  if (choice.isConfirmed && (res.fileUrl || res.folderUrl)) {
-                    window.open(res.fileUrl || res.folderUrl, '_blank');
-                  }
-                });
-              } else {
-                alert('✅ บันทึกรายงานลง Google Drive สำเร็จ');
-              }
+              cuteConfirm(
+                'บันทึกรายงาน "' + (res.fileName || '') + '" ลงโฟลเดอร์ WNTK_Library_Backups ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมคะ?',
+                'บันทึกลง Drive สำเร็จ!',
+                '✅'
+              ).then(openNow => {
+                if (openNow && (res.fileUrl || res.folderUrl)) {
+                  window.open(res.fileUrl || res.folderUrl, '_blank');
+                }
+              });
             } else {
-              if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'เกิดข้อผิดพลาด',
-                  text: res && res.msg ? res.msg : 'ไม่สามารถบันทึกลง Drive ได้',
-                  confirmButtonColor: '#2D6A4F'
-                });
-              } else {
-                alert('❌ ' + (res && res.msg ? res.msg : 'เกิดข้อผิดพลาด'));
-              }
+              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกลง Google Drive ได้ค่ะ', 'เกิดข้อผิดพลาด', '❌');
             }
           })
           .withFailureHandler(function(err) {
-            if (callback) callback({ status: 'error', msg: err });
-            if (typeof Swal !== 'undefined') {
-              Swal.fire({
-                icon: 'error',
-                title: 'เกิดข้อผิดพลาด',
-                text: err.toString(),
-                confirmButtonColor: '#2D6A4F'
-              });
-            } else {
-              alert('❌ ' + err.toString());
-            }
+            if (loader) loader.style.display = 'none';
+            cuteAlert('เกิดข้อผิดพลาดในการบันทึกลง Drive: ' + err, 'เกิดข้อผิดพลาด', '❌');
           })
           .saveActivityReportToDrive(payload);
       }
 
-      // 📱 PWA Service Worker Registration
+// 📱 PWA Service Worker Registration
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('./sw.js').catch(function() {});
