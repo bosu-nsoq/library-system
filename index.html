@@ -1550,9 +1550,7 @@
 
                         cuteAlert("กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ก่อนใช้งานครับ", "ตั้งค่าระบบ", "⚙️");
 
-                        if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
-
-                        if (document.getElementById('login-loader')) hideLoadingPopup();
+                        hideLoadingPopup();
 
                         return;
 
@@ -1578,9 +1576,7 @@
 
                         console.error("API Error:", err);
 
-                        if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
-
-                        if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                        hideLoadingPopup();
 
                         if (failureCb) failureCb(err);
 
@@ -2328,13 +2324,18 @@
 
           input.blur(); // ✅ ย่อคีย์บอร์ดมือถือลงทันทีเมื่อกรอกรหัส PIN ครบ 4 หลัก
 
-          showLoadingPopup(); 
+          showLoadingPopup();
 
-          google.script.run.withSuccessHandler(function(res) {
+          google.script.run
+            .withFailureHandler(function(err) {
+              hideLoadingPopup();
+              cuteAlert("ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้งครับ", "เข้าสู่ระบบไม่สำเร็จ", "❌");
+            })
+            .withSuccessHandler(function(res) {
 
-            document.getElementById('login-loader').style.display = 'none'; 
+            hideLoadingPopup();
 
-            if (res.status === "success") { 
+            if (res && res.status === "success") { 
 
                currentUser = res.name; 
                currentUserRole = res.role || "admin";
@@ -2372,6 +2373,7 @@
                loginAttempts++; input.value = ""; 
 
                if (loginAttempts >= 3) startLock(); 
+               else cuteAlert("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้งครับ", "เข้าสู่ระบบไม่สำเร็จ", "🔒");
 
             }
 
@@ -2457,7 +2459,7 @@
 
                searchTimeout = setTimeout(() => {
                   showLoadingPopup();
-                  google.script.run.withSuccessHandler(data => { hideLoadingPopup(); 
+                  google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => { hideLoadingPopup(); 
 
                      if (data && data.student) { 
 
@@ -2519,7 +2521,7 @@
 
               searchTimeout = setTimeout(() => {
                  showLoadingPopup();
-                 google.script.run.withSuccessHandler(data => { hideLoadingPopup(); 
+                 google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => { hideLoadingPopup(); 
 
                     if (data && data.book) { 
 
@@ -3249,7 +3251,7 @@
             showLoadingPopup();
           }
 
-          google.script.run.withSuccessHandler(data => { hideLoadingPopup();
+          google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => { hideLoadingPopup();
 
             if (!data || data.error) {
 
@@ -5097,7 +5099,7 @@
             msgDiv.style.display = "block";
             msgDiv.style.background = "#FFF3BF";
             msgDiv.style.color = "#92400E";
-            msgDiv.innerHTML = "⚠️ ยังไม่ได้อนุญาตสิทธิ์สร้างโฟลเดอร์ Google Drive ใน Apps Script (กรุณากด Run ฟังก์ชัน getOrCreateBackupFolder ใน Apps Script Editor 1 ครั้งเพื่ออนุญาตสิทธิ์ครับ)";
+            msgDiv.innerHTML = "⚠️ ระบบยังรอการอนุญาตสิทธิ์ Google Drive จากบัญชีเจ้าของสคริปต์ (<a href='https://script.google.com/d/1bvWlGEE0ZPz2mlfzvxACIWylj5XWQrb7xdf0QHCbiUqj-WdhQv6FZda9/edit' target='_blank' style='color:#B45309; font-weight:700; text-decoration:underline;'>คลิกที่นี่เพื่อเปิด Apps Script</a> แล้วกด Run ฟังก์ชัน setupWNTKFolder 1 ครั้งครับ)";
           }
         }
 
