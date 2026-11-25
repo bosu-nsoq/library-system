@@ -1332,11 +1332,11 @@
                 <textarea id="act-desc" class="modern-input" rows="3" placeholder="ระบุวัตถุประสงค์ ผลการจัดกิจกรรม หรือประโยชน์ที่นักเรียนและผู้เข้าร่วมได้รับ..." style="width: 100%; box-sizing: border-box; font-size: 12.5px; padding: 9px 12px; resize: vertical; line-height: 1.45;"></textarea>
              </div>
 
-             <!-- รูปภาพกิจกรรม 4 ภาพ (อัตราส่วน 4:3 + เลือกพร้อมกัน 4 ภาพได้) -->
+             <!-- รูปภาพกิจกรรม -->
              <div style="margin-bottom: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                    <label style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">
-                      🖼️ แทรกรูปภาพกิจกรรม (4 ภาพ อัตราส่วน 4:3)
+                      🖼️ แทรกรูปภาพกิจกรรม
                    </label>
                 </div>
 
@@ -1354,7 +1354,7 @@
                          <button type="button" class="act-photo-remove" id="act-remove-0" onclick="removeActPhoto(0, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-0">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 1 (4:3)</span>
+                            <span>ภาพที่ 1</span>
                          </div>
                          <img id="act-preview-0" class="act-photo-preview" alt="ภาพที่ 1">
                          <input type="file" id="act-file-0" accept="image/*" style="display:none;" onchange="handleActPhotoChange(0, this)">
@@ -1368,7 +1368,7 @@
                          <button type="button" class="act-photo-remove" id="act-remove-1" onclick="removeActPhoto(1, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-1">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 2 (4:3)</span>
+                            <span>ภาพที่ 2</span>
                          </div>
                          <img id="act-preview-1" class="act-photo-preview" alt="ภาพที่ 2">
                          <input type="file" id="act-file-1" accept="image/*" style="display:none;" onchange="handleActPhotoChange(1, this)">
@@ -1382,7 +1382,7 @@
                          <button type="button" class="act-photo-remove" id="act-remove-2" onclick="removeActPhoto(2, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-2">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 3 (4:3)</span>
+                            <span>ภาพที่ 3</span>
                          </div>
                          <img id="act-preview-2" class="act-photo-preview" alt="ภาพที่ 3">
                          <input type="file" id="act-file-2" accept="image/*" style="display:none;" onchange="handleActPhotoChange(2, this)">
@@ -1396,7 +1396,7 @@
                          <button type="button" class="act-photo-remove" id="act-remove-3" onclick="removeActPhoto(3, event)" title="ลบภาพนี้">×</button>
                          <div class="act-photo-placeholder" id="act-ph-3">
                             <span style="font-size: 22px;">📷</span>
-                            <span>ภาพที่ 4 (4:3)</span>
+                            <span>ภาพที่ 4</span>
                          </div>
                          <img id="act-preview-3" class="act-photo-preview" alt="ภาพที่ 4">
                          <input type="file" id="act-file-3" accept="image/*" style="display:none;" onchange="handleActPhotoChange(3, this)">
@@ -1424,11 +1424,11 @@
                 ⬅️ แก้ไข
              </button>
              <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-                <button type="button" class="action-btn" style="margin:0; padding: 8px 14px; font-size: 13px; border-radius: 12px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white;" onclick="printActivityReport()">
-                   🖨️ สั่งพิมพ์
+                <button type="button" class="action-btn" id="btn-preview-print" style="margin:0; padding: 8px 13px; font-size: 18px; line-height: 1; border-radius: 12px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white;" onclick="printActivityReport()" title="สั่งพิมพ์">
+                   🖨️
                 </button>
-                <button type="button" class="action-btn" style="margin:0; padding: 8px 14px; font-size: 13px; border-radius: 12px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white;" onclick="openSaveFormatModal()">
-                   💾 บันทึกไฟล์
+                <button type="button" class="action-btn" id="btn-preview-save" style="margin:0; padding: 8px 13px; font-size: 18px; line-height: 1; border-radius: 12px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white;" onclick="openSaveFormatModal()" title="บันทึกไฟล์">
+                   💾
                 </button>
                 <button type="button" class="cute-close-x" onclick="closeActivityPreviewModal()" title="ปิด">✕</button>
              </div>
@@ -1465,7 +1465,7 @@
           <!-- ขั้นตอนที่ 2: เลือกสถานที่เก็บไฟล์ -->
           <div id="save-step-dest" style="display: none; flex-direction: column; gap: 10px;">
              <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 14.5px;" onclick="executeReportExport('device')">
-                📱 บันทึกลงเครื่อง (มือถือ / คอมฯ)
+                📱 บันทึกลงเครื่อง
              </button>
              <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 14.5px;" onclick="executeReportExport('drive')">
                 ☁️ บันทึกลง Google Drive
@@ -5560,7 +5560,7 @@
       function preloadOfficialReportAssets() {
         const assets = [
           { key: 'logo', url: 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png' },
-          { key: 'esign', url: 'https://i.postimg.cc/nzVVQTzW/esign.png' }
+          { key: 'esign', url: 'https://i.postimg.cc/QxjthSg8/esign-(1080-x-720-px).png' }
         ];
         assets.forEach(a => {
           if (cachedReportAssets[a.key]) return;
@@ -5776,7 +5776,7 @@
                 <div class="photo-frame" style="border: 1px dashed #aaa; background: #fafafa;">
                   <div class="photo-placeholder">
                     <span style="font-size: 24px;">🖼️</span>
-                    <span>ภาพกิจกรรม (${i + 1}) (4:3)</span>
+                    <span>ภาพกิจกรรม (${i + 1})</span>
                   </div>
                 </div>
                 <div class="photo-caption">ภาพที่ ${i + 1}: ${_escReportHtml(capText)}</div>
@@ -5786,7 +5786,7 @@
         }
 
         const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
-        const esignSrc = cachedReportAssets.esign || 'https://i.postimg.cc/nzVVQTzW/esign.png';
+        const esignSrc = cachedReportAssets.esign || 'https://i.postimg.cc/QxjthSg8/esign-(1080-x-720-px).png';
 
         const sheetHtml = `
           <div class="a4-sheet" id="active-a4-sheet">
@@ -5794,7 +5794,7 @@
               <div class="gov-header">
                 <img src="${logoSrc}" crossorigin="anonymous" class="gov-logo" alt="ตราโรงเรียน">
                 <div class="gov-org">โรงเรียนวัดหนองตะเฆ่</div>
-                <div class="gov-doc-title">รายงานกิจกรรม</div>
+                <div class="gov-doc-title">รายงานการจัดกิจกรรมห้องสมุด</div>
               </div>
               <hr class="gov-divider">
 
