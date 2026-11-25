@@ -438,7 +438,7 @@
         justify-content: space-between;
         overflow: hidden;
       }
-      .a4-sheet, .a4-sheet *, #print-only-report-container .a4-sheet, #print-only-report-container .a4-sheet * {
+      .a4-sheet, .a4-sheet *, #activityPreviewModal .a4-sheet, #activityPreviewModal .a4-sheet *, #print-only-report-container .a4-sheet, #print-only-report-container .a4-sheet *, #report-export-host .a4-sheet, #report-export-host .a4-sheet * {
         font-family: 'Sarabun', 'TH Sarabun New', sans-serif !important;
       }
       .a4-sheet .gov-header { text-align: center; margin-bottom: 6px; }
@@ -458,25 +458,26 @@
       .a4-sheet .photo-frame img { width: 100%; height: 100%; display: block; }
       .a4-sheet .photo-placeholder { font-size: 14px; color: #888; display: flex; flex-direction: column; align-items: center; gap: 4px; }
       .a4-sheet .photo-caption { font-size: 14px; color: #222; margin-top: 4px; line-height: 1.3; word-break: break-word; }
-      .a4-sheet .gov-signatures { margin-top: 8px; padding-top: 4px; }
+      .a4-sheet .gov-signatures { margin-top: 6px; padding-top: 2px; }
       .a4-sheet .sig-table { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }
-      .a4-sheet .sig-cell { width: 48%; text-align: center; font-size: 17px; line-height: 1.38; }
-      .a4-sheet .sig-line-box { height: 104px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+      .a4-sheet .sig-cell { width: 48%; text-align: center; font-size: 17px; line-height: 1.22; }
+      .a4-sheet .sig-line-box { height: 70px; display: flex; align-items: center; justify-content: center; gap: 6px; overflow: visible; }
       .a4-sheet .sig-line-director { align-items: center; padding-bottom: 0; }
-      .a4-sheet .sig-img { height: 104px; width: auto; max-width: 240px; object-fit: contain; }
-      .a4-sheet .sig-name { font-weight: 600; margin-top: 2px; }
-      .a4-sheet .sig-position { font-size: 16px; color: #222; }
+      .a4-sheet .sig-img { height: 104px; width: auto; max-width: 240px; object-fit: contain; pointer-events: none; }
+      .a4-sheet .sig-name { font-weight: 600; margin-top: -8px; line-height: 1.22; }
+      .a4-sheet .sig-position { font-size: 16px; color: #222; margin-top: 1px; line-height: 1.22; }
 
       #print-only-report-container { display: none; }
       @media print {
         @page { size: A4 portrait; margin: 0; }
-        body.printing-activity-report {
+        html.printing-activity-report, body.printing-activity-report {
           background: white !important;
           margin: 0 !important;
           padding: 0 !important;
           overflow: visible !important;
           position: static !important;
           height: auto !important;
+          touch-action: auto !important;
         }
         body.printing-activity-report > *:not(#print-only-report-container) {
           display: none !important;
@@ -5743,11 +5744,11 @@
             const yBE = yCE > 2400 ? yCE : yCE + 543;
             const mIdx = parseInt(parts[1], 10) - 1;
             const d = parseInt(parts[2], 10);
-            formattedThaiDate = `วันที่ ${d} ${thaiMonths[mIdx] || parts[1]} ${yBE}`;
+            formattedThaiDate = `${d} ${thaiMonths[mIdx] || parts[1]} ${yBE}`;
           }
         }
-        // เอาคำว่า พ.ศ. ออกในแผ่นรายงาน
-        formattedThaiDate = formattedThaiDate.replace(/พ\.ศ\.\s*/g, '').trim();
+        // เอาคำว่า "วันที่" และ "พ.ศ." ออกในแผ่นรายงาน
+        formattedThaiDate = formattedThaiDate.replace(/วันที่\s*/g, '').replace(/พ\.ศ\.\s*/g, '').trim();
 
         currentActivityMeta = {
           title: title,
@@ -5851,19 +5852,79 @@
         setTimeout(scaleActivityReportPreview, 30);
       }
 
-      // 🖨️ สั่งพิมพ์รายงาน (1 หน้า A4)
+      // 🖨️ สั่งพิมพ์รายงาน (1 หน้า A4) รองรับทั้งหน้าต่างพิมพ์แยกและพิมพ์ในหน้าเดิมอัตโนมัติ
       function printActivityReport() {
         const mount = document.getElementById('activityReportSheetMount');
         const printContainer = document.getElementById('print-only-report-container');
-        if (!mount || !printContainer) return;
+        if (!mount) return;
+
+        // 1. เปิดหน้าต่างพิมพ์แบบเดียวกับระบบพิมพ์บัตร/รายงานสถิติ (เสถียรที่สุดบนทุกอุปกรณ์และ GAS iframe)
+        const win = window.open('', '_blank');
+        if (win) {
+          const titleText = (currentActivityMeta && currentActivityMeta.title) ? currentActivityMeta.title : 'รายงานการจัดกิจกรรมห้องสมุด';
+          const docHtml = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'
+            + '<title>' + _escReportHtml(titleText) + '</title>'
+            + '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">'
+            + '<style>'
+            + '*, *::before, *::after { box-sizing: border-box; font-family: "Sarabun", sans-serif !important; }'
+            + '@page { size: A4 portrait; margin: 0; }'
+            + 'html, body { margin: 0; padding: 0; background: #f0f2f5; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
+            + '.print-bar { display: flex; justify-content: center; gap: 10px; padding: 10px; background: #1B4332; position: sticky; top: 0; z-index: 999; }'
+            + '.print-bar button { border: none; border-radius: 10px; padding: 8px 18px; font-size: 16px; cursor: pointer; color: #fff; background: #40916C; }'
+            + '.print-bar button.close-b { background: #64748B; }'
+            + '.wrap { padding: 16px 0; display: flex; justify-content: center; }'
+            + '.a4-sheet { width: 794px; height: 1122px; padding: 40px 56px 34px 56px; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,0.12); display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }'
+            + '.gov-header { text-align: center; margin-bottom: 6px; }'
+            + '.gov-logo { height: 54px; width: auto; margin-bottom: 3px; }'
+            + '.gov-org { font-size: 21px; font-weight: 700; line-height: 1.25; }'
+            + '.gov-doc-title { font-size: 20px; font-weight: 700; margin-top: 4px; text-decoration: underline; text-underline-offset: 4px; }'
+            + '.gov-divider { border: none; border-bottom: 1.5px solid #000; margin: 8px 0 10px 0; }'
+            + '.gov-details { font-size: 17.5px; line-height: 1.48; }'
+            + '.gov-row { margin-bottom: 4px; }'
+            + '.gov-bold { font-weight: 700; }'
+            + '.gov-desc { text-indent: 64px; text-align: justify; margin-top: 3px; line-height: 1.45; font-size: 17px; }'
+            + '.photo-container { margin-top: 10px; }'
+            + '.photo-title { font-size: 17.5px; font-weight: 700; margin-bottom: 8px; }'
+            + '.photo-grid { display: grid; grid-template-columns: 276px 276px; grid-gap: 10px 20px; justify-content: center; margin: 0 auto; }'
+            + '.photo-cell { text-align: center; width: 276px; }'
+            + '.photo-frame { width: 276px; height: 207px; border: 1px solid #666; border-radius: 4px; background: #fafafa; display: flex; align-items: center; justify-content: center; overflow: hidden; }'
+            + '.photo-frame img { width: 100%; height: 100%; display: block; }'
+            + '.photo-placeholder { font-size: 14px; color: #888; display: flex; flex-direction: column; align-items: center; gap: 4px; }'
+            + '.photo-caption { font-size: 14px; color: #222; margin-top: 4px; line-height: 1.3; word-break: break-word; }'
+            + '.gov-signatures { margin-top: 6px; padding-top: 2px; }'
+            + '.sig-table { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }'
+            + '.sig-cell { width: 48%; text-align: center; font-size: 17px; line-height: 1.22; }'
+            + '.sig-line-box { height: 70px; display: flex; align-items: center; justify-content: center; gap: 6px; overflow: visible; }'
+            + '.sig-line-director { align-items: center; padding-bottom: 0; }'
+            + '.sig-img { height: 104px; width: auto; max-width: 240px; object-fit: contain; }'
+            + '.sig-name { font-weight: 600; margin-top: -8px; line-height: 1.22; }'
+            + '.sig-position { font-size: 16px; color: #222; margin-top: 1px; line-height: 1.22; }'
+            + '@media print { .print-bar { display: none !important; } body { background: #fff; } .wrap { padding: 0; } .a4-sheet { width: 210mm; height: 297mm; box-shadow: none; page-break-after: avoid; page-break-inside: avoid; } }'
+            + '</style></head><body>'
+            + '<div class="print-bar"><button onclick="window.print()" title="สั่งพิมพ์">🖨️</button><button class="close-b" onclick="window.close()" title="ปิด">✕</button></div>'
+            + '<div class="wrap">' + mount.innerHTML + '</div>'
+            + '<' + 'script>window.addEventListener("load", function(){ setTimeout(function(){ window.print(); }, 400); });<' + '/script>'
+            + '</body></html>';
+          win.document.open();
+          win.document.write(docHtml);
+          win.document.close();
+          return;
+        }
+
+        // 2. Fallback: พิมพ์ในหน้าเดิมทันทีแบบ Synchronous (กรณี Pop-up ถูกบล็อกหรือโหมด iOS Home Screen PWA)
+        if (!printContainer) return;
         printContainer.innerHTML = mount.innerHTML;
+        document.documentElement.classList.add('printing-activity-report');
         document.body.classList.add('printing-activity-report');
-        setTimeout(() => {
-          window.print();
-          setTimeout(() => {
-            document.body.classList.remove('printing-activity-report');
-          }, 500);
-        }, 120);
+
+        const cleanupPrint = function() {
+          document.documentElement.classList.remove('printing-activity-report');
+          document.body.classList.remove('printing-activity-report');
+          window.removeEventListener('afterprint', cleanupPrint);
+        };
+        window.addEventListener('afterprint', cleanupPrint);
+        setTimeout(cleanupPrint, 15000);
+        window.print();
       }
 
       // 💾 ระบบบันทึกไฟล์ 2 ขั้นตอน: เลือกรูปแบบ (รูปภาพ/PDF) -> เลือกสถานที่ (ลงเครื่อง/Drive) (Item 8)
@@ -5901,6 +5962,7 @@
         if (typeof html2canvas === 'undefined') throw new Error('กำลังโหลดตัวแปลงไฟล์ กรุณารอสักครู่แล้วลองใหม่ค่ะ');
 
         const host = document.createElement('div');
+        host.id = 'report-export-host';
         host.style.position = 'fixed';
         host.style.left = '-99999px';
         host.style.top = '0';
@@ -5912,8 +5974,13 @@
         clone.id = '';
         clone.style.boxShadow = 'none';
         clone.style.margin = '0';
+        clone.style.fontFamily = "'Sarabun', sans-serif";
         host.appendChild(clone);
         document.body.appendChild(host);
+
+        if (document.fonts && document.fonts.load) {
+          try { await document.fonts.load('16px Sarabun'); await document.fonts.ready; } catch(e) {}
+        }
 
         // รอให้รูปภาพทั้งหมดใน clone โหลดสมบูรณ์
         const imgs = Array.from(clone.querySelectorAll('img'));
