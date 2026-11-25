@@ -444,7 +444,7 @@
       .a4-sheet .gov-header { text-align: center; margin-bottom: 6px; }
       .a4-sheet .gov-logo { height: 54px; width: auto; margin-bottom: 3px; }
       .a4-sheet .gov-org { font-size: 21px; font-weight: 700; line-height: 1.25; color: #000; }
-      .a4-sheet .gov-doc-title { font-size: 20px; font-weight: 700; margin-top: 4px; text-decoration: underline; text-underline-offset: 4px; color: #000; }
+      .a4-sheet .gov-doc-title { font-size: 20px; font-weight: 700; margin-top: 4px; color: #000; }
       .a4-sheet .gov-divider { border: none; border-bottom: 1.5px solid #000; margin: 8px 0 10px 0; }
       .a4-sheet .gov-details { font-size: 17.5px; line-height: 1.48; color: #000; }
       .a4-sheet .gov-row { margin-bottom: 4px; }
@@ -941,10 +941,10 @@
 
     </div>
 
-    <!-- 📥 หน้าต่างดาวน์โหลด Excel -->
+    <!-- 📥 หน้าต่างดาวน์โหลดรายงานสถิติ (PDF) -->
     <div id="excelModal" class="modal-overlay">
        <div class="modal-box">
-          <div style="font-weight:700; font-size: 18px; margin-bottom:15px;">📥 กำหนดช่วงเวลาดาวน์โหลด Excel</div>
+          <div style="font-weight:700; font-size: 18px; margin-bottom:15px;">📥 กำหนดช่วงเวลาดาวน์โหลด PDF</div>
           <div style="display:flex; gap:5px; margin-bottom:10px; align-items:center;">
              <div style="position:relative; flex:1; display:flex; align-items:center;">
                 <input type="text" id="excel-c-day-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="padding:10px; font-size:12px; width:100%; cursor:pointer; text-align:center; background:#fff;" onclick="openExcelCalendar()" title="คลิกเพื่อเลือกวันที่">
@@ -960,8 +960,31 @@
              <input type="number" id="excel-c-year" class="modern-input" placeholder="พิมพ์ปี พ.ศ. (เช่น 2569)" style="padding:10px; font-size:12px; flex:1;">
              <button class="action-btn" style="padding:10px 15px; font-size:12px; background:#457B9D; margin:0;" onclick="triggerDownloadExcelCustom('year')">โหลดรายปี</button>
           </div>
-          <button class="action-btn" style="width:100%; margin-top:5px; margin-bottom:10px; background:#2D6A4F; font-size:13px; padding:10px;" onclick="triggerDownloadExcelCustom('all')">📥 ดาวน์โหลดข้อมูลทั้งหมด</button>
+          <button class="action-btn" style="width:100%; margin-top:5px; margin-bottom:10px; background:#2D6A4F; font-size:13px; padding:10px;" onclick="triggerDownloadExcelCustom('all')">📥 ดาวน์โหลดข้อมูลทั้งหมด (PDF)</button>
           <button class="action-btn" style="width:100%; margin-top:5px; background:transparent; border:1px solid #EAEAEA; color:var(--text-sub); box-shadow:none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('excelModal').style.display='none'; document.getElementById('statsModal').style.display='flex'">ย้อนกลับ</button>
+       </div>
+    </div>
+
+    <!-- 📄 ป๊อปอัพเลือกสถานที่เก็บไฟล์ PDF รายงานสถิติ -->
+    <div id="statsPdfDestModal" class="modal-overlay" style="z-index: 3000;">
+       <div class="modal-box" style="max-width: 380px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+             <button type="button" class="cute-close-x" onclick="closeStatsPdfDestModal()">✕</button>
+          </div>
+          <div class="cute-icon-circle"><span>📄</span></div>
+          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">เลือกสถานที่เก็บไฟล์ PDF</div>
+          <div id="stats-pdf-sub" style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px;"></div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 14.5px;" onclick="exportStatsPdf('device')">
+                📱 บันทึกลงเครื่อง
+             </button>
+             <button type="button" class="action-btn" style="margin:0; width:100%; padding: 12px; border-radius: 16px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 14.5px;" onclick="exportStatsPdf('drive')">
+                ☁️ บันทึกลง Google Drive
+             </button>
+             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width:100%; padding: 9px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="closeStatsPdfDestModal(); document.getElementById('excelModal').style.display='flex';">
+                ⬅️ ย้อนกลับ
+             </button>
+          </div>
        </div>
     </div>
 
@@ -991,7 +1014,7 @@
 
              <div style="display:flex; gap:6px; align-items:center;">
 
-                <button onclick="openExcelModal()" style="background:#1B7A43; color:white; border:none; width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(27,122,67,0.25); padding:0;" title="ดาวน์โหลด Excel">📥</button>
+                <button onclick="openExcelModal()" style="background:#1B7A43; color:white; border:none; width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(27,122,67,0.25); padding:0;" title="ดาวน์โหลด PDF">📥</button>
 
                 <button onclick="openPrintModal()" style="background:var(--primary); color:white; border:none; width:34px; height:34px; border-radius:10px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); padding:0;" title="พิมพ์รายงาน">🖨️</button>
 
@@ -1960,11 +1983,11 @@
           const tId = type === 'day' ? 'excel-c-day' : (type === 'month' ? 'excel-c-month' : 'excel-c-year');
           const lbl = type === 'day' ? '📅 เลือกวันที่' : (type === 'month' ? '🗓️ เลือกเดือน' : '📆 ระบุปี พ.ศ.');
           cutePromptInputs({
-            icon: '📊',
-            title: 'ระบุช่วงเวลาดาวน์โหลด Excel',
+            icon: '📄',
+            title: 'ระบุช่วงเวลาดาวน์โหลด PDF',
             message: 'กรุณาเลือกหรือกรอกช่วงเวลาที่ต้องการด้านล่าง',
             fields: [{ key: 'timeVal', targetId: tId, type: fType, label: lbl, placeholder: 'เช่น 2569' }],
-            confirmText: 'ดาวน์โหลดเลย ✨',
+            confirmText: 'ดำเนินการต่อ ✨',
             onSubmit: function(v) {
               if (type === 'day' && typeof onExcelDateChange === 'function') onExcelDateChange(v.timeVal);
               triggerDownloadExcelCustom(type);
@@ -1974,75 +1997,228 @@
         }
 
         document.getElementById('excelModal').style.display = 'none';
-        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
-        document.getElementById('tx-loader').style.display = 'flex';
+        showLoadingPopup();
 
         const rangeObj = type === 'all' ? 'all' : { type: 'custom_' + type, value: val, text: rangeText };
 
         google.script.run.withSuccessHandler(function(data) {
-          document.getElementById('tx-loader').style.display = 'none';
+          hideLoadingPopup();
           if (!data || data.length === 0) {
             cuteAlert("ไม่มีข้อมูลสำหรับ " + rangeText, "ไม่พบข้อมูล", "📭");
             return;
           }
-          exportToExcelFile(data, filenameSuffix, rangeText);
+          openStatsPdfDestModal(data, filenameSuffix, rangeText);
         }).withFailureHandler(function(err) {
-          document.getElementById('tx-loader').style.display = 'none';
+          hideLoadingPopup();
           cuteAlert("ไม่สามารถดึงข้อมูลได้: " + err, "เกิดข้อผิดพลาด", "❌");
-        }).getPrintData(rangeObj);
+        }).getLogsByRange(rangeObj);
       }
 
-      function exportToExcelFile(data, filenameSuffix, rangeText) {
-        const rows = [
-          ['ลำดับ', 'วันที่ (พ.ศ.)', 'เวลา', 'รายการ', 'รหัสนักเรียน', 'ชื่อ-นามสกุล', 'รหัสหนังสือ', 'ชื่อหนังสือ', 'เจ้าหน้าที่']
-        ];
+      let pendingStatsPdfInfo = null;
+      function openStatsPdfDestModal(data, filenameSuffix, rangeText) {
+        pendingStatsPdfInfo = { data: data, filenameSuffix: filenameSuffix, rangeText: rangeText };
+        const subEl = document.getElementById('stats-pdf-sub');
+        if (subEl) subEl.innerText = 'ช่วงเวลา: ' + rangeText + ' (' + data.length + ' รายการ)';
+        const m = document.getElementById('statsPdfDestModal');
+        if (m) m.style.display = 'flex';
+      }
 
+      function closeStatsPdfDestModal() {
+        const m = document.getElementById('statsPdfDestModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function _buildStatsHtmlTable(data, rangeText, printDateThai) {
+        const logoSrc = (typeof cachedReportAssets !== 'undefined' && cachedReportAssets.logo) ? cachedReportAssets.logo : 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        let rowsHtml = '';
         data.forEach((r, idx) => {
-          rows.push([
-            idx + 1,
-            r.date || '',
-            r.time || '',
-            r.action || '',
-            r.studentId || '',
-            r.studentName || '',
-            r.bookId || '',
-            r.bookName || '',
-            r.staff || ''
-          ]);
+          rowsHtml += `<tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td style="text-align:center;">${_escReportHtml(r.date || '')}</td>
+            <td style="text-align:center;">${_escReportHtml(r.time || '')}</td>
+            <td style="text-align:center; font-weight:600;">${_escReportHtml(r.action || '')}</td>
+            <td style="white-space:nowrap;">${_escReportHtml(r.studentName || '')}</td>
+            <td>${_escReportHtml(r.bookName || '')}</td>
+            <td style="text-align:center;">${_escReportHtml(r.staff || '')}</td>
+          </tr>`;
         });
+        return `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>รายงานสถิติห้องสมุด</title>
+          <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+          <style>
+            *, *::before, *::after { font-family: 'Sarabun', sans-serif !important; box-sizing: border-box; }
+            @page { size: A4 landscape; margin: 10mm; }
+            body { padding: 15px; color: #222; margin: 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            th, td { border: 1px solid #bbb; padding: 6px 8px; font-size: 13px; text-align: left; }
+            th { background: #2D6A4F; color: #fff; text-align: center; font-weight: 600; }
+            .header { text-align: center; margin-bottom: 10px; }
+            .header img { height: 64px; margin-bottom: 4px; }
+            .header h2 { margin: 4px 0; font-size: 19px; color: #1B4332; }
+            .header h3 { margin: 2px 0; font-size: 16px; font-weight: 500; color: #2D6A4F; }
+            .header p { margin: 4px 0; font-size: 12.5px; color: #555; }
+          </style></head><body>
+          <div class="header">
+            <img src="${logoSrc}" crossorigin="anonymous" alt="โลโก้โรงเรียน">
+            <h2>รายงานการเข้าใช้บริการห้องสมุด (${_escReportHtml(rangeText)})</h2>
+            <h3>โรงเรียนวัดหนองตะเฆ่</h3>
+            <p>พิมพ์เมื่อ: ${_escReportHtml(printDateThai)} • ข้อมูลทั้งหมด ${data.length} รายการ</p>
+          </div>
+          <table><thead><tr>
+            <th style="width:6%;">ลำดับ</th><th style="width:14%;">วันที่ (พ.ศ.)</th><th style="width:9%;">เวลา</th>
+            <th style="width:11%;">รายการ</th><th style="width:24%;">ชื่อ-นามสกุล</th><th style="width:24%;">ชื่อหนังสือ</th><th style="width:12%;">เจ้าหน้าที่</th>
+          </tr></thead><tbody>${rowsHtml}</tbody></table></body></html>`;
+      }
 
-        const filename = 'รายงานสถิติห้องสมุด_' + filenameSuffix + '.xlsx';
+      async function exportStatsPdf(dest) {
+        if (!pendingStatsPdfInfo || !pendingStatsPdfInfo.data) return;
+        const { data, filenameSuffix, rangeText } = pendingStatsPdfInfo;
+        closeStatsPdfDestModal();
+        showLoadingPopup();
 
-        if (typeof XLSX !== 'undefined') {
-          const wb = XLSX.utils.book_new();
-          const ws = XLSX.utils.aoa_to_sheet(rows);
-          ws['!cols'] = [
-            { wch: 8 },
-            { wch: 14 },
-            { wch: 10 },
-            { wch: 12 },
-            { wch: 14 },
-            { wch: 25 },
-            { wch: 16 },
-            { wch: 30 },
-            { wch: 16 }
-          ];
-          XLSX.utils.book_append_sheet(wb, ws, 'สถิติห้องสมุด');
-          XLSX.writeFile(wb, filename);
-        } else {
-          let csvContent = '\uFEFF';
-          rows.forEach(row => {
-            let rowStr = row.map(cell => '"' + String(cell || '').replace(/"/g, '""') + '"').join(',');
-            csvContent += rowStr + '\r\n';
-          });
-          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = filename.replace('.xlsx', '.csv');
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(link.href);
+        try {
+          if (typeof preloadOfficialReportAssets === 'function') preloadOfficialReportAssets();
+          const now = new Date();
+          const printDateThai = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear() + 543} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} น.`;
+          const fileName = 'รายงานสถิติห้องสมุด_' + filenameSuffix + '.pdf';
+          const logoSrc = (typeof cachedReportAssets !== 'undefined' && cachedReportAssets.logo) ? cachedReportAssets.logo : 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+
+          if (!window.jspdf || !window.jspdf.jsPDF || typeof html2canvas === 'undefined') {
+            throw new Error('กำลังโหลดตัวสร้าง PDF กรุณาลองอีกครั้งครับ');
+          }
+
+          if (document.fonts && document.fonts.load) {
+            try { await document.fonts.load('16px Sarabun'); await document.fonts.ready; } catch (e) {}
+          }
+
+          // แบ่งข้อมูลเป็นหน้า A4 แนวนอน (หน้าแรก 16 แถว, หน้าถัดไป 21 แถว)
+          const pagesData = [];
+          const firstPageSize = 16;
+          const nextPageSize = 21;
+          if (data.length <= firstPageSize) {
+            pagesData.push(data);
+          } else {
+            pagesData.push(data.slice(0, firstPageSize));
+            for (let i = firstPageSize; i < data.length; i += nextPageSize) {
+              pagesData.push(data.slice(i, i + nextPageSize));
+            }
+          }
+
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          let rowOffset = 0;
+
+          for (let p = 0; p < pagesData.length; p++) {
+            const chunk = pagesData[p];
+            let rowsHtml = '';
+            chunk.forEach((r, idx) => {
+              rowsHtml += `<tr>
+                <td style="text-align:center;">${rowOffset + idx + 1}</td>
+                <td style="text-align:center;">${_escReportHtml(r.date || '')}</td>
+                <td style="text-align:center;">${_escReportHtml(r.time || '')}</td>
+                <td style="text-align:center; font-weight:600;">${_escReportHtml(r.action || '')}</td>
+                <td style="white-space:nowrap;">${_escReportHtml(r.studentName || '')}</td>
+                <td>${_escReportHtml(r.bookName || '')}</td>
+                <td style="text-align:center;">${_escReportHtml(r.staff || '')}</td>
+              </tr>`;
+            });
+            rowOffset += chunk.length;
+
+            const host = document.createElement('div');
+            host.id = 'report-export-host';
+            host.style.position = 'fixed';
+            host.style.left = '-99999px';
+            host.style.top = '0';
+            host.style.width = '1122px';
+            host.style.height = '794px';
+            host.style.background = '#ffffff';
+
+            const headerHtml = p === 0 ? `
+              <div style="text-align:center; margin-bottom:10px;">
+                <img src="${logoSrc}" crossorigin="anonymous" style="height:56px; margin-bottom:3px;" alt="โลโก้โรงเรียน">
+                <div style="font-size:20px; font-weight:700; color:#1B4332;">รายงานการเข้าใช้บริการห้องสมุด (${_escReportHtml(rangeText)})</div>
+                <div style="font-size:16px; font-weight:600; color:#2D6A4F;">โรงเรียนวัดหนองตะเฆ่</div>
+                <div style="font-size:12.5px; color:#555; margin-top:2px;">พิมพ์เมื่อ: ${_escReportHtml(printDateThai)} • ข้อมูลทั้งหมด ${data.length} รายการ (หน้า ${p + 1}/${pagesData.length})</div>
+              </div>` : `
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:13px; color:#555;">
+                <span><b>รายงานการเข้าใช้บริการห้องสมุด (${_escReportHtml(rangeText)})</b> — โรงเรียนวัดหนองตะเฆ่</span>
+                <span>หน้า ${p + 1}/${pagesData.length}</span>
+              </div>`;
+
+            host.innerHTML = `<div class="a4-sheet" style="width:1122px; height:794px; padding:28px 36px; box-shadow:none; display:block; font-family:'Sarabun', sans-serif !important;">
+              ${headerHtml}
+              <table style="width:100%; border-collapse:collapse;">
+                <thead><tr>
+                  <th style="border:1px solid #bbb; background:#2D6A4F; color:#fff; padding:6px 8px; font-size:13px; width:6%;">ลำดับ</th>
+                  <th style="border:1px solid #bbb; background:#2D6A4F; color:#fff; padding:6px 8px; font-size:13px; width:13%;">วันที่ (พ.ศ.)</th>
+                  <th style="border:1px solid #bbb; background:#2D6A4F; color:#fff; padding:6px 8px; font-size:13px; width:9%;">เวลา</th>
+                  <th style="border:1px solid #bbb; background:#2D6A4F; color:#fff; padding:6px 8px; font-size:13px; width:11%;">รายการ</th>
+                  <th style="border:1px solid #bbb; background:#2D6A4F; color:#fff; padding:6px 8px; font-size:13px; width:24%;">ชื่อ-นามสกุล</th>
+                  <th style="border:1px solid #bbb; background:#2D6A4F; color:#fff; padding:6px 8px; font-size:13px; width:25%;">ชื่อหนังสือ</th>
+                  <th style="border:1px solid #bbb; background:#2D6A4F; color:#fff; padding:6px 8px; font-size:13px; width:12%;">เจ้าหน้าที่</th>
+                </tr></thead>
+                <tbody>${rowsHtml.replaceAll('<td ', '<td style="border:1px solid #bbb; padding:5px 8px; font-size:12.5px;" ').replaceAll('<td style="', '<td style="border:1px solid #bbb; padding:5px 8px; font-size:12.5px; ')}</tbody>
+              </table>
+            </div>`;
+            document.body.appendChild(host);
+
+            const imgs = Array.from(host.querySelectorAll('img'));
+            await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => { img.onload = res; img.onerror = res; })));
+
+            const canvas = await html2canvas(host.firstElementChild, {
+              scale: 1.5,
+              useCORS: true,
+              allowTaint: false,
+              backgroundColor: '#ffffff',
+              width: 1122,
+              height: 794
+            });
+            document.body.removeChild(host);
+
+            if (p > 0) pdf.addPage('a4', 'landscape');
+            pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 297, 210);
+          }
+
+          if (dest === 'device') {
+            const pdfBlob = pdf.output('blob');
+            const pdfDataUri = pdf.output('datauristring');
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            hideLoadingPopup();
+            await _saveBlobToDevice(pdfBlob, pdfDataUri, fileName, 'application/pdf', isIOS);
+          } else {
+            const pdfBase64 = pdf.output('datauristring');
+            const statsHtml = _buildStatsHtmlTable(data, rangeText, printDateThai);
+            const useHtmlFallback = pdfBase64.length > 5 * 1024 * 1024;
+            google.script.run
+              .withSuccessHandler(function(res) {
+                hideLoadingPopup();
+                if (res && res.status === 'success') {
+                  cuteConfirm(
+                    'บันทึกรายงาน "' + (res.fileName || fileName) + '" ลงโฟลเดอร์ WNTK Library System ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมครับ?',
+                    'บันทึกลง Drive สำเร็จ!',
+                    '✅'
+                  ).then(openNow => {
+                    if (openNow && (res.fileUrl || res.folderUrl)) {
+                      window.open(res.fileUrl || res.folderUrl, '_blank');
+                    }
+                  });
+                } else {
+                  cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกลง Google Drive ได้ครับ', 'เกิดข้อผิดพลาด', '❌');
+                }
+              })
+              .withFailureHandler(function(err) {
+                hideLoadingPopup();
+                cuteAlert('เกิดข้อผิดพลาดในการบันทึกลง Drive: ' + err, 'เกิดข้อผิดพลาด', '❌');
+              })
+              .saveStatsPdfToDrive({
+                filenameSuffix: filenameSuffix,
+                rangeText: rangeText,
+                base64Data: useHtmlFallback ? '' : pdfBase64,
+                htmlContent: statsHtml
+              });
+          }
+        } catch (err) {
+          hideLoadingPopup();
+          cuteAlert('เกิดข้อผิดพลาดในการสร้างไฟล์ PDF: ' + (err.message || err), 'ไม่สำเร็จ', '❌');
         }
       }
 
@@ -2225,10 +2401,15 @@
              }
              @media print { 
                 @page { size: landscape; margin: 1cm; } 
+                .no-print { display: none !important; }
                 thead { display: table-header-group; }
                 tfoot { display: table-footer-group; }
                 tr { page-break-inside: avoid; }
              } 
+             .no-print { display: flex; justify-content: space-between; align-items: center; background: #1B4332; padding: 10px 16px; border-radius: 12px; margin-bottom: 14px; }
+             .no-print button { border: none; border-radius: 10px; padding: 8px 16px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Sarabun', sans-serif !important; }
+             .btn-back-stats { background: #F1F5F9; color: #1E293B; }
+             .btn-print-stats { background: #40916C; color: #FFFFFF; }
              body { font-family: 'Sarabun', sans-serif !important; padding: 20px; color: #333; margin: 0; }
              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
              thead { display: table-header-group; }
@@ -2240,6 +2421,10 @@
              .header h3 { margin: 2px 0; font-size: 17px; font-weight: 500; color: #2D6A4F; font-family: 'Sarabun', sans-serif !important; }
              .header p { margin: 4px 0; font-size: 13px; color: #666; font-family: 'Sarabun', sans-serif !important; }
           </style></head><body>
+          <div class="no-print">
+             <button class="btn-back-stats" onclick="try{ if(window.opener){ window.opener.focus(); } }catch(e){} window.close();">⬅️ ย้อนกลับ</button>
+             <button class="btn-print-stats" onclick="window.print()">🖨️ พิมพ์รายงาน</button>
+          </div>
 
           <div class="header">
 
@@ -2305,8 +2490,7 @@
 
           
 
-          html += `</tbody></table>  <div id="print-only-report-container"></div>
-  </body></html>`;
+          html += `</tbody></table></body></html>`;
 
           win.document.open(); win.document.write(html); win.document.close(); 
 
@@ -5873,7 +6057,7 @@
             + '.gov-header { text-align: center; margin-bottom: 6px; }'
             + '.gov-logo { height: 54px; width: auto; margin-bottom: 3px; }'
             + '.gov-org { font-size: 21px; font-weight: 700; line-height: 1.25; }'
-            + '.gov-doc-title { font-size: 20px; font-weight: 700; margin-top: 4px; text-decoration: underline; text-underline-offset: 4px; }'
+            + '.gov-doc-title { font-size: 20px; font-weight: 700; margin-top: 4px; }'
             + '.gov-divider { border: none; border-bottom: 1.5px solid #000; margin: 8px 0 10px 0; }'
             + '.gov-details { font-size: 17.5px; line-height: 1.48; }'
             + '.gov-row { margin-bottom: 4px; }'
