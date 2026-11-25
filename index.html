@@ -5099,7 +5099,10 @@
             msgDiv.style.display = "block";
             msgDiv.style.background = "#FFF3BF";
             msgDiv.style.color = "#92400E";
-            msgDiv.innerHTML = "⚠️ ระบบยังรอการอนุญาตสิทธิ์ Google Drive จากบัญชีเจ้าของสคริปต์ (<a href='https://script.google.com/d/1bvWlGEE0ZPz2mlfzvxACIWylj5XWQrb7xdf0QHCbiUqj-WdhQv6FZda9/edit' target='_blank' style='color:#B45309; font-weight:700; text-decoration:underline;'>คลิกที่นี่เพื่อเปิด Apps Script</a> แล้วกด Run ฟังก์ชัน setupWNTKFolder 1 ครั้งครับ)";
+            const targetAuthLink = info.authUrl || 'https://script.google.com/d/1bvWlGEE0ZPz2mlfzvxACIWylj5XWQrb7xdf0QHCbiUqj-WdhQv6FZda9/edit';
+            msgDiv.innerHTML = info.authUrl
+              ? `⚠️ กรุณาอนุญาตสิทธิ์ Google Drive: <a href="${targetAuthLink}" target="_blank" style="color:#B45309; font-weight:700; text-decoration:underline;">คลิกที่นี่เพื่อกดอนุญาตสิทธิ์ (อย่าลืมติ๊กถูก ✅ ช่อง Google Drive)</a>`
+              : `⚠️ ระบบยังรอการอนุญาตสิทธิ์ Google Drive (<a href="${targetAuthLink}" target="_blank" style="color:#B45309; font-weight:700; text-decoration:underline;">เปิด Apps Script</a> แล้วกด Run ฟังก์ชัน setupWNTKFolder และติ๊กถูก ✅ ช่อง Google Drive ครับ)`;
           }
         }
 
