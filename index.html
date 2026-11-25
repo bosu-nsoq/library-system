@@ -560,13 +560,9 @@
       /* หน้าต่างโหลด (Loading Overlay) */
 
       .tx-loader-overlay {
-
-        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-
-        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
-
-        z-index: 3000; align-items: center; justify-content: center; flex-direction: column;
-
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; height: 100dvh;
+        background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        z-index: 100001; align-items: center; justify-content: center; flex-direction: column;
       }
 
       .tx-spinner {
@@ -604,11 +600,10 @@
     <!-- หน้าต่างโหลดตอนทำรายการ -->
 
     <div id="tx-loader" class="tx-loader-overlay">
-
-      <div class="tx-spinner"></div>
-
-      <div id="tx-loader-text" style="margin-top:15px; font-weight:700; color:var(--primary); font-size: 18px;">กำลังประมวลผล...</div>
-
+      <div class="modal-box" style="max-width: 240px; width: 78%; padding: 26px 20px; border-radius: 26px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="tx-spinner" style="margin: 0 auto;"></div>
+        <div id="tx-loader-text" style="margin-top: 14px; font-weight: 700; color: var(--primary); font-size: 16px;">กำลังโหลด...</div>
+      </div>
     </div>
 
 
@@ -886,7 +881,7 @@
 
           <div id="borrowed-books-content" style="flex: 1; overflow-y: auto; max-height: 52vh; padding-right: 2px;">
 
-             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดข้อมูล...</div>
+             
 
           </div>
 
@@ -1128,7 +1123,7 @@
 
           <div id="card-students-list" style="flex: 1; overflow-y: auto; max-height: 48vh; padding-right: 2px;">
 
-             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดรายชื่อนักเรียน...</div>
+             
 
           </div>
 
@@ -1183,7 +1178,7 @@
 
           <!-- รายการหนังสือ -->
           <div id="book-labels-list" style="flex: 1; overflow-y: auto; max-height: 44vh; padding-right: 2px;">
-             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดรายการหนังสือ...</div>
+             
           </div>
 
           <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('bookBarcodeModal').style.display='none'">ปิดหน้าต่าง</button>
@@ -1270,7 +1265,7 @@
 
           <!-- รายการไฟล์สำรอง -->
           <div id="backup-files-list" style="flex: 1; overflow-y: auto; max-height: 38vh; padding-right: 2px;">
-             <div style="text-align: center; color: var(--text-sub); padding: 30px;">⏳ กำลังโหลดรายการไฟล์สำรอง...</div>
+             
           </div>
 
           <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('backupModal').style.display='none'">ปิดหน้าต่าง</button>
@@ -1553,11 +1548,11 @@
 
                      if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("YOUR_APPS_SCRIPT_WEB_APP_URL")) {
 
-                        cuteAlert("กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ก่อนใช้งานค่ะ", "ตั้งค่าระบบ", "⚙️");
+                        cuteAlert("กรุณาระบุ Web App URL ในตัวแปร GAS_WEB_APP_URL ก่อนใช้งานครับ", "ตั้งค่าระบบ", "⚙️");
 
                         if (document.getElementById('tx-loader')) document.getElementById('tx-loader').style.display = 'none';
 
-                        if (document.getElementById('login-loader')) document.getElementById('login-loader').style.display = 'none';
+                        if (document.getElementById('login-loader')) hideLoadingPopup();
 
                         return;
 
@@ -1983,7 +1978,7 @@
         }
 
         document.getElementById('excelModal').style.display = 'none';
-        document.getElementById('tx-loader-text').innerText = 'กำลังเตรียมไฟล์ Excel...';
+        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
         document.getElementById('tx-loader').style.display = 'flex';
 
         const rangeObj = type === 'all' ? 'all' : { type: 'custom_' + type, value: val, text: rangeText };
@@ -2192,9 +2187,9 @@
 
         let win = window.open("", "_blank");
 
-        if (!win) { cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนนะคะ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️"); return; }
+        if (!win) { cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนนะครับ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️"); return; }
 
-        win.document.write("<h3 style='font-family:Sarabun, sans-serif; text-align:center; padding:20px;'>⏳ กำลังดึงข้อมูล...</h3>");
+        win.document.write("<h3 style='font-family:Sarabun, sans-serif; text-align:center; padding:20px;'>⏳ กำลังโหลด...</h3>");
 
         
 
@@ -2333,7 +2328,7 @@
 
           input.blur(); // ✅ ย่อคีย์บอร์ดมือถือลงทันทีเมื่อกรอกรหัส PIN ครบ 4 หลัก
 
-          document.getElementById('login-loader').style.display = 'block'; 
+          showLoadingPopup(); 
 
           google.script.run.withSuccessHandler(function(res) {
 
@@ -2460,11 +2455,9 @@
 
                }
 
-               document.getElementById('s-name').innerText = "🔍 กำลังดึงชื่อนักเรียน..."; 
-
                searchTimeout = setTimeout(() => {
-
-                  google.script.run.withSuccessHandler(data => { 
+                  showLoadingPopup();
+                  google.script.run.withSuccessHandler(data => { hideLoadingPopup(); 
 
                      if (data && data.student) { 
 
@@ -2524,11 +2517,9 @@
 
               }
 
-              document.getElementById('b-name').innerText = "🔍 กำลังดึงข้อมูลหนังสือ...";
-
               searchTimeout = setTimeout(() => {
-
-                 google.script.run.withSuccessHandler(data => { 
+                 showLoadingPopup();
+                 google.script.run.withSuccessHandler(data => { hideLoadingPopup(); 
 
                     if (data && data.book) { 
 
@@ -2694,7 +2685,7 @@
 
         const displayName = (currentName && !currentName.includes("รอข้อมูล") && !currentName.includes("กำลังดึง")) 
 
-                            ? currentName : "กำลังดึงข้อมูล...";
+                            ? currentName : "กำลังโหลด...";
 
         
 
@@ -2914,7 +2905,7 @@
             if (bookIds.length === 0) missingFields.push({ key: 'bid', targetId: 'bid', label: '📖 รหัสหนังสือ', placeholder: 'กรอกรหัสหนังสือ...' });
             cutePromptInputs({
               icon: '📚',
-              title: 'กรอกข้อมูลให้ครบนะ',
+              title: 'กรอกข้อมูลให้ครบนะครับ',
               message: 'กรุณากรอกข้อมูลที่ยังขาดด้านล่างเพื่อทำรายการทันที',
               fields: missingFields,
               confirmText: 'ทำรายการเลย ✨',
@@ -3034,7 +3025,7 @@
 
       function _dispatchBorrowOrReturnTx(type, sid, bookIds, currentStudentName) {
 
-        document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
 
         document.getElementById('tx-loader').style.display = 'flex';
 
@@ -3162,7 +3153,7 @@
 
 
 
-        document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
 
         document.getElementById('tx-loader').style.display = 'flex';
 
@@ -3206,7 +3197,7 @@
 
             let safeName = String(r.name || '').replace(/'/g, "\\'");
 
-            html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`cuteAlert('คะแนนสะสมไม่พอแลกรายการนี้ค่ะ', 'คะแนนไม่พอ', '🌟')`}">
+            html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`cuteAlert('คะแนนสะสมไม่พอแลกรายการนี้ครับ', 'คะแนนไม่พอ', '🌟')`}">
 
                         <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
 
@@ -3255,16 +3246,10 @@
             }
 
           } else {
-
-            document.getElementById('rs-name').innerText = "🔍 กำลังดึงข้อมูลนักเรียน..."; 
-
-            document.getElementById('rs-score').innerText = "...";
-
+            showLoadingPopup();
           }
 
-
-
-          google.script.run.withSuccessHandler(data => {
+          google.script.run.withSuccessHandler(data => { hideLoadingPopup();
 
             if (!data || data.error) {
 
@@ -3318,7 +3303,7 @@
 
          cuteConfirm(`ยืนยันการแลกของรางวัล: ${name} (ใช้ ${cost} แต้ม)?`, "แลกของรางวัล", "🎁").then(ok => { if(ok) {
 
-            document.getElementById('tx-loader-text').innerText = "กำลังประมวลผลการแลกของรางวัล...";
+            if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
 
             document.getElementById('tx-loader').style.display = 'flex';
 
@@ -3345,11 +3330,11 @@
       function showHistory() { 
         document.getElementById('historyModal').style.display = 'flex'; 
         const container = document.getElementById('hist-content');
-        if (container) {
-          container.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงประวัติการทำรายการ...</div>";
-        }
+        if (container) container.innerHTML = "";
+        showLoadingPopup();
 
-        google.script.run.withSuccessHandler(data => { 
+        google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => {
+          hideLoadingPopup(); 
           if (!data || data.length === 0) {
             document.getElementById('hist-content').innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>❌ ยังไม่มีประวัติการทำรายการ</div>";
             return;
@@ -3475,16 +3460,13 @@
           renderBorrowedBooks(localList);
 
         } else {
-
-          contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงข้อมูล...</div>";
-
+          contentEl.innerHTML = "";
+          showLoadingPopup();
         }
 
-
-
         // 2. ดึงข้อมูลแบบสมบูรณ์จาก Apps Script
-
-        google.script.run.withSuccessHandler(data => {
+        google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => {
+          hideLoadingPopup();
 
           cachedBorrowedBooks = data || [];
 
@@ -3604,7 +3586,7 @@
 
 
 
-        document.getElementById('tx-loader-text').innerText = "กำลังลบรายการและอัปเดตข้อมูล...";
+        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
 
         document.getElementById('tx-loader').style.display = 'flex';
 
@@ -3698,7 +3680,7 @@
 
          cuteConfirm("ต้องการลบรายการประวัตินี้ใช่หรือไม่?", "ลบรายการ", "🗑️").then(ok => { if(ok) {
 
-             document.getElementById('tx-loader-text').innerText = "กำลังประมวลผล...";
+             if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
 
              document.getElementById('tx-loader').style.display = 'flex';
 
@@ -3751,16 +3733,13 @@
          
 
          document.getElementById('st-borrows').innerText = "...";
-
          document.getElementById('st-returns').innerText = "...";
+         document.getElementById('st-top-students').innerHTML = "";
+         document.getElementById('st-top-books').innerHTML = "";
+         showLoadingPopup();
 
-         document.getElementById('st-top-students').innerHTML = "<div style='text-align:center; color:var(--text-sub);'>กำลังประมวลผล...</div>";
-
-         document.getElementById('st-top-books').innerHTML = "<div style='text-align:center; color:var(--text-sub);'>กำลังประมวลผล...</div>";
-
-
-
-         google.script.run.withSuccessHandler(data => { 
+         google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(data => {
+            hideLoadingPopup(); 
 
             document.getElementById('st-borrows').innerText = data.borrows; 
 
@@ -3807,6 +3786,17 @@
       }
 
 
+
+      function showLoadingPopup() {
+        const loader = document.getElementById('tx-loader');
+        const txt = document.getElementById('tx-loader-text');
+        if (txt) txt.innerText = 'กำลังโหลด...';
+        if (loader) loader.style.display = 'flex';
+      }
+      function hideLoadingPopup() {
+        const loader = document.getElementById('tx-loader');
+        if (loader) loader.style.display = 'none';
+      }
 
       function showModal(msg, customTitle) {
           const m = document.getElementById('msgModal');
@@ -3920,7 +3910,7 @@
         document.getElementById('cd-icon').innerText = icon;
         _applyCuteIconTheme(icon);
         document.getElementById('cd-title').innerText = cfg.title || 'กรุณากรอกข้อมูล';
-        document.getElementById('cd-msg').innerText = cfg.message || 'กรอกข้อมูลให้ครบถ้วนแล้วกดตกลงได้เลยค่ะ';
+        document.getElementById('cd-msg').innerText = cfg.message || 'กรอกข้อมูลให้ครบถ้วนแล้วกดตกลงได้เลยครับ';
 
         const inputsBox = document.getElementById('cd-inputs');
         inputsBox.style.display = 'block';
@@ -4005,7 +3995,7 @@
 
       function showCardModal() {
         if (currentUserRole !== 'admin') {
-          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('cardModal');
@@ -4021,13 +4011,13 @@
           filterStudentCards();
         } else {
           const listContainer = document.getElementById('card-students-list');
-          if (listContainer) {
-            listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงข้อมูลนักเรียนจากฐานข้อมูล...</div>";
-          }
+          if (listContainer) listContainer.innerHTML = "";
+          showLoadingPopup();
         }
 
         google.script.run
           .withSuccessHandler(function(data) {
+            hideLoadingPopup();
             if (data && Array.isArray(data) && data.length > 0) {
               cachedCardStudents = data;
               if (!localDB.students) localDB.students = {};
@@ -4046,6 +4036,7 @@
             }
           })
           .withFailureHandler(function(err) {
+            hideLoadingPopup();
             console.error("Error loading students for cards:", err);
             if (!cachedCardStudents || cachedCardStudents.length === 0) {
               const listContainer = document.getElementById('card-students-list');
@@ -4149,7 +4140,7 @@
         });
 
         if (filtered.length === 0) {
-          cuteAlert("ไม่มีรายชื่อนักเรียนตามตัวกรองที่เลือกค่ะ", "ไม่พบข้อมูล", "📭");
+          cuteAlert("ไม่มีรายชื่อนักเรียนตามตัวกรองที่เลือกครับ", "ไม่พบข้อมูล", "📭");
           return;
         }
 
@@ -4163,13 +4154,13 @@
 
       function generateAndPrintCards(studentList, docTitle) {
         if (!studentList || studentList.length === 0) {
-          cuteAlert("ไม่มีรายชื่อนักเรียนสำหรับพิมพ์บัตรค่ะ", "ไม่พบข้อมูล", "📭");
+          cuteAlert("ไม่มีรายชื่อนักเรียนสำหรับพิมพ์บัตรครับ", "ไม่พบข้อมูล", "📭");
           return;
         }
 
         let win = window.open("", "_blank");
         if (!win) {
-          cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือแท็บใหม่ก่อนนะคะ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️");
+          cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือแท็บใหม่ก่อนนะครับ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️");
           return;
         }
 
@@ -4426,7 +4417,7 @@
 
       function showBookBarcodeModal() {
         if (currentUserRole !== 'admin') {
-          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('bookBarcodeModal');
@@ -4458,13 +4449,13 @@
           filterBookLabels();
         } else {
           const listContainer = document.getElementById('book-labels-list');
-          if (listContainer) {
-            listContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังดึงรายการหนังสือจากฐานข้อมูล...</div>";
-          }
+          if (listContainer) listContainer.innerHTML = "";
+          showLoadingPopup();
         }
 
         google.script.run
           .withSuccessHandler(function(data) {
+            hideLoadingPopup();
             if (data && Array.isArray(data) && data.length > 0) {
               cachedBookLabels = data;
               if (!localDB.books) localDB.books = {};
@@ -4488,6 +4479,7 @@
             }
           })
           .withFailureHandler(function(err) {
+            hideLoadingPopup();
             console.error("Error loading books for labels:", err);
             if (!cachedBookLabels || cachedBookLabels.length === 0) {
               const listContainer = document.getElementById('book-labels-list');
@@ -4666,7 +4658,7 @@
         });
 
         if (labelsToPrint.length === 0) {
-          cuteAlert("กรุณาเลือกหนังสืออย่างน้อย 1 รายการเพื่อพิมพ์สติกเกอร์ค่ะ", "เลือกหนังสือ", "🏷️");
+          cuteAlert("กรุณาเลือกหนังสืออย่างน้อย 1 รายการเพื่อพิมพ์สติกเกอร์ครับ", "เลือกหนังสือ", "🏷️");
           return;
         }
 
@@ -4694,13 +4686,13 @@
 
       function generateAndPrintBookLabels(labelsList, docTitle) {
         if (!labelsList || labelsList.length === 0) {
-          cuteAlert("ไม่มีรายการสติกเกอร์สำหรับพิมพ์ค่ะ", "ไม่พบข้อมูล", "📭");
+          cuteAlert("ไม่มีรายการสติกเกอร์สำหรับพิมพ์ครับ", "ไม่พบข้อมูล", "📭");
           return;
         }
 
         let win = window.open("", "_blank");
         if (!win) {
-          cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือแท็บใหม่ก่อนนะคะ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️");
+          cuteAlert("เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up หรือแท็บใหม่ก่อนนะครับ", "เปิดหน้าต่างไม่สำเร็จ", "⚠️");
           return;
         }
 
@@ -4958,7 +4950,7 @@
       // ➕ ระบบเพิ่มยุวบรรณารักษ์ (สำหรับครูบรรณารักษ์ / Admin)
       function showAddStaffModal() {
         if (currentUserRole !== 'admin') {
-          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('addStaffModal');
@@ -5000,19 +4992,13 @@
           return;
         }
         
-        if (btn) {
-          btn.disabled = true;
-          btn.innerText = "⏳ กำลังบันทึกข้อมูล...";
-        }
-        if (msgDiv) {
-          msgDiv.style.display = "block";
-          msgDiv.style.background = "#E8F5E9";
-          msgDiv.style.color = "#2D6A4F";
-          msgDiv.innerText = "⏳ กำลังบันทึกข้อมูลลงฐานข้อมูล...";
-        }
+        if (btn) btn.disabled = true;
+        if (msgDiv) msgDiv.style.display = "none";
+        showLoadingPopup();
         
         google.script.run
           .withSuccessHandler(function(res) {
+            hideLoadingPopup();
             if (btn) {
               btn.disabled = false;
               btn.innerText = "💾 บันทึกข้อมูลยุวบรรณารักษ์";
@@ -5041,6 +5027,7 @@
             }
           })
           .withFailureHandler(function(err) {
+            hideLoadingPopup();
             if (btn) {
               btn.disabled = false;
               btn.innerText = "💾 บันทึกข้อมูลยุวบรรณารักษ์";
@@ -5060,7 +5047,7 @@
 
       function showBackupModal() {
         if (currentUserRole !== 'admin') {
-          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นค่ะ", "สงวนสิทธิ์ Admin", "🔒");
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ", "สงวนสิทธิ์ Admin", "🔒");
           return;
         }
         const modal = document.getElementById('backupModal');
@@ -5070,9 +5057,8 @@
         if (msgDiv) msgDiv.style.display = 'none';
 
         const filesContainer = document.getElementById('backup-files-list');
-        if (filesContainer) {
-          filesContainer.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 30px;'>⏳ กำลังเชื่อมต่อระบบสำรองข้อมูล Google Drive...</div>";
-        }
+        if (filesContainer) filesContainer.innerHTML = "";
+        showLoadingPopup();
 
         loadBackupInfo();
       }
@@ -5080,11 +5066,13 @@
       function loadBackupInfo(onDone) {
         google.script.run
           .withSuccessHandler(function(info) {
+            hideLoadingPopup();
             cachedBackupInfo = info;
             renderBackupInfo(info);
             if (onDone) onDone(info);
           })
           .withFailureHandler(function(err) {
+            hideLoadingPopup();
             console.error("Error loading backup info:", err);
             const filesContainer = document.getElementById('backup-files-list');
             if (filesContainer) {
@@ -5102,6 +5090,15 @@
         const folderLink = document.getElementById('backup-folder-link');
         if (folderLink && info.folderUrl) {
           folderLink.href = info.folderUrl;
+        }
+        if (info.driveError) {
+          const msgDiv = document.getElementById('backup-action-msg');
+          if (msgDiv) {
+            msgDiv.style.display = "block";
+            msgDiv.style.background = "#FFF3BF";
+            msgDiv.style.color = "#92400E";
+            msgDiv.innerHTML = "⚠️ ยังไม่ได้อนุญาตสิทธิ์สร้างโฟลเดอร์ Google Drive ใน Apps Script (กรุณากด Run ฟังก์ชัน getOrCreateBackupFolder ใน Apps Script Editor 1 ครั้งเพื่ออนุญาตสิทธิ์ครับ)";
+          }
         }
 
         // สถานะ Trigger
@@ -5157,7 +5154,7 @@
 
       function confirmDeleteBackup(fileId, name) {
         if (!fileId) {
-          cuteAlert("ไม่พบรหัสไฟล์สำรองค่ะ", "แจ้งเตือน", "⚠️");
+          cuteAlert("ไม่พบรหัสไฟล์สำรองครับ", "แจ้งเตือน", "⚠️");
           return;
         }
         cuteConfirm("คุณต้องการลบไฟล์สำรอง '" + name + "' ใช่หรือไม่?\n(ไฟล์จะถูกย้ายไปถังขยะใน Google Drive)", "ลบไฟล์สำรอง", "🗑️").then(ok => {
@@ -5167,14 +5164,11 @@
       }
       function _executeDeleteBackup(fileId) {
         const msgDiv = document.getElementById('backup-action-msg');
-        if (msgDiv) {
-          msgDiv.style.display = "block";
-          msgDiv.style.background = "#E8F5E9";
-          msgDiv.style.color = "#2D6A4F";
-          msgDiv.innerHTML = "⏳ กำลังลบไฟล์สำรองข้อมูล...";
-        }
+        if (msgDiv) msgDiv.style.display = "none";
+        showLoadingPopup();
         google.script.run
           .withSuccessHandler(function(res) {
+            hideLoadingPopup();
             if (res && res.status === 'success') {
               if (msgDiv) {
                 msgDiv.style.display = "block";
@@ -5193,6 +5187,7 @@
             }
           })
           .withFailureHandler(function(err) {
+            hideLoadingPopup();
             if (msgDiv) {
               msgDiv.style.display = "block";
               msgDiv.style.background = "#FFD8D8";
@@ -5209,19 +5204,14 @@
 
         if (btn) {
           btn.disabled = true;
-          btn.innerHTML = "⏳ กำลังสำรองข้อมูล...";
           btn.style.opacity = "0.7";
         }
-
-        if (msgDiv) {
-          msgDiv.style.display = "block";
-          msgDiv.style.background = "#E8F5E9";
-          msgDiv.style.color = "#2D6A4F";
-          msgDiv.innerHTML = "⏳ กำลังลบไฟล์เดิมและสำรองข้อมูลใหม่ไปยัง Google Drive...";
-        }
+        if (msgDiv) msgDiv.style.display = "none";
+        showLoadingPopup();
 
         google.script.run
           .withSuccessHandler(function(res) {
+            hideLoadingPopup();
             if (btn) {
               btn.disabled = false;
               btn.innerHTML = "⚡ สำรองทันที (Now)";
@@ -5245,6 +5235,7 @@
             }
           })
           .withFailureHandler(function(err) {
+            hideLoadingPopup();
             console.error("Manual backup error:", err);
             if (btn) {
               btn.disabled = false;
@@ -5491,7 +5482,7 @@
 
       function showActivityReportModal() {
         if (typeof currentUserRole !== 'undefined' && currentUserRole !== 'admin') {
-          cuteAlert('ฟังก์ชันรายงานกิจกรรมสามารถเข้าถึงได้เฉพาะครูบรรณารักษ์ (Admin) เท่านั้นค่ะ', 'สงวนสิทธิ์ Admin', '🔒');
+          cuteAlert('ฟังก์ชันรายงานกิจกรรมสามารถเข้าถึงได้เฉพาะครูบรรณารักษ์ (Admin) เท่านั้นครับ', 'สงวนสิทธิ์ Admin', '🔒');
           return;
         }
         initActivityReportDate();
@@ -5636,7 +5627,7 @@
         if (!input.files || input.files.length === 0) return;
         let files = Array.from(input.files);
         if (files.length > 4) {
-          cuteAlert('เลือกได้สูงสุด 4 ภาพนะคะ ระบบจะนำเข้า 4 ภาพแรกให้อัตโนมัติค่ะ', 'แจ้งเตือนรูปภาพ', '🖼️');
+          cuteAlert('เลือกได้สูงสุด 4 ภาพนะครับ ระบบจะนำเข้า 4 ภาพแรกให้อัตโนมัติครับ', 'แจ้งเตือนรูปภาพ', '🖼️');
           files = files.slice(0, 4);
         }
 
@@ -5708,8 +5699,8 @@
         if (!title) {
           cutePromptInputs({
             icon: '📋',
-            title: 'กรอกชื่อกิจกรรมก่อนจัดทำนะ',
-            message: 'กรุณาระบุชื่อกิจกรรมด้านล่างเพื่อจัดทำรายงานทันทีค่ะ',
+            title: 'กรอกชื่อกิจกรรมก่อนจัดทำนะครับ',
+            message: 'กรุณาระบุชื่อกิจกรรมด้านล่างเพื่อจัดทำรายงานทันทีครับ',
             fields: [
               { key: 'title', targetId: 'act-title', label: '🏷️ ชื่อกิจกรรม', placeholder: 'เช่น กิจกรรมสัปดาห์ส่งเสริมการอ่าน' }
             ],
@@ -5931,7 +5922,7 @@
       function openSaveFormatModal() {
         document.getElementById('save-opt-icon').innerText = '💾';
         document.getElementById('save-opt-title').innerText = 'เลือกรูปแบบไฟล์';
-        document.getElementById('save-opt-sub').innerText = 'ต้องการบันทึกเป็นรูปภาพ หรือเอกสาร PDF คะ?';
+        document.getElementById('save-opt-sub').innerText = 'ต้องการบันทึกเป็นรูปภาพ หรือเอกสาร PDF ครับ?';
         document.getElementById('save-step-format').style.display = 'flex';
         document.getElementById('save-step-dest').style.display = 'none';
         document.getElementById('saveOptionModal').style.display = 'flex';
@@ -5959,7 +5950,7 @@
       async function _renderReportToCanvas() {
         const srcSheet = document.getElementById('active-a4-sheet');
         if (!srcSheet) throw new Error('ไม่พบเอกสารรายงาน');
-        if (typeof html2canvas === 'undefined') throw new Error('กำลังโหลดตัวแปลงไฟล์ กรุณารอสักครู่แล้วลองใหม่ค่ะ');
+        if (typeof html2canvas === 'undefined') throw new Error('กำลังโหลดตัวแปลงไฟล์ กรุณารอสักครู่แล้วลองใหม่ครับ');
 
         const host = document.createElement('div');
         host.id = 'report-export-host';
@@ -6011,9 +6002,7 @@
         const loader = document.getElementById('tx-loader');
         const loaderTxt = document.getElementById('tx-loader-text');
         if (loaderTxt) {
-          loaderTxt.innerText = dest === 'drive'
-            ? 'กำลังสร้างไฟล์และบันทึกลง Google Drive...'
-            : 'กำลังเตรียมไฟล์สำหรับบันทึกลงเครื่อง...';
+          if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
         }
         if (loader) loader.style.display = 'flex';
 
@@ -6036,7 +6025,7 @@
           } else {
             // PDF
             if (!window.jspdf || !window.jspdf.jsPDF) {
-              throw new Error('กำลังโหลดตัวสร้าง PDF กรุณาลองอีกครั้งค่ะ');
+              throw new Error('กำลังโหลดตัวสร้าง PDF กรุณาลองอีกครั้งครับ');
             }
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -6071,7 +6060,7 @@
               files: [file],
               title: fileName
             });
-            cuteAlert('บันทึกไฟล์เรียบร้อยแล้วค่ะ (หากเลือก "บันทึกรูปภาพ" หรือ "บันทึกลงแอปไฟล์" ไฟล์จะอยู่ในเครื่องทันที)', 'บันทึกสำเร็จ', '✅');
+            cuteAlert('บันทึกไฟล์เรียบร้อยแล้วครับ (หากเลือก "บันทึกรูปภาพ" หรือ "บันทึกลงแอปไฟล์" ไฟล์จะอยู่ในเครื่องทันที)', 'บันทึกสำเร็จ', '✅');
             return;
           } catch (shareErr) {
             if (shareErr && shareErr.name === 'AbortError') return;
@@ -6095,7 +6084,7 @@
           } else {
             titleEl.innerText = '📄 บันทึก PDF ลง iPhone / iPad';
             bodyEl.innerHTML = `
-              <div style="margin-bottom: 12px;">กดปุ่มด้านล่างเพื่อเปิดเอกสาร PDF จากนั้นแตะไอคอน <b>แชร์ (⬆️)</b> ด้านล่างหน้าจอ แล้วเลือก <b>"บันทึกลงแอปไฟล์" (Save to Files)</b> ค่ะ</div>
+              <div style="margin-bottom: 12px;">กดปุ่มด้านล่างเพื่อเปิดเอกสาร PDF จากนั้นแตะไอคอน <b>แชร์ (⬆️)</b> ด้านล่างหน้าจอ แล้วเลือก <b>"บันทึกลงแอปไฟล์" (Save to Files)</b> ครับ</div>
               <a href="${blobUrl}" target="_blank" download="${_escReportHtml(fileName)}" class="action-btn" style="display: inline-flex; align-items:center; justify-content:center; width:100%; box-sizing:border-box; margin:0; text-decoration:none; border-radius: 14px; background: linear-gradient(135deg, #F59E0B, #D97706);">📄 เปิด / ดาวน์โหลด PDF</a>
             `;
           }
@@ -6112,7 +6101,7 @@
         a.click();
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 4000);
-        cuteAlert('ดาวน์โหลดไฟล์ "' + fileName + '" ลงเครื่องเรียบร้อยแล้วค่ะ', 'บันทึกสำเร็จ', '✅');
+        cuteAlert('ดาวน์โหลดไฟล์ "' + fileName + '" ลงเครื่องเรียบร้อยแล้วครับ', 'บันทึกสำเร็จ', '✅');
       }
 
       // ☁️ อัปโหลดไฟล์รูปภาพ/PDF ขึ้น Google Drive
@@ -6131,7 +6120,7 @@
             if (loader) loader.style.display = 'none';
             if (res && res.status === 'success') {
               cuteConfirm(
-                'บันทึกรายงาน "' + (res.fileName || '') + '" ลงโฟลเดอร์ WNTK_Library_Backups ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมคะ?',
+                'บันทึกรายงาน "' + (res.fileName || '') + '" ลงโฟลเดอร์ WNTK Library System ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมครับ?',
                 'บันทึกลง Drive สำเร็จ!',
                 '✅'
               ).then(openNow => {
@@ -6140,7 +6129,7 @@
                 }
               });
             } else {
-              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกลง Google Drive ได้ค่ะ', 'เกิดข้อผิดพลาด', '❌');
+              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกลง Google Drive ได้ครับ', 'เกิดข้อผิดพลาด', '❌');
             }
           })
           .withFailureHandler(function(err) {
