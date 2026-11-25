@@ -495,6 +495,243 @@
           page-break-after: avoid !important;
           page-break-inside: avoid !important;
         }
+        @page cert-landscape { size: A4 landscape; margin: 0; }
+        html.printing-certificate-report, body.printing-certificate-report {
+          page: cert-landscape;
+          background: white !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          position: static !important;
+          height: auto !important;
+          touch-action: auto !important;
+        }
+        body.printing-certificate-report > *:not(#print-only-report-container) {
+          display: none !important;
+        }
+        body.printing-certificate-report #print-only-report-container {
+          display: block !important;
+          width: 297mm !important;
+          margin: 0 auto !important;
+        }
+        body.printing-certificate-report #print-only-report-container .cert-sheet {
+          width: 297mm !important;
+          height: 210mm !important;
+          box-shadow: none !important;
+          margin: 0 !important;
+          page-break-after: avoid !important;
+          page-break-inside: avoid !important;
+        }
+      }
+
+      /* พรีวิวเกียรติบัตรยอดนักอ่าน (A4 แนวนอน 1122x794, ฟอนต์ Sarabun) */
+      .cert-preview-shell {
+        max-width: 960px !important;
+        width: 96% !important;
+        padding: 12px 14px 16px 14px !important;
+        display: flex;
+        flex-direction: column;
+        max-height: 92vh;
+        max-height: 92dvh;
+      }
+      .cert-preview-scroll {
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: #E2E8F0;
+        border-radius: 14px;
+        padding: 10px 6px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex: 1;
+        min-height: 240px;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+      }
+      .cert-scale-box {
+        transform-origin: top center;
+        transition: transform 0.15s ease;
+      }
+      .cert-sheet {
+        width: 1122px;
+        height: 794px;
+        background: linear-gradient(135deg, #FFFDF7 0%, #FFFFFF 48%, #F4FBF7 100%);
+        color: #1B4332;
+        position: relative;
+        box-sizing: border-box;
+        padding: 28px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.16);
+        overflow: hidden;
+        display: flex;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+      #certPreviewModal .cert-sheet,
+      #certPreviewModal .cert-sheet *,
+      #report-export-host .cert-sheet,
+      #report-export-host .cert-sheet *,
+      #print-only-report-container .cert-sheet,
+      #print-only-report-container .cert-sheet * {
+        font-family: 'Sarabun', sans-serif !important;
+      }
+      .cert-outer-border {
+        width: 100%;
+        height: 100%;
+        border: 4px solid #1B4332;
+        padding: 8px;
+        box-sizing: border-box;
+        position: relative;
+        background: rgba(255, 255, 255, 0.92);
+      }
+      .cert-inner-border {
+        width: 100%;
+        height: 100%;
+        border: 2px solid #C9A227;
+        box-shadow: inset 0 0 0 5px #FFFDF7, inset 0 0 0 6.5px #52B788;
+        padding: 26px 56px 24px 56px;
+        box-sizing: border-box;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+      }
+      .cert-corner-tl, .cert-corner-tr, .cert-corner-bl, .cert-corner-br {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        border-color: #C9A227;
+        border-style: solid;
+        pointer-events: none;
+      }
+      .cert-corner-tl { top: 12px; left: 12px; border-width: 4px 0 0 4px; }
+      .cert-corner-tr { top: 12px; right: 12px; border-width: 4px 4px 0 0; }
+      .cert-corner-bl { bottom: 12px; left: 12px; border-width: 0 0 4px 4px; }
+      .cert-corner-br { bottom: 12px; right: 12px; border-width: 0 4px 4px 0; }
+      .cert-header-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+      }
+      .cert-logo-img {
+        height: 82px;
+        width: auto;
+        object-fit: contain;
+        margin-bottom: 2px;
+      }
+      .cert-school-title {
+        font-size: 27px;
+        font-weight: 700;
+        color: #1B4332;
+        letter-spacing: 0.4px;
+        line-height: 1.25;
+      }
+      .cert-doc-subtitle {
+        font-size: 19px;
+        font-weight: 600;
+        color: #8C6D1F;
+        letter-spacing: 0.5px;
+      }
+      .cert-body-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        margin: 4px 0;
+      }
+      .cert-student-name {
+        font-size: 40px;
+        font-weight: 700;
+        color: #0F5132;
+        line-height: 1.28;
+        padding: 4px 28px 6px 28px;
+        border-bottom: 2px dashed #C9A227;
+        min-width: 480px;
+        max-width: 860px;
+      }
+      .cert-student-grade {
+        font-size: 21px;
+        font-weight: 600;
+        color: #334155;
+        margin-top: 2px;
+      }
+      .cert-award-desc {
+        font-size: 21px;
+        font-weight: 500;
+        color: #1E293B;
+        line-height: 1.5;
+        margin-top: 4px;
+      }
+      .cert-award-badge {
+        display: inline-block;
+        padding: 6px 34px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #FDE68A, #F59E0B);
+        color: #5C3D00;
+        font-size: 31px;
+        font-weight: 700;
+        border: 2px solid #B45309;
+        box-shadow: 0 3px 10px rgba(217, 119, 6, 0.2);
+        margin: 4px 0;
+      }
+      .cert-date-text {
+        font-size: 19px;
+        font-weight: 500;
+        color: #334155;
+        margin-top: 4px;
+      }
+      .cert-footer-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 0 36px 8px 36px;
+        box-sizing: border-box;
+      }
+      .cert-seal-box {
+        width: 140px;
+        text-align: center;
+      }
+      .cert-seal-ring {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        border: 3px double #C9A227;
+        background: radial-gradient(circle, #FFFBEB 0%, #FEF3C7 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        color: #92400E;
+        box-shadow: 0 2px 8px rgba(180, 83, 9, 0.18);
+      }
+      .cert-sig-block {
+        text-align: center;
+        min-width: 340px;
+        color: #111827;
+      }
+      .cert-sig-line {
+        font-size: 20px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+      .cert-sig-name {
+        font-size: 21px;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+      .cert-sig-pos {
+        font-size: 18px;
+        font-weight: 500;
+        color: #334155;
+        line-height: 1.3;
       }
       .act-photo-placeholder {
         display: flex;
@@ -543,7 +780,8 @@
       #borrowed-books-content,
       #card-students-list,
       #book-labels-list,
-      #backup-files-list {
+      #backup-files-list,
+      #archive-reports-list {
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
@@ -672,7 +910,7 @@
 
         <div class="icon-btn admin-only" id="btn-menu-add-staff" onclick="showAddStaffModal()" title="➕ เพิ่มยุวบรรณารักษ์ (สำหรับครู / Admin)">➕</div>
 
-        <div class="icon-btn admin-only" id="btn-menu-backup" onclick="showBackupModal()" title="ระบบสำรองข้อมูลอัตโนมัติ (Google Drive)">💾</div>
+        <div class="icon-btn admin-only" id="btn-menu-backup" onclick="openSaveCenterChoiceModal()" title="สำรองข้อมูลและคลังรายงาน">💾</div>
 
       </div>
 
@@ -1292,6 +1530,98 @@
           </div>
 
           <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('backupModal').style.display='none'">ปิดหน้าต่าง</button>
+       </div>
+    </div>
+
+    <!-- ป๊อปอัพเลือกโหมด: สำรองข้อมูล หรือ คลังรายงาน (เข้าผ่านปุ่ม 💾) -->
+    <div id="saveCenterChoiceModal" class="modal-overlay" style="z-index: 2450;">
+       <div class="modal-box" style="max-width: 390px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+             <button type="button" class="cute-close-x" onclick="closeSaveCenterChoiceModal()">✕</button>
+          </div>
+          <div class="cute-icon-circle"><span>💾</span></div>
+          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">จัดการข้อมูลและคลังรายงาน</div>
+          <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">กรุณาเลือกรายการที่ต้องการใช้งานครับ</div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15px;" onclick="closeSaveCenterChoiceModal(); showBackupModal();">
+                💾 สำรองข้อมูล (Google Drive)
+             </button>
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 15px;" onclick="closeSaveCenterChoiceModal(); showActivityArchiveModal();">
+                📚 คลังรายงาน (ย้อนหลัง)
+             </button>
+             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeSaveCenterChoiceModal()">
+                ปิดหน้าต่าง
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal คลังย้อนหลังรายงานกิจกรรม -->
+    <div id="activityArchiveModal" class="modal-overlay" style="z-index: 2480;">
+       <div class="modal-box" style="max-width: 520px; width: 94%; padding: 18px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
+                <span>📚</span> คลังย้อนหลังรายงานกิจกรรม
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeActivityArchiveModal()" title="ปิด">✕</button>
+          </div>
+
+          <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+             <div style="font-size: 12px; color: #0369A1; text-align: left; flex: 1; min-width: 170px;">
+                <b>คลังไฟล์รายงานกิจกรรม:</b> บันทึกชื่อกิจกรรม วันที่ และลิงก์ PDF/รูปภาพจาก Google Drive ให้อัตโนมัติครับ
+             </div>
+             <a id="archive-folder-link" href="#" target="_blank" class="action-btn" style="display: none; margin: 0; padding: 7px 12px; font-size: 12px; border-radius: 12px; background: #0284C7; color: white; text-decoration: none; white-space: nowrap;">
+                📂 เปิดโฟลเดอร์ Drive
+             </a>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+             <input type="text" id="archive-search-input" class="modern-input" placeholder="🔍 ค้นหาชื่อกิจกรรม หรือ วันที่..." oninput="filterActivityArchive()" style="flex: 1; margin: 0; padding: 8px 12px; font-size: 13px;">
+             <button type="button" class="action-btn" style="margin: 0; padding: 8px 12px; font-size: 12.5px; border-radius: 12px; background: #D8F3DC; color: #1B4332; box-shadow: none; white-space: nowrap;" onclick="showActivityArchiveModal()" title="รีเฟรชข้อมูล">🔄 รีเฟรช</button>
+          </div>
+
+          <div id="archive-reports-list" style="max-height: 50vh; overflow-y: auto; text-align: left; padding-right: 4px;">
+             <div style="text-align: center; padding: 24px; color: var(--text-sub); font-size: 13px;">ยังไม่มีรายการรายงานย้อนหลังครับ</div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 14px;">
+             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13.5px;" onclick="closeActivityArchiveModal(); openSaveCenterChoiceModal();">
+                ⬅️ ย้อนกลับ
+             </button>
+             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-size: 13.5px;" onclick="closeActivityArchiveModal()">
+                ปิดหน้าต่าง
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal พรีวิวเกียรติบัตร "ยอดนักอ่าน" (A4 แนวนอน 1 หน้า) -->
+    <div id="certPreviewModal" class="modal-overlay" style="z-index: 2520;">
+       <div class="modal-box cert-preview-shell">
+          <div class="activity-preview-toolbar no-print">
+             <button type="button" class="action-btn" style="margin:0; padding: 7px 12px; font-size: 12.5px; border-radius: 12px; background: #F1F5F9; color: #334155; box-shadow: none;" onclick="closeCertPreviewModal()">
+                ⬅️ หน้ารายชื่อ
+             </button>
+             <div style="font-weight: 700; font-size: 13.5px; color: var(--primary); display: flex; align-items: center; gap: 5px;">
+                🏆 เกียรติบัตรยอดนักอ่าน
+             </div>
+             <div style="display: flex; gap: 8px; align-items: center;">
+                <button type="button" class="action-btn" style="margin:0; padding: 8px 13px; font-size: 18px; line-height: 1; border-radius: 12px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white;" onclick="printBestReaderCert()" title="สั่งพิมพ์เกียรติบัตร">
+                   🖨️
+                </button>
+                <button type="button" class="action-btn" style="margin:0; padding: 8px 13px; font-size: 18px; line-height: 1; border-radius: 12px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white;" onclick="openCertSaveFormatModal()" title="บันทึกไฟล์เกียรติบัตร">
+                   💾
+                </button>
+                <button type="button" class="cute-close-x" onclick="closeCertPreviewModal()" title="ปิด">✕</button>
+             </div>
+          </div>
+
+          <div class="cert-preview-scroll" id="certPreviewScroll">
+             <div class="cert-scale-box" id="certScaleBox">
+                <div id="certSheetMount"></div>
+             </div>
+          </div>
        </div>
     </div>
 
@@ -4325,9 +4655,14 @@
                   รหัส: <b>${st.id}</b> | ชั้น: <b>${st.grade || '-'}</b>
                 </div>
               </div>
-              <button type="button" style="width: 88px; height: 32px; flex: 0 0 88px; padding: 0 6px; font-size: 11px; font-weight: 600; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')">
-                🖨️ พิมพ์บัตร
-              </button>
+              <div style="display: flex; gap: 5px; flex-shrink: 0; align-items: center;">
+                <button type="button" style="width: 68px; height: 32px; padding: 0 6px; font-size: 11px; font-weight: 600; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')" title="พิมพ์บัตรนักเรียน">
+                  🖨️ บัตร
+                </button>
+                <button type="button" style="width: 92px; height: 32px; padding: 0 7px; font-size: 11px; font-weight: 600; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="openBestReaderCert('${safeId}', '${safeName}', '${safeGrade}')" title="พิมพ์เกียรติบัตรยอดนักอ่าน">
+                  🏆 เกียรติบัตร
+                </button>
+              </div>
             </div>
           `;
         });
@@ -6150,8 +6485,23 @@
       }
 
       // 💾 ระบบบันทึกไฟล์ 2 ขั้นตอน: เลือกรูปแบบ (รูปภาพ/PDF) -> เลือกสถานที่ (ลงเครื่อง/Drive) (Item 8)
+      let activeExportMode = 'activity';
+      let currentCertMeta = null;
+      let cachedActivityArchive = [];
+      let cachedArchiveFolderUrl = '';
+
       function openSaveFormatModal() {
-        document.getElementById('save-opt-icon').innerText = '💾';
+        activeExportMode = 'activity';
+        _openSaveFormatModalUi();
+      }
+
+      function openCertSaveFormatModal() {
+        activeExportMode = 'certificate';
+        _openSaveFormatModalUi();
+      }
+
+      function _openSaveFormatModalUi() {
+        document.getElementById('save-opt-icon').innerText = activeExportMode === 'certificate' ? '🏆' : '💾';
         document.getElementById('save-opt-title').innerText = 'เลือกรูปแบบไฟล์';
         document.getElementById('save-opt-sub').innerText = 'ต้องการบันทึกเป็นรูปภาพ หรือเอกสาร PDF ครับ?';
         document.getElementById('save-step-format').style.display = 'flex';
@@ -6174,13 +6524,13 @@
       }
 
       function backToSaveFormatStep() {
-        openSaveFormatModal();
+        _openSaveFormatModalUi();
       }
 
-      // 📸 แปลง A4 Sheet เป็น Canvas ความละเอียดสูง (ไม่เพี้ยนบนมือถือ iOS/Android)
-      async function _renderReportToCanvas() {
-        const srcSheet = document.getElementById('active-a4-sheet');
-        if (!srcSheet) throw new Error('ไม่พบเอกสารรายงาน');
+      // 📸 แปลง A4 Sheet (แนวตั้งหรือแนวนอน) เป็น Canvas ความละเอียดสูง (ไม่เพี้ยนบนมือถือ iOS/Android)
+      async function _renderReportToCanvas(targetId = 'active-a4-sheet', widthPx = 794, heightPx = 1122) {
+        const srcSheet = document.getElementById(targetId);
+        if (!srcSheet) throw new Error('ไม่พบเอกสารสำหรับส่งออก');
         if (typeof html2canvas === 'undefined') throw new Error('กำลังโหลดตัวแปลงไฟล์ กรุณารอสักครู่แล้วลองใหม่ครับ');
 
         const host = document.createElement('div');
@@ -6188,8 +6538,8 @@
         host.style.position = 'fixed';
         host.style.left = '-99999px';
         host.style.top = '0';
-        host.style.width = '794px';
-        host.style.height = '1122px';
+        host.style.width = widthPx + 'px';
+        host.style.height = heightPx + 'px';
         host.style.zIndex = '-1';
         host.style.background = '#ffffff';
         const clone = srcSheet.cloneNode(true);
@@ -6201,14 +6551,22 @@
         document.body.appendChild(host);
 
         if (document.fonts && document.fonts.load) {
-          try { await document.fonts.load('16px Sarabun'); await document.fonts.ready; } catch(e) {}
+          try {
+            await document.fonts.load('16px Sarabun');
+            await document.fonts.load('700 24px Sarabun');
+            await document.fonts.ready;
+          } catch(e) {}
         }
 
-        // รอให้รูปภาพทั้งหมดใน clone โหลดสมบูรณ์
+        // รอให้รูปภาพทั้งหมดใน clone โหลดสมบูรณ์ (พร้อม timeout กันค้าง)
         const imgs = Array.from(clone.querySelectorAll('img'));
         await Promise.all(imgs.map(img => {
           if (img.complete) return Promise.resolve();
-          return new Promise(res => { img.onload = res; img.onerror = res; });
+          return new Promise(res => {
+            const t = setTimeout(res, 4000);
+            img.onload = () => { clearTimeout(t); res(); };
+            img.onerror = () => { clearTimeout(t); res(); };
+          });
         }));
 
         try {
@@ -6217,14 +6575,14 @@
             useCORS: true,
             allowTaint: false,
             backgroundColor: '#ffffff',
-            width: 794,
-            height: 1122,
-            windowWidth: 794,
-            windowHeight: 1122
+            width: widthPx,
+            height: heightPx,
+            windowWidth: widthPx,
+            windowHeight: heightPx
           });
           return canvas;
         } finally {
-          document.body.removeChild(host);
+          if (host.parentNode) document.body.removeChild(host);
         }
       }
 
@@ -6232,14 +6590,19 @@
         closeSaveOptionModal();
         const loader = document.getElementById('tx-loader');
         const loaderTxt = document.getElementById('tx-loader-text');
-        if (loaderTxt) {
-          if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
-        }
+        if (loaderTxt) loaderTxt.innerText = 'กำลังโหลด...';
         if (loader) loader.style.display = 'flex';
 
+        const isCert = (activeExportMode === 'certificate');
+        const targetId = isCert ? 'active-cert-sheet' : 'active-a4-sheet';
+        const widthPx = isCert ? 1122 : 794;
+        const heightPx = isCert ? 794 : 1122;
+
         try {
-          const canvas = await _renderReportToCanvas();
-          const meta = currentActivityMeta || { title: 'รายงานกิจกรรม', date: '', fileBaseName: 'รายงานกิจกรรม' };
+          const canvas = await _renderReportToCanvas(targetId, widthPx, heightPx);
+          const meta = isCert
+            ? (currentCertMeta || { title: 'เกียรติบัตรยอดนักอ่าน', date: '', fileBaseName: 'เกียรติบัตรยอดนักอ่าน', isCertificate: true })
+            : (currentActivityMeta || { title: 'รายงานกิจกรรม', date: '', fileBaseName: 'รายงานกิจกรรม', isCertificate: false });
           const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
           if (selectedSaveFormat === 'image') {
@@ -6254,14 +6617,18 @@
               await _uploadReportFileToDrive('image', pngDataUrl, meta, loader);
             }
           } else {
-            // PDF
+            // PDF (Portrait A4 สำหรับรายงาน / Landscape A4 สำหรับเกียรติบัตร)
             if (!window.jspdf || !window.jspdf.jsPDF) {
               throw new Error('กำลังโหลดตัวสร้าง PDF กรุณาลองอีกครั้งครับ');
             }
             const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-            pdf.addImage(jpegDataUrl, 'JPEG', 0, 0, 210, 297);
+            const pdf = new jsPDF({
+              orientation: isCert ? 'landscape' : 'portrait',
+              unit: 'mm',
+              format: 'a4'
+            });
+            const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.94);
+            pdf.addImage(jpegDataUrl, 'JPEG', 0, 0, isCert ? 297 : 210, isCert ? 210 : 297);
             const fileName = meta.fileBaseName + '.pdf';
 
             if (dest === 'device') {
@@ -6337,21 +6704,24 @@
 
       // ☁️ อัปโหลดไฟล์รูปภาพ/PDF ขึ้น Google Drive
       function _uploadReportFileToDrive(fileType, base64Data, meta, loader) {
+        const isCert = !!meta.isCertificate;
         const payload = {
           title: meta.title,
           date: meta.date,
-          participants: meta.participants,
-          desc: meta.desc,
+          participants: meta.participants || '',
+          desc: meta.desc || '',
           fileType: fileType,
-          base64Data: base64Data
+          base64Data: base64Data,
+          isCertificate: isCert
         };
 
         google.script.run
           .withSuccessHandler(function(res) {
             if (loader) loader.style.display = 'none';
             if (res && res.status === 'success') {
+              const docLabel = isCert ? 'เกียรติบัตร' : 'รายงาน';
               cuteConfirm(
-                'บันทึกรายงาน "' + (res.fileName || '') + '" ลงโฟลเดอร์ WNTK Library System ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมครับ?',
+                'บันทึก' + docLabel + ' "' + (res.fileName || '') + '" ลงโฟลเดอร์ WNTK Library System ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมครับ?',
                 'บันทึกลง Drive สำเร็จ!',
                 '✅'
               ).then(openNow => {
@@ -6368,6 +6738,333 @@
             cuteAlert('เกิดข้อผิดพลาดในการบันทึกลง Drive: ' + err, 'เกิดข้อผิดพลาด', '❌');
           })
           .saveActivityReportToDrive(payload);
+      }
+
+      // ==============================================================
+      // 📚 คลังย้อนหลังรายงานกิจกรรม (Archive Manager - ป๊อปอัพจากปุ่ม 💾)
+      // ==============================================================
+
+      function openSaveCenterChoiceModal() {
+        if (currentUserRole !== 'admin') {
+          cuteAlert('ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ', 'สงวนสิทธิ์ Admin', '🔒');
+          return;
+        }
+        const m = document.getElementById('saveCenterChoiceModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeSaveCenterChoiceModal() {
+        const m = document.getElementById('saveCenterChoiceModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function showActivityArchiveModal() {
+        if (currentUserRole !== 'admin') {
+          cuteAlert('ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ', 'สงวนสิทธิ์ Admin', '🔒');
+          return;
+        }
+        // ซ่อน Modal ก่อนแสดง Loading เพื่อไม่ให้ซ้อนทับกัน
+        const modal = document.getElementById('activityArchiveModal');
+        if (modal) modal.style.display = 'none';
+        showLoadingPopup('กำลังโหลด...');
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            hideLoadingPopup();
+            if (!res || res.status === 'error') {
+              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถโหลดคลังรายงานได้ครับ', 'เกิดข้อผิดพลาด', '❌');
+              return;
+            }
+            cachedActivityArchive = res.items || [];
+            cachedArchiveFolderUrl = res.folderUrl || '';
+
+            const folderBtn = document.getElementById('archive-folder-link');
+            if (folderBtn) {
+              if (cachedArchiveFolderUrl) {
+                folderBtn.href = cachedArchiveFolderUrl;
+                folderBtn.style.display = 'inline-flex';
+              } else {
+                folderBtn.style.display = 'none';
+              }
+            }
+
+            const searchEl = document.getElementById('archive-search-input');
+            if (searchEl) searchEl.value = '';
+            renderActivityArchiveList(cachedActivityArchive);
+            if (modal) modal.style.display = 'flex';
+          })
+          .withFailureHandler(function(err) {
+            hideLoadingPopup();
+            cuteAlert('ไม่สามารถเชื่อมต่อคลังรายงานได้: ' + err, 'เกิดข้อผิดพลาด', '❌');
+          })
+          .getActivityReportArchive();
+      }
+
+      function closeActivityArchiveModal() {
+        const modal = document.getElementById('activityArchiveModal');
+        if (modal) modal.style.display = 'none';
+      }
+
+      function filterActivityArchive() {
+        const q = (document.getElementById('archive-search-input')?.value || '').toLowerCase().trim();
+        if (!q) {
+          renderActivityArchiveList(cachedActivityArchive);
+          return;
+        }
+        const filtered = cachedActivityArchive.filter(item =>
+          String(item.title || '').toLowerCase().includes(q) ||
+          String(item.activityDate || '').toLowerCase().includes(q) ||
+          String(item.fileType || '').toLowerCase().includes(q)
+        );
+        renderActivityArchiveList(filtered);
+      }
+
+      function renderActivityArchiveList(items) {
+        const container = document.getElementById('archive-reports-list');
+        if (!container) return;
+        if (!items || items.length === 0) {
+          container.innerHTML = '<div style="text-align: center; padding: 26px 12px; color: var(--text-sub); font-size: 13px; background: #F8FAFC; border-radius: 14px; border: 1.5px dashed #CBD5E1;">📭 ยังไม่พบรายงานกิจกรรมในคลังย้อนหลังครับ<br><span style="font-size: 11.5px; color: #64748B;">เมื่อจัดทำรายงานกิจกรรมแล้วกดบันทึก (💾 -> Google Drive) ระบบจะเพิ่มลิงก์เข้ามาที่นี่อัตโนมัติครับ</span></div>';
+          return;
+        }
+
+        let html = '';
+        items.forEach(item => {
+          const isImg = String(item.fileType || '').toUpperCase().includes('PNG') || String(item.fileType || '').toUpperCase().includes('IMAGE');
+          const badgeHtml = isImg
+            ? '<span style="background: #DCFCE7; color: #166534; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap;">🖼️ รูปภาพ</span>'
+            : '<span style="background: #FEF3C7; color: #92400E; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap;">📄 PDF</span>';
+          const safeFileId = _escReportHtml(item.fileId || '');
+          const rowIndex = Number(item.rowIndex || 0);
+          const safeTitle = String(item.title || '').replace(/'/g, "\\'");
+
+          html += `
+            <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
+                <div style="font-weight: 700; font-size: 13.5px; color: var(--text-main); line-height: 1.35; flex: 1;">
+                  📋 ${_escReportHtml(item.title || 'รายงานกิจกรรม')}
+                </div>
+                ${badgeHtml}
+              </div>
+              <div style="font-size: 11.5px; color: var(--text-sub); margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 8px;">
+                <span>📅 วันที่จัด: <b>${_escReportHtml(item.activityDate || '-')}</b></span>
+                ${item.savedAt ? `<span>🕒 บันทึกเมื่อ: ${_escReportHtml(item.savedAt)}</span>` : ''}
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                ${item.fileUrl ? `<a href="${_escReportHtml(item.fileUrl)}" target="_blank" class="action-btn" style="flex: 1; min-width: 90px; margin: 0; padding: 6px 10px; font-size: 12px; border-radius: 10px; background: #0284C7; color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">👁️ เปิดดู</a>` : ''}
+                ${item.downloadUrl ? `<a href="${_escReportHtml(item.downloadUrl)}" target="_blank" class="action-btn" style="flex: 1; min-width: 90px; margin: 0; padding: 6px 10px; font-size: 12px; border-radius: 10px; background: #2D6A4F; color: white; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">📥 ดาวน์โหลด</a>` : ''}
+                <button type="button" class="action-btn" style="margin: 0; padding: 6px 11px; font-size: 12px; border-radius: 10px; background: #FEE2E2; color: #B91C1C; box-shadow: none;" onclick="confirmDeleteArchiveReport('${safeFileId}', ${rowIndex}, '${safeTitle}')" title="ลบออกจากคลัง">🗑️</button>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      function confirmDeleteArchiveReport(fileId, rowIndex, title) {
+        cuteConfirm(
+          'ต้องการลบรายงาน "' + (title || 'รายการนี้') + '" ออกจากคลังย้อนหลังและไฟล์ใน Google Drive ใช่ไหมครับ?',
+          'ยืนยันการลบรายงาน',
+          '🗑️'
+        ).then(ok => {
+          if (!ok) return;
+          showLoadingPopup('กำลังโหลด...');
+          google.script.run
+            .withSuccessHandler(function(res) {
+              hideLoadingPopup();
+              if (res && res.status === 'success') {
+                cuteAlert(res.msg || 'ลบรายงานเรียบร้อยแล้วครับ', 'สำเร็จ', '✅').then(() => {
+                  showActivityArchiveModal();
+                });
+              } else {
+                cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถลบรายงานได้ครับ', 'ผิดพลาด', '❌');
+              }
+            })
+            .withFailureHandler(function(err) {
+              hideLoadingPopup();
+              cuteAlert('เกิดข้อผิดพลาด: ' + err, 'ผิดพลาด', '❌');
+            })
+            .deleteActivityReportArchive(fileId, rowIndex);
+        });
+      }
+
+      // ==============================================================
+      // 🏆 ระบบพิมพ์เกียรติบัตร "ยอดนักอ่าน" (A4 แนวนอน 1 หน้า)
+      // ==============================================================
+
+      function openBestReaderCert(studentId, studentName, studentGrade) {
+        preloadOfficialReportAssets();
+        const nameClean = String(studentName || 'นักเรียน').trim();
+        const gradeClean = String(studentGrade || '').trim();
+
+        const now = new Date();
+        const thaiMonths = [
+          'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+          'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+        const thaiDateText = `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
+        const safeFileBase = 'เกียรติบัตรยอดนักอ่าน_' + nameClean.replace(/[\\/:*?"<>|]/g, '_');
+
+        currentCertMeta = {
+          studentId: studentId || '',
+          studentName: nameClean,
+          studentGrade: gradeClean,
+          title: 'เกียรติบัตรยอดนักอ่าน - ' + nameClean,
+          date: thaiDateText,
+          fileBaseName: safeFileBase,
+          isCertificate: true
+        };
+
+        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        const gradeLineHtml = gradeClean
+          ? `<div class="cert-student-grade">นักเรียนชั้น ${_escReportHtml(gradeClean)}</div>`
+          : '';
+
+        const certHtml = `
+          <div class="cert-sheet" id="active-cert-sheet">
+            <div class="cert-outer-border">
+              <div class="cert-inner-border">
+                <div class="cert-corner-tl"></div>
+                <div class="cert-corner-tr"></div>
+                <div class="cert-corner-bl"></div>
+                <div class="cert-corner-br"></div>
+
+                <div class="cert-header-wrap">
+                  <img src="${logoSrc}" crossorigin="anonymous" alt="ตราโรงเรียนวัดหนองตะเฆ่" class="cert-logo-img">
+                  <div class="cert-school-title">โรงเรียนวัดหนองตะเฆ่</div>
+                  <div class="cert-doc-subtitle">เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า</div>
+                </div>
+
+                <div class="cert-body-wrap">
+                  <div class="cert-student-name">${_escReportHtml(nameClean)}</div>
+                  ${gradeLineHtml}
+                  <div class="cert-award-desc">
+                    เป็นผู้มีความมุ่งมั่น ตั้งใจ และรักการอ่านอย่างสม่ำเสมอ<br>
+                    สมควรได้รับการยกย่องและเชิดชูเกียรติเป็น
+                  </div>
+                  <div class="cert-award-badge">🏆 ยอดนักอ่าน 🏆</div>
+                  <div class="cert-date-text">ให้ไว้ ณ วันที่ ${_escReportHtml(thaiDateText)}</div>
+                </div>
+
+                <div class="cert-footer-wrap">
+                  <div class="cert-seal-box">
+                    <div class="cert-seal-ring">
+                      <span style="font-size: 24px; line-height: 1;">🌟</span>
+                      <span style="font-size: 12px; font-weight: 700; margin-top: 3px;">ยอดนักอ่าน</span>
+                      <span style="font-size: 9.5px; font-weight: 600;">WNTK Library</span>
+                    </div>
+                  </div>
+
+                  <div class="cert-sig-block">
+                    <div class="cert-sig-line">ลงชื่อ ............................................................</div>
+                    <div class="cert-sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
+                    <div class="cert-sig-pos">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const mount = document.getElementById('certSheetMount');
+        if (mount) mount.innerHTML = certHtml;
+
+        const prevModal = document.getElementById('certPreviewModal');
+        if (prevModal) prevModal.style.display = 'flex';
+        if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        setTimeout(scaleCertPreview, 30);
+      }
+
+      function scaleCertPreview() {
+        const scrollWrap = document.getElementById('certPreviewScroll');
+        const scaleBox = document.getElementById('certScaleBox');
+        if (!scrollWrap || !scaleBox) return;
+        const availW = scrollWrap.clientWidth - 12;
+        if (availW <= 0) return;
+        const sheetW = 1122;
+        const sheetH = 794;
+        const scale = Math.min(1, availW / sheetW);
+        scaleBox.style.transform = 'scale(' + scale + ')';
+        scaleBox.style.width = sheetW + 'px';
+        scaleBox.style.height = Math.ceil(sheetH * scale) + 'px';
+      }
+      window.addEventListener('resize', scaleCertPreview);
+
+      function closeCertPreviewModal() {
+        const m = document.getElementById('certPreviewModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function printBestReaderCert() {
+        const mount = document.getElementById('certSheetMount');
+        const printContainer = document.getElementById('print-only-report-container');
+        if (!mount) return;
+
+        // 1. เปิดหน้าต่างพิมพ์แนวนอนแยกต่างหาก (เสถียรที่สุดทั้ง PC / มือถือ / GAS iframe)
+        const win = window.open('', '_blank');
+        if (win) {
+          const titleText = (currentCertMeta && currentCertMeta.title) ? currentCertMeta.title : 'เกียรติบัตรยอดนักอ่าน';
+          const docHtml = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'
+            + '<title>' + _escReportHtml(titleText) + '</title>'
+            + '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">'
+            + '<style>'
+            + '*, *::before, *::after { box-sizing: border-box; font-family: "Sarabun", sans-serif !important; }'
+            + '@page { size: A4 landscape; margin: 0; }'
+            + 'html, body { margin: 0; padding: 0; background: #f0f2f5; -webkit-print-color-adjust: exact; print-color-adjust: exact; }'
+            + '.print-bar { display: flex; justify-content: center; gap: 10px; padding: 10px; background: #1B4332; position: sticky; top: 0; z-index: 999; }'
+            + '.print-bar button { border: none; border-radius: 10px; padding: 8px 18px; font-size: 16px; cursor: pointer; color: #fff; background: #40916C; }'
+            + '.print-bar button.close-b { background: #64748B; }'
+            + '.wrap { padding: 16px 0; display: flex; justify-content: center; }'
+            + '.cert-sheet { width: 1122px; height: 794px; background: linear-gradient(135deg, #FFFDF7 0%, #FFFFFF 48%, #F4FBF7 100%); color: #1B4332; padding: 28px; box-shadow: 0 4px 18px rgba(0,0,0,0.14); display: flex; align-items: stretch; justify-content: stretch; overflow: hidden; }'
+            + '.cert-outer-border { width: 100%; height: 100%; border: 4px solid #1B4332; padding: 8px; background: rgba(255,255,255,0.92); }'
+            + '.cert-inner-border { width: 100%; height: 100%; border: 2px solid #C9A227; box-shadow: inset 0 0 0 5px #FFFDF7, inset 0 0 0 6.5px #52B788; padding: 26px 56px 24px 56px; position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }'
+            + '.cert-corner-tl, .cert-corner-tr, .cert-corner-bl, .cert-corner-br { position: absolute; width: 44px; height: 44px; border-color: #C9A227; border-style: solid; }'
+            + '.cert-corner-tl { top: 12px; left: 12px; border-width: 4px 0 0 4px; }'
+            + '.cert-corner-tr { top: 12px; right: 12px; border-width: 4px 4px 0 0; }'
+            + '.cert-corner-bl { bottom: 12px; left: 12px; border-width: 0 0 4px 4px; }'
+            + '.cert-corner-br { bottom: 12px; right: 12px; border-width: 0 4px 4px 0; }'
+            + '.cert-header-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 4px; }'
+            + '.cert-logo-img { height: 82px; width: auto; object-fit: contain; margin-bottom: 2px; }'
+            + '.cert-school-title { font-size: 27px; font-weight: 700; color: #1B4332; letter-spacing: 0.4px; line-height: 1.25; }'
+            + '.cert-doc-subtitle { font-size: 19px; font-weight: 600; color: #8C6D1F; letter-spacing: 0.5px; }'
+            + '.cert-body-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; width: 100%; margin: 4px 0; }'
+            + '.cert-student-name { font-size: 40px; font-weight: 700; color: #0F5132; line-height: 1.28; padding: 4px 28px 6px 28px; border-bottom: 2px dashed #C9A227; min-width: 480px; max-width: 860px; }'
+            + '.cert-student-grade { font-size: 21px; font-weight: 600; color: #334155; margin-top: 2px; }'
+            + '.cert-award-desc { font-size: 21px; font-weight: 500; color: #1E293B; line-height: 1.5; margin-top: 4px; }'
+            + '.cert-award-badge { display: inline-block; padding: 6px 34px; border-radius: 999px; background: linear-gradient(135deg, #FDE68A, #F59E0B); color: #5C3D00; font-size: 31px; font-weight: 700; border: 2px solid #B45309; margin: 4px 0; }'
+            + '.cert-date-text { font-size: 19px; font-weight: 500; color: #334155; margin-top: 4px; }'
+            + '.cert-footer-wrap { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 36px 8px 36px; }'
+            + '.cert-seal-box { width: 140px; text-align: center; }'
+            + '.cert-seal-ring { width: 96px; height: 96px; border-radius: 50%; border: 3px double #C9A227; background: radial-gradient(circle, #FFFBEB 0%, #FEF3C7 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto; color: #92400E; }'
+            + '.cert-sig-block { text-align: center; min-width: 340px; color: #111827; }'
+            + '.cert-sig-line { font-size: 20px; font-weight: 500; margin-bottom: 4px; }'
+            + '.cert-sig-name { font-size: 21px; font-weight: 700; line-height: 1.3; }'
+            + '.cert-sig-pos { font-size: 18px; font-weight: 500; color: #334155; line-height: 1.3; }'
+            + '@media print { .print-bar { display: none !important; } body { background: #fff; } .wrap { padding: 0; } .cert-sheet { width: 297mm; height: 210mm; box-shadow: none; page-break-after: avoid; page-break-inside: avoid; } }'
+            + '</style></head><body>'
+            + '<div class="print-bar"><button onclick="window.print()" title="สั่งพิมพ์">🖨️</button><button class="close-b" onclick="window.close()" title="ปิด">✕</button></div>'
+            + '<div class="wrap">' + mount.innerHTML + '</div>'
+            + '<' + 'script>window.addEventListener("load", function(){ setTimeout(function(){ window.print(); }, 400); });<' + '/script>'
+            + '</body></html>';
+          win.document.open();
+          win.document.write(docHtml);
+          win.document.close();
+          return;
+        }
+
+        // 2. Fallback: พิมพ์ในหน้าเดิมแบบ Synchronous (กรณี Pop-up ถูกบล็อก / iOS PWA)
+        if (!printContainer) return;
+        printContainer.innerHTML = mount.innerHTML;
+        document.documentElement.classList.add('printing-certificate-report');
+        document.body.classList.add('printing-certificate-report');
+
+        const cleanupCertPrint = function() {
+          document.documentElement.classList.remove('printing-certificate-report');
+          document.body.classList.remove('printing-certificate-report');
+          window.removeEventListener('afterprint', cleanupCertPrint);
+        };
+        window.addEventListener('afterprint', cleanupCertPrint);
+        setTimeout(cleanupCertPrint, 15000);
+        window.print();
       }
 
 // 📱 PWA Service Worker Registration
