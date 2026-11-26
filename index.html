@@ -95,12 +95,17 @@
         -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0);
       }
 
-      html, body { 
+      html {
+        overflow-x: hidden; overflow-y: auto; width: 100%; min-height: 100%; margin: 0; padding: 0;
+        overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y;
+        background: transparent; box-sizing: border-box;
+      }
+      body {
         overflow-x: hidden; overflow-y: auto; width: 100%; min-height: 100vh; min-height: 100dvh;
         overscroll-behavior-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y;
-        font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 12px 0 calc(25px + env(safe-area-inset-bottom, 0px)) 0;
+        font-family: 'Mali', cursive, sans-serif; margin: 0; padding: 16px 0 calc(16px + env(safe-area-inset-bottom, 0px)) 0;
         background: transparent;
-        display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box;
       }
 
       
@@ -1171,7 +1176,6 @@
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
                 <span>📋</span> สถิติการเข้าใช้ห้องสมุด
              </div>
-             <button type="button" class="cute-close-x" onclick="closeGuestUsageModal()">✕</button>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
@@ -1189,8 +1193,7 @@
              <table class="guest-table">
                 <thead>
                    <tr>
-                      <th>วันที่</th>
-                      <th>เวลา</th>
+                      <th>วัน-เวลา</th>
                       <th>รายการ</th>
                       <th>สมาชิก</th>
                       <th>หนังสือ</th>
@@ -1211,7 +1214,6 @@
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
                 <span>🏆</span> จัดอันดับยอดนักอ่าน
              </div>
-             <button type="button" class="cute-close-x" onclick="closeGuestReadersModal()">✕</button>
           </div>
 
           <div id="guest-top-readers" class="guest-rank-list" style="flex: 1; max-height: 55vh;"></div>
@@ -1368,7 +1370,7 @@
 
         <div class="input-wrapper">
 
-          <input type="tel" id="r-sid" class="modern-input" placeholder="สแกนรหัสนักเรียน (4 หลัก)" maxlength="4" oninput="checkScore(this)">
+          <input type="tel" id="r-sid" class="modern-input" placeholder="รหัสนักเรียน" maxlength="4" oninput="checkScore(this)">
 
           <button class="cam-btn" onclick="startCamera('r-sid', 'redeem')">📷</button>
 
@@ -1772,10 +1774,11 @@
 
           <!-- ตัวกรองผู้แต่ง และปุ่มพิมพ์ (ไอคอนเท่านั้น) -->
           <div style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center;">
-             <select id="book-category-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterBookLabels()">
-                <option value="all">ผู้แต่ง</option>
+             <select id="book-category-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1; min-width: 0;" onchange="onBookCategoryFilterChange(this)">
+                <option value="__select_all__">เลือกทั้งหมด</option>
+                <option value="all" selected>ผู้แต่ง</option>
              </select>
-             <button type="button" class="action-btn" style="width: 44px; height: 38px; padding: 0; font-size: 18px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSelectedBookLabels()" title="สั่งพิมพ์สติ๊กเกอร์">
+             <button type="button" class="action-btn" style="flex: 0 0 38px; width: 38px; min-width: 38px; max-width: 38px; height: 38px; padding: 0; font-size: 17px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSelectedBookLabels()" title="สั่งพิมพ์สติ๊กเกอร์">
                 🖨️
              </button>
           </div>
@@ -1874,9 +1877,6 @@
     <!-- ป๊อปอัพเลือกโหมด: สำรองข้อมูล หรือ คลังรายงาน (เข้าผ่านปุ่ม 💾) -->
     <div id="saveCenterChoiceModal" class="modal-overlay" style="z-index: 2450;">
        <div class="modal-box" style="max-width: 390px;">
-          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
-             <button type="button" class="cute-close-x" onclick="closeSaveCenterChoiceModal()">✕</button>
-          </div>
           <div class="cute-icon-circle"><span>💾</span></div>
           <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">จัดการข้อมูลและคลังเอกสาร</div>
           <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">กรุณาเลือกรายการที่ต้องการใช้งานครับ</div>
@@ -1925,7 +1925,6 @@
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
                 <span>🖼️</span> สื่อการเรียนรู้
              </div>
-             <button type="button" class="cute-close-x" onclick="closeLearningMediaModal()" title="ปิด">✕</button>
           </div>
 
           <div style="display: flex; gap: 8px; margin-bottom: 10px;">
@@ -1975,11 +1974,18 @@
           </div>
 
           <div style="margin-bottom: 10px;">
-             <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📁 หมวดหมู่ที่เคยบันทึก</label>
-             <select id="media-existing-category" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 8px 10px; margin-bottom: 6px;" onchange="onSelectExistingMediaCategory(this.value)">
-                <option value="">-- สร้างหมวดหมู่ใหม่ด้านล่าง --</option>
-             </select>
-             <input type="text" id="media-category-input" class="modern-input" placeholder="พิมพ์ชื่อหมวดหมู่ (เช่น ภาษาไทย, คณิตศาสตร์, นิทาน)" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
+             <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📁 หมวดหมู่</label>
+             <div style="display: flex; gap: 6px; align-items: center;">
+                <select id="media-existing-category" class="modern-input" style="flex: 1; min-width: 0; width: auto; box-sizing: border-box; font-size: 13px; padding: 8px 10px; margin: 0;" onchange="onSelectExistingMediaCategory(this.value)">
+                   <option value="">-- เลือกหมวดหมู่ --</option>
+                </select>
+                <button type="button" id="btn-toggle-media-cat" class="action-btn" style="flex: 0 0 38px; width: 38px; min-width: 38px; max-width: 38px; height: 38px; padding: 0; margin: 0; border-radius: 12px; background: #D8F3DC; color: #1B4332; box-shadow: none; font-size: 16px; display: inline-flex; align-items: center; justify-content: center;" onclick="toggleAddMediaCategory()" title="เพิ่มหมวดหมู่ใหม่">
+                   ➕
+                </button>
+             </div>
+             <div id="media-new-category-wrap" style="display: none; margin-top: 6px;">
+                <input type="text" id="media-category-input" class="modern-input" placeholder="พิมพ์ชื่อหมวดหมู่ใหม่ (เช่น ภาษาไทย, คณิตศาสตร์, นิทาน)" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
+             </div>
           </div>
 
           <div style="margin-bottom: 12px;">
@@ -2012,7 +2018,6 @@
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
                 <span>📚</span> คลังย้อนหลังรายงานกิจกรรม
              </div>
-             <button type="button" class="cute-close-x" onclick="closeActivityArchiveModal()" title="ปิด">✕</button>
           </div>
 
           <div id="archive-folder-wrap" style="display: none; margin-bottom: 12px;">
@@ -2043,9 +2048,6 @@
     <!-- ป๊อปอัพเลือกจากปุ่ม 🪪: พิมพ์บัตรสมาชิก หรือ พิมพ์เกียรติบัตร -->
     <div id="cardOrCertHubModal" class="modal-overlay" style="z-index: 2440;">
        <div class="modal-box" style="max-width: 390px;">
-          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
-             <button type="button" class="cute-close-x" onclick="closeCardOrCertHubModal()">✕</button>
-          </div>
           <div class="cute-icon-circle"><span>🪪</span></div>
           <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">พิมพ์บัตรและเกียรติบัตร</div>
           <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">กรุณาเลือกรายการที่ต้องการใช้งานครับ</div>
@@ -2161,11 +2163,16 @@
              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                 <div>
                    <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🎓 ระดับชั้น</label>
-                   <select id="contest-level" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 8px;" onchange="syncContestLevelInput(this.value)">
-                      <option value="อนุบาล">อนุบาล</option>
-                      <option value="ประถมศึกษา">ประถมศึกษา</option>
-                      <option value="มัธยมศึกษา">มัธยมศึกษา</option>
-                   </select>
+                   <div style="display: flex; gap: 4px; align-items: center;">
+                      <select id="contest-level" class="modern-input" style="flex: 1; min-width: 0; width: auto; box-sizing: border-box; font-size: 13px; padding: 9px 6px; margin: 0;" onchange="syncContestLevelInput(this.value)">
+                         <option value="อนุบาล">อนุบาล</option>
+                         <option value="ประถมศึกษา">ประถมศึกษา</option>
+                         <option value="มัธยมศึกษา">มัธยมศึกษา</option>
+                      </select>
+                      <button type="button" id="btn-toggle-contest-level-edit" class="action-btn" style="flex: 0 0 36px; width: 36px; min-width: 36px; max-width: 36px; height: 38px; padding: 0; margin: 0; border-radius: 11px; background: #F0FFF4; border: 1.5px solid #D8F3DC; color: #1B4332; box-shadow: none; font-size: 15px; display: inline-flex; align-items: center; justify-content: center;" onclick="toggleContestLevelEdit()" title="แก้ไขระดับชั้นที่แสดง">
+                         ✏️
+                      </button>
+                   </div>
                 </div>
                 <div>
                    <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🥇 รางวัล</label>
@@ -2178,9 +2185,8 @@
                 </div>
              </div>
 
-             <div style="margin-bottom: 10px;">
-                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">✏️ แก้ไขระดับชั้นที่แสดง</label>
-                <input type="text" id="contest-level-text" class="modern-input" placeholder="เช่น ประถมศึกษาปีที่ 4 / อนุบาล 2" value="ประถมศึกษา" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 8px 12px; text-align: left;">
+             <div id="contest-level-edit-wrap" style="display: none; margin-bottom: 10px;">
+                <input type="text" id="contest-level-text" class="modern-input" placeholder="ระบุระดับชั้นที่ต้องการแสดง (เช่น ประถมศึกษาปีที่ 4 / อนุบาล 2)" value="ประถมศึกษา" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 8px 12px; text-align: left;">
              </div>
 
              <div style="margin-bottom: 10px;">
@@ -2194,17 +2200,17 @@
 
           <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
              <div style="display: flex; gap: 6px; align-items: center;">
-                <button type="button" class="action-btn" style="flex: 0 0 42px; width: 42px; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 17px; display: inline-flex; align-items: center; justify-content: center;" onclick="openCertBgModal('contest')" title="เลือกพื้นหลังเกียรติบัตร">
+                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 19px; display: inline-flex; align-items: center; justify-content: center;" onclick="openCertBgModal('contest')" title="เลือกพื้นหลังเกียรติบัตร">
                    🖼️
                 </button>
-                <button type="button" class="action-btn" style="flex: 0 0 42px; width: 42px; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: #FEF3C7; color: #92400E; box-shadow: none; font-size: 17px; display: inline-flex; align-items: center; justify-content: center;" onclick="handleContestCertAction('preview')" title="ดูตัวอย่างเกียรติบัตร">
+                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: #FEF3C7; color: #92400E; box-shadow: none; font-size: 19px; display: inline-flex; align-items: center; justify-content: center;" onclick="handleContestCertAction('preview')" title="ดูตัวอย่างเกียรติบัตร">
                    👁️
                 </button>
-                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 13px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 13px; white-space: nowrap;" onclick="handleContestCertAction('print')">
-                   🖨️ พิมพ์
+                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 19px; display: inline-flex; align-items: center; justify-content: center;" onclick="handleContestCertAction('print')" title="พิมพ์เกียรติบัตร">
+                   🖨️
                 </button>
-                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 13px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 13px; white-space: nowrap;" onclick="handleContestCertAction('download')">
-                   💾 ดาวน์โหลด
+                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 19px; display: inline-flex; align-items: center; justify-content: center;" onclick="handleContestCertAction('download')" title="ดาวน์โหลด">
+                   💾
                 </button>
              </div>
              <button type="button" class="action-btn" style="width: 100%; margin: 0; padding: 9px; border-radius: 12px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="closeContestCertModal(); openCertTypeChoiceModal();">
@@ -2221,7 +2227,6 @@
              <div style="font-weight: 700; font-size: 16.5px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
                 <span>🖼️</span> เลือกพื้นหลังเกียรติบัตร
              </div>
-             <button type="button" class="cute-close-x" onclick="closeCertBgModal()">✕</button>
           </div>
 
           <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 10px; margin-bottom: 12px; text-align: left;">
@@ -2851,7 +2856,7 @@
         if (tbody) {
           const logs = (res && Array.isArray(res.usageLogs)) ? res.usageLogs : [];
           if (logs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">ยังไม่มีสถิติการเข้าใช้ห้องสมุดครับ</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 24px; color: var(--text-sub);">ยังไม่มีสถิติการเข้าใช้ห้องสมุดครับ</td></tr>';
           } else {
             let rowsHtml = '';
             logs.forEach(item => {
@@ -2859,11 +2864,18 @@
               const badgeStyle = isBorrow
                 ? 'background:#D8F3DC; color:#2D6A4F;'
                 : 'background:#E0F2FE; color:#0369A1;';
+              const rawName = String(item.studentName || '-').trim();
+              const nameParts = rawName.split(/\s+/).filter(Boolean);
+              const studentCellHtml = nameParts.length >= 2
+                ? `<div style="white-space:nowrap; font-weight:600; color:var(--text-main);">${_escReportHtml(nameParts.slice(0, -1).join(' '))}</div><div style="white-space:nowrap; font-size:11px; color:var(--text-sub);">${_escReportHtml(nameParts[nameParts.length - 1])}</div>`
+                : `<div style="white-space:nowrap; font-weight:600; color:var(--text-main);">${_escReportHtml(rawName)}</div>`;
               rowsHtml += `<tr>
-                <td style="white-space:nowrap;">${_escReportHtml(item.date || '-')}</td>
-                <td style="white-space:nowrap;">${_escReportHtml(item.time || '-')}</td>
+                <td style="white-space:nowrap; line-height:1.25;">
+                  <div style="font-weight:600; color:var(--text-main);">${_escReportHtml(item.time || '-')}</div>
+                  <div style="font-size:10.5px; color:var(--text-sub);">${_escReportHtml(item.date || '-')}</div>
+                </td>
                 <td style="white-space:nowrap;"><span style="${badgeStyle} padding:2px 7px; border-radius:8px; font-weight:700; font-size:11px;">${_escReportHtml(item.action || '')}</span></td>
-                <td style="min-width:110px;">${_escReportHtml(item.studentName || '-')}</td>
+                <td style="min-width:95px; line-height:1.25;">${studentCellHtml}</td>
                 <td style="min-width:130px; color:var(--primary); font-weight:600;">${_escReportHtml(item.bookName || '-')}</td>
               </tr>`;
             });
@@ -5665,6 +5677,24 @@
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
+    .print-btn-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .back-btn {
+      background: #E2E8F0;
+      color: #334155;
+      border: none;
+      padding: 10px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Mali', cursive, sans-serif !important;
+    }
     .print-btn {
       background: #2D6A4F;
       color: white;
@@ -5789,7 +5819,10 @@
 </head>
 <body>
   <div class="print-toolbar no-print">
-    <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์บัตรสมาชิก (${studentList.length} ใบ)</button>
+    <div class="print-btn-row">
+      <button class="back-btn" onclick="try{ if(window.opener){ window.opener.focus(); } }catch(e){} window.close();">⬅️ ย้อนกลับ</button>
+      <button class="print-btn" onclick="window.print()">🖨️ สั่งพิมพ์บัตรสมาชิก (${studentList.length} ใบ)</button>
+    </div>
     <div class="print-hint">กระดาษ A4 พิมพ์ได้หน้าละ 8 ใบ (2 คอลัมน์ x 4 แถว) ทุกใบขนาดเท่ากันเป๊ะ มีเส้นประสำหรับตัดตามแนว</div>
   </div>
   <div class="cards-grid">
@@ -5838,6 +5871,8 @@
       let cachedBookLabels = [];
       let selectedBookLabelIds = new Set();
 
+      let _lastBookCategoryFilter = 'all';
+
       function showBookBarcodeModal() {
         if (currentUserRole !== 'admin') {
           cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ", "สงวนสิทธิ์ Admin", "🔒");
@@ -5845,6 +5880,8 @@
         }
         const modal = document.getElementById('bookBarcodeModal');
 
+        selectedBookLabelIds = new Set();
+        _lastBookCategoryFilter = 'all';
         const catSelect = document.getElementById('book-category-filter');
         if (catSelect) catSelect.value = 'all';
         const searchInput = document.getElementById('book-label-search-input');
@@ -5866,9 +5903,6 @@
           }
           cachedBookLabels = arr;
           populateBookCategories(arr);
-          if (selectedBookLabelIds.size === 0) {
-            selectedBookLabelIds = new Set(arr.map(b => b.id));
-          }
           filterBookLabels();
           if (modal) modal.style.display = 'flex';
         } else {
@@ -5892,9 +5926,6 @@
                 localDB.books[b.id].totalQty = b.totalQty;
               });
               populateBookCategories(data);
-              if (selectedBookLabelIds.size === 0) {
-                selectedBookLabelIds = new Set(data.map(b => b.id));
-              }
               filterBookLabels();
             } else if (!cachedBookLabels || cachedBookLabels.length === 0) {
               const listContainer = document.getElementById('book-labels-list');
@@ -5928,7 +5959,7 @@
           }
         });
         let curVal = catSelect.value;
-        let html = '<option value="all">ผู้แต่ง</option>';
+        let html = '<option value="__select_all__">เลือกทั้งหมด</option><option value="all">ผู้แต่ง</option>';
         cats.forEach(c => {
           html += `<option value="${c}">${c}</option>`;
         });
@@ -5938,6 +5969,36 @@
         } else {
           catSelect.value = 'all';
         }
+        _lastBookCategoryFilter = catSelect.value;
+      }
+
+      function onBookCategoryFilterChange(sel) {
+        if (!sel) return;
+        if (sel.value === '__select_all__') {
+          const restoreCat = _lastBookCategoryFilter || 'all';
+          sel.value = restoreCat;
+          const qEl = document.getElementById('book-label-search-input');
+          const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+          const matching = (cachedBookLabels || []).filter(b => {
+            const matchCat = (restoreCat === 'all') || (b.category === restoreCat);
+            const matchQ = !q ||
+              (b.name && b.name.toLowerCase().includes(q)) ||
+              (b.id && String(b.id).toLowerCase().includes(q)) ||
+              (b.category && String(b.category).toLowerCase().includes(q)) ||
+              (b.author && String(b.author).toLowerCase().includes(q));
+            return matchCat && matchQ;
+          });
+          const allSelected = matching.length > 0 && matching.every(b => selectedBookLabelIds.has(b.id));
+          if (allSelected) {
+            matching.forEach(b => selectedBookLabelIds.delete(b.id));
+          } else {
+            matching.forEach(b => selectedBookLabelIds.add(b.id));
+          }
+          filterBookLabels();
+          return;
+        }
+        _lastBookCategoryFilter = sel.value || 'all';
+        filterBookLabels();
       }
 
       function filterBookLabels() {
@@ -6157,6 +6218,22 @@
       gap: 12px;
       flex-wrap: wrap;
     }
+    .back-btn {
+      background: #E2E8F0;
+      color: #334155;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .back-btn:hover {
+      background: #CBD5E1;
+    }
     .print-btn {
       background: #2D6A4F;
       color: white;
@@ -6282,9 +6359,14 @@
       <div style="font-weight: 700; font-size: 16px; color: #2D6A4F;">🏷️ สติกเกอร์บาร์โค้ดติดสันหนังสือ (${labelsList.length} ชิ้น)</div>
       <div style="font-size: 12px; color: #666; margin-top: 2px;">แนะนำตั้งค่าการพิมพ์: กระดาษ A4 แนวตั้ง, ตั้งขอบกระดาษเป็น "กำหนดเอง (ประมาณ 6-8 มม.)" หรือ "ไม่มีขอบ"</div>
     </div>
-    <button class="print-btn" onclick="window.print()">
-      🖨️ สั่งพิมพ์ออกเครื่องพิมพ์
-    </button>
+    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+      <button class="back-btn" onclick="try{ if(window.opener){ window.opener.focus(); } }catch(e){} window.close();">
+        ⬅️ ย้อนกลับ
+      </button>
+      <button class="print-btn" onclick="window.print()">
+        🖨️ สั่งพิมพ์ออกเครื่องพิมพ์
+      </button>
+    </div>
   </div>
 
   <div class="labels-grid">
@@ -8044,10 +8126,30 @@
         if (txtEl && val) txtEl.value = val;
       }
 
+      function toggleContestLevelEdit() {
+        const wrap = document.getElementById('contest-level-edit-wrap');
+        const txtEl = document.getElementById('contest-level-text');
+        const btn = document.getElementById('btn-toggle-contest-level-edit');
+        if (!wrap) return;
+        const isOpen = wrap.style.display === 'block';
+        wrap.style.display = isOpen ? 'none' : 'block';
+        if (btn) {
+          btn.style.background = isOpen ? '#F0FFF4' : '#D8F3DC';
+        }
+        if (!isOpen && txtEl) {
+          txtEl.focus();
+          txtEl.select();
+        }
+      }
+
       function openContestCertModal() {
         _updateCertBgLabels();
         const pickerBox = document.getElementById('contest-student-picker-box');
         if (pickerBox) pickerBox.style.display = 'none';
+        const editWrap = document.getElementById('contest-level-edit-wrap');
+        if (editWrap) editWrap.style.display = 'none';
+        const editBtn = document.getElementById('btn-toggle-contest-level-edit');
+        if (editBtn) editBtn.style.background = '#F0FFF4';
 
         const lvlSel = document.getElementById('contest-level');
         const lvlTxt = document.getElementById('contest-level-text');
@@ -8565,7 +8667,7 @@
           filterEl.value = cats.includes(prev) ? prev : 'all';
         }
         if (existEl) {
-          let html = '<option value="">-- สร้างหมวดหมู่ใหม่ด้านล่าง --</option>';
+          let html = '<option value="">-- เลือกหมวดหมู่ --</option>';
           cats.forEach(c => { html += `<option value="${_escReportHtml(c)}">${_escReportHtml(c)}</option>`; });
           existEl.innerHTML = html;
         }
@@ -8636,12 +8738,16 @@
         const titleEl = document.getElementById('media-title-input');
         const catSel = document.getElementById('media-existing-category');
         const catInput = document.getElementById('media-category-input');
+        const newCatWrap = document.getElementById('media-new-category-wrap');
+        const toggleBtn = document.getElementById('btn-toggle-media-cat');
         const fileEl = document.getElementById('media-file-input');
         const prevBox = document.getElementById('media-file-preview-box');
         const prevImg = document.getElementById('media-file-preview-img');
         if (titleEl) titleEl.value = '';
         if (catSel) catSel.value = '';
         if (catInput) catInput.value = '';
+        if (newCatWrap) newCatWrap.style.display = 'none';
+        if (toggleBtn) toggleBtn.style.background = '#D8F3DC';
         if (fileEl) fileEl.value = '';
         if (prevBox) prevBox.style.display = 'none';
         if (prevImg) { prevImg.src = ''; prevImg.style.display = 'none'; }
@@ -8657,7 +8763,35 @@
 
       function onSelectExistingMediaCategory(val) {
         const catInput = document.getElementById('media-category-input');
-        if (catInput && val) catInput.value = val;
+        const newCatWrap = document.getElementById('media-new-category-wrap');
+        const toggleBtn = document.getElementById('btn-toggle-media-cat');
+        if (catInput) catInput.value = val || '';
+        if (val && newCatWrap) {
+          newCatWrap.style.display = 'none';
+          if (toggleBtn) toggleBtn.style.background = '#D8F3DC';
+        }
+      }
+
+      function toggleAddMediaCategory() {
+        const newCatWrap = document.getElementById('media-new-category-wrap');
+        const catInput = document.getElementById('media-category-input');
+        const catSel = document.getElementById('media-existing-category');
+        const toggleBtn = document.getElementById('btn-toggle-media-cat');
+        if (!newCatWrap) return;
+        const isOpen = newCatWrap.style.display === 'block';
+        if (isOpen) {
+          newCatWrap.style.display = 'none';
+          if (toggleBtn) toggleBtn.style.background = '#D8F3DC';
+          if (catInput) catInput.value = (catSel && catSel.value) ? catSel.value : '';
+        } else {
+          newCatWrap.style.display = 'block';
+          if (toggleBtn) toggleBtn.style.background = '#B7E4C7';
+          if (catSel) catSel.value = '';
+          if (catInput) {
+            catInput.value = '';
+            catInput.focus();
+          }
+        }
       }
 
       function handleMediaFileSelect(input) {
@@ -8715,7 +8849,7 @@
 
       function submitAddLearningMedia() {
         const title = (document.getElementById('media-title-input')?.value || '').trim();
-        const category = (document.getElementById('media-category-input')?.value || '').trim();
+        const category = (document.getElementById('media-category-input')?.value || document.getElementById('media-existing-category')?.value || '').trim();
         if (!title) {
           cuteAlert('กรุณาตั้งชื่อสื่อการเรียนรู้ก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '📝');
           return;
