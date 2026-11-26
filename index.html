@@ -2133,8 +2133,8 @@
     </div>
 
     <!-- Modal จัดทำเกียรติบัตรการประกวด -->
-    <div id="contestCertModal" class="modal-overlay" style="z-index: 2470;">
-       <div class="modal-box" style="max-width: 500px; width: 93vw; max-height: 88vh; display: flex; flex-direction: column; text-align: left;">
+    <div id="contestCertModal" class="modal-overlay" style="z-index: 2470; overflow-x: hidden; touch-action: pan-y;">
+       <div class="modal-box" style="max-width: 500px; width: 93vw; max-height: 88vh; display: flex; flex-direction: column; text-align: left; overflow-x: hidden; touch-action: pan-y; box-sizing: border-box;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #D8F3DC; padding-bottom: 10px;">
              <div style="font-weight: 700; font-size: 16.5px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
                 <span>🏅</span> เกียรติบัตรการประกวด
@@ -2142,29 +2142,29 @@
              <button type="button" class="cute-close-x" onclick="closeContestCertModal()">✕</button>
           </div>
 
-          <div style="flex: 1; overflow-y: auto; padding-right: 4px; overscroll-behavior: contain;">
+          <div style="flex: 1; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; max-width: 100%; box-sizing: border-box; padding-right: 2px; overscroll-behavior: contain;">
              <div style="margin-bottom: 10px;">
                 <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🏆 รายการประกวด</label>
                 <input type="text" id="contest-title" class="modern-input" placeholder="เช่น การแข่งขันคัดลายมือ / วาดภาพระบายสี" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
              </div>
 
              <div style="margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 6px;">
                    <label style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">👤 ชื่อผู้ได้รับเกียรติบัตร</label>
-                   <button type="button" style="border: none; background: #D8F3DC; color: #1B4332; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px; cursor: pointer;" onclick="toggleContestStudentPicker()">👥 เลือกจากรายชื่อ</button>
+                   <button type="button" style="border: none; background: #D8F3DC; color: #1B4332; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px; cursor: pointer; flex-shrink: 0;" onclick="toggleContestStudentPicker()">👥 เลือกจากรายชื่อ</button>
                 </div>
                 <input type="text" id="contest-student-name" class="modern-input" placeholder="พิมพ์ชื่อ-นามสกุล (หรือคั่นด้วย , หากหลายคน)" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
-                <div id="contest-student-picker-box" style="display: none; margin-top: 6px; background: #F8FAFC; border: 1.5px solid #D8F3DC; border-radius: 12px; padding: 8px;">
+                <div id="contest-student-picker-box" style="display: none; margin-top: 6px; background: #F8FAFC; border: 1.5px solid #D8F3DC; border-radius: 12px; padding: 8px; max-width: 100%; overflow-x: hidden; box-sizing: border-box;">
                    <input type="text" id="contest-student-search" class="modern-input" placeholder="🔍 ค้นหาชื่อนักเรียน..." oninput="filterContestPickStudents()" style="width: 100%; box-sizing: border-box; font-size: 12px; padding: 6px 10px; margin-bottom: 6px; text-align: left;">
-                   <div id="contest-student-pick-list" style="max-height: 150px; overflow-y: auto;"></div>
+                   <div id="contest-student-pick-list" style="max-height: 150px; overflow-y: auto; overflow-x: hidden;"></div>
                 </div>
              </div>
 
-             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                <div>
+             <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 10px; max-width: 100%;">
+                <div style="min-width: 0;">
                    <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🎓 ระดับชั้น</label>
-                   <div style="display: flex; gap: 4px; align-items: center;">
-                      <select id="contest-level" class="modern-input" style="flex: 1; min-width: 0; width: auto; box-sizing: border-box; font-size: 13px; padding: 9px 6px; margin: 0;" onchange="syncContestLevelInput(this.value)">
+                   <div style="display: flex; gap: 4px; align-items: center; min-width: 0;">
+                      <select id="contest-level" class="modern-input" style="flex: 1; min-width: 0; width: auto; max-width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 6px; margin: 0;" onchange="syncContestLevelInput(this.value)">
                          <option value="อนุบาล">อนุบาล</option>
                          <option value="ประถมศึกษา">ประถมศึกษา</option>
                          <option value="มัธยมศึกษา">มัธยมศึกษา</option>
@@ -2174,9 +2174,9 @@
                       </button>
                    </div>
                 </div>
-                <div>
+                <div style="min-width: 0;">
                    <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🥇 รางวัล</label>
-                   <select id="contest-award" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 8px;">
+                   <select id="contest-award" class="modern-input" style="width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 8px;">
                       <option value="ชนะเลิศ">ชนะเลิศ</option>
                       <option value="รองชนะเลิศอันดับ 1">รองชนะเลิศอันดับ 1</option>
                       <option value="รองชนะเลิศอันดับ 2">รองชนะเลิศอันดับ 2</option>
@@ -2191,7 +2191,7 @@
 
              <div style="margin-bottom: 10px;">
                 <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📅 ออกให้ ณ วันที่ (วว/ดด/ปปปป พ.ศ.)</label>
-                <div style="position: relative; display: flex; align-items: center;">
+                <div style="position: relative; display: flex; align-items: center; overflow: hidden; max-width: 100%;">
                    <input type="text" id="contest-date-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px; cursor: pointer; text-align: center; background: #fff;" onclick="openContestCalendar()">
                    <input type="date" id="contest-date" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="onContestDateChange(this.value)">
                 </div>
@@ -3322,15 +3322,7 @@
               .withSuccessHandler(function(res) {
                 hideLoadingPopup();
                 if (res && res.status === 'success') {
-                  cuteConfirm(
-                    'บันทึกรายงาน "' + (res.fileName || fileName) + '" ลงโฟลเดอร์ WNTK Library System ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมครับ?',
-                    'บันทึกลง Drive สำเร็จ!',
-                    '✅'
-                  ).then(openNow => {
-                    if (openNow && (res.fileUrl || res.folderUrl)) {
-                      window.open(res.fileUrl || res.folderUrl, '_blank');
-                    }
-                  });
+                  cuteAlert('', 'บันทึกสำเร็จ', '✅');
                 } else {
                   cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกลง Google Drive ได้ครับ', 'เกิดข้อผิดพลาด', '❌');
                 }
@@ -5201,7 +5193,10 @@
           document.getElementById('cd-icon').innerText = icon;
           _applyCuteIconTheme(icon);
           document.getElementById('cd-title').innerText = title;
-          document.getElementById('cd-msg').innerText = String(msg).replace(/^([⚠️✅❌]\s*)/, '');
+          const cleanMsg = String(msg || '').replace(/^([⚠️✅❌]\s*)/, '').trim();
+          const cdMsgEl = document.getElementById('cd-msg');
+          cdMsgEl.innerText = cleanMsg;
+          cdMsgEl.style.display = cleanMsg ? 'block' : 'none';
           const inputsBox = document.getElementById('cd-inputs');
           inputsBox.style.display = 'none';
           inputsBox.innerHTML = '';
@@ -5227,7 +5222,10 @@
           document.getElementById('cd-icon').innerText = icon;
           _applyCuteIconTheme(icon);
           document.getElementById('cd-title').innerText = title;
-          document.getElementById('cd-msg').innerText = String(msg).replace(/^([⚠️✅❌]\s*)/, '');
+          const cleanMsg = String(msg || '').replace(/^([⚠️✅❌]\s*)/, '').trim();
+          const cdMsgEl = document.getElementById('cd-msg');
+          cdMsgEl.innerText = cleanMsg;
+          cdMsgEl.style.display = cleanMsg ? 'block' : 'none';
           const inputsBox = document.getElementById('cd-inputs');
           inputsBox.style.display = 'none';
           inputsBox.innerHTML = '';
@@ -7580,7 +7578,7 @@
               files: [file],
               title: fileName
             });
-            cuteAlert('บันทึกไฟล์เรียบร้อยแล้วครับ (หากเลือก "บันทึกรูปภาพ" หรือ "บันทึกลงแอปไฟล์" ไฟล์จะอยู่ในเครื่องทันที)', 'บันทึกสำเร็จ', '✅');
+            cuteAlert('', 'บันทึกสำเร็จ', '✅');
             return;
           } catch (shareErr) {
             if (shareErr && shareErr.name === 'AbortError') return;
@@ -7621,7 +7619,7 @@
         a.click();
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 4000);
-        cuteAlert('ดาวน์โหลดไฟล์ "' + fileName + '" ลงเครื่องเรียบร้อยแล้วครับ', 'บันทึกสำเร็จ', '✅');
+        cuteAlert('', 'บันทึกสำเร็จ', '✅');
       }
 
       // ☁️ อัปโหลดไฟล์รูปภาพ/PDF ขึ้น Google Drive
@@ -7641,16 +7639,7 @@
           .withSuccessHandler(function(res) {
             if (loader) loader.style.display = 'none';
             if (res && res.status === 'success') {
-              const docLabel = isCert ? 'เกียรติบัตร' : 'รายงาน';
-              cuteConfirm(
-                'บันทึก' + docLabel + ' "' + (res.fileName || '') + '" ลงโฟลเดอร์ WNTK Library System ใน Google Drive เรียบร้อยแล้ว!\n\nต้องการเปิดดูไฟล์ใน Google Drive เลยไหมครับ?',
-                'บันทึกลง Drive สำเร็จ!',
-                '✅'
-              ).then(openNow => {
-                if (openNow && (res.fileUrl || res.folderUrl)) {
-                  window.open(res.fileUrl || res.folderUrl, '_blank');
-                }
-              });
+              cuteAlert('', 'บันทึกสำเร็จ', '✅');
             } else {
               cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกลง Google Drive ได้ครับ', 'เกิดข้อผิดพลาด', '❌');
             }
@@ -8870,7 +8859,7 @@
           .withSuccessHandler(function(res) {
             hideLoadingPopup();
             if (res && res.status === 'success') {
-              cuteAlert(res.msg || 'บันทึกสื่อการเรียนรู้ลง Google Drive เรียบร้อยแล้วครับ', 'บันทึกสำเร็จ', '✅').then(() => {
+              cuteAlert('', 'บันทึกสำเร็จ', '✅').then(() => {
                 showLearningMediaModal();
               });
             } else {
