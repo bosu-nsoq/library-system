@@ -952,7 +952,8 @@
       #cert-bg-gallery-list,
       #contest-student-pick-list,
       #guest-usage-table-wrap,
-      #guest-top-readers {
+      #guest-top-readers,
+      #learning-media-list {
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
@@ -1261,7 +1262,7 @@
 
         <div class="icon-btn admin-only" id="btn-menu-add-staff" onclick="showAddStaffModal()" title="➕ เพิ่มยุวบรรณารักษ์ (สำหรับครู / Admin)">➕</div>
 
-        <div class="icon-btn admin-only" id="btn-menu-backup" onclick="openSaveCenterChoiceModal()" title="สำรองข้อมูลและคลังรายงาน">💾</div>
+        <div class="icon-btn admin-only" id="btn-menu-backup" onclick="openSaveCenterChoiceModal()" title="สำรองข้อมูลและคลังเอกสาร">💾</div>
 
       </div>
 
@@ -1709,13 +1710,13 @@
 
           <div style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center;">
 
-             <select id="card-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterStudentCards()">
+             <select id="card-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1; min-width: 0; width: auto;" onchange="filterStudentCards()">
 
                 <option value="all">ทุกระดับชั้น</option>
 
              </select>
 
-             <button type="button" class="action-btn" style="width: 44px; height: 38px; padding: 0; font-size: 18px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="printFilteredOrSelectedCards()" title="สั่งพิมพ์บัตรสมาชิก">
+             <button type="button" class="action-btn" style="flex: 0 0 38px; width: 38px; min-width: 38px; max-width: 38px; height: 38px; padding: 0; font-size: 16px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-family: 'Mali', cursive, sans-serif !important;" onclick="printFilteredOrSelectedCards()" title="สั่งพิมพ์บัตรสมาชิก">
 
                 🖨️
 
@@ -1877,18 +1878,128 @@
              <button type="button" class="cute-close-x" onclick="closeSaveCenterChoiceModal()">✕</button>
           </div>
           <div class="cute-icon-circle"><span>💾</span></div>
-          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">จัดการข้อมูลและคลังรายงาน</div>
+          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">จัดการข้อมูลและคลังเอกสาร</div>
           <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">กรุณาเลือกรายการที่ต้องการใช้งานครับ</div>
 
           <div style="display: flex; flex-direction: column; gap: 10px;">
              <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15px;" onclick="closeSaveCenterChoiceModal(); showBackupModal();">
                 💾 สำรองข้อมูล (Google Drive)
              </button>
-             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 15px;" onclick="closeSaveCenterChoiceModal(); showActivityArchiveModal();">
-                📚 คลังรายงาน
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 15px;" onclick="closeSaveCenterChoiceModal(); openDocumentHubModal();">
+                📚 คลังเอกสาร
              </button>
              <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeSaveCenterChoiceModal()">
                 ปิดหน้าต่าง
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- ป๊อปอัพคลังเอกสาร: รายงานกิจกรรม และ สื่อการเรียนรู้ -->
+    <div id="documentHubModal" class="modal-overlay" style="z-index: 2460;">
+       <div class="modal-box" style="max-width: 390px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+             <button type="button" class="cute-close-x" onclick="closeDocumentHubModal()">✕</button>
+          </div>
+          <div class="cute-icon-circle"><span>📚</span></div>
+          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">คลังเอกสาร</div>
+          <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">กรุณาเลือกประเภทเอกสารที่ต้องการครับ</div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15px;" onclick="closeDocumentHubModal(); showActivityArchiveModal();">
+                📋 รายงานกิจกรรม
+             </button>
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 15px;" onclick="closeDocumentHubModal(); showLearningMediaModal();">
+                🖼️ สื่อการเรียนรู้
+             </button>
+             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none;" onclick="closeDocumentHubModal(); openSaveCenterChoiceModal();">
+                ⬅️ ย้อนกลับ
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal คลังสื่อการเรียนรู้ (แยกหมวดหมู่ + เก็บลง Drive + พิมพ์ได้ในแอป) -->
+    <div id="learningMediaModal" class="modal-overlay" style="z-index: 2480;">
+       <div class="modal-box" style="max-width: 520px; width: 94%; padding: 18px 20px; max-height: 88vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
+                <span>🖼️</span> สื่อการเรียนรู้
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeLearningMediaModal()" title="ปิด">✕</button>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+             <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; margin: 0; padding: 10px 12px; font-size: 13px; border-radius: 13px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white;" onclick="openAddLearningMediaModal()">
+                ➕ เพิ่มสื่อใหม่
+             </button>
+             <a id="media-folder-link" href="#" target="_blank" class="action-btn" style="flex: 0 0 auto; width: auto; display: none; margin: 0; padding: 10px 12px; font-size: 12.5px; border-radius: 13px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; text-decoration: none; align-items: center; justify-content: center; gap: 5px; white-space: nowrap;">
+                📂 เปิด Drive
+             </a>
+          </div>
+
+          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+             <select id="media-category-filter" class="modern-input" style="flex: 1; min-width: 0; width: auto; padding: 8px 10px; font-size: 12.5px;" onchange="filterLearningMedia()">
+                <option value="all">ทุกหมวดหมู่</option>
+             </select>
+             <input type="text" id="media-search-input" class="modern-input" placeholder="🔍 ค้นหาชื่อสื่อ..." oninput="filterLearningMedia()" style="flex: 1.2; min-width: 0; width: auto; margin: 0; padding: 8px 10px; font-size: 12.5px; text-align: left;">
+          </div>
+
+          <div id="learning-media-list" style="flex: 1; max-height: 48vh; overflow-y: auto; text-align: left; padding-right: 4px;">
+             <div style="text-align: center; padding: 24px; color: var(--text-sub); font-size: 13px;">📭 ยังไม่มีสื่อการเรียนรู้ในคลังครับ</div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13.5px;" onclick="closeLearningMediaModal(); openDocumentHubModal();">
+                ⬅️ ย้อนกลับ
+             </button>
+             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-size: 13.5px;" onclick="closeLearningMediaModal()">
+                ปิดหน้าต่าง
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal เพิ่มสื่อการเรียนรู้ใหม่ (อัปโหลดรูปภาพลงโฟลเดอร์ตามหมวดหมู่) -->
+    <div id="addLearningMediaModal" class="modal-overlay" style="z-index: 2550;">
+       <div class="modal-box" style="max-width: 450px; width: 93%; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #D8F3DC; padding-bottom: 8px;">
+             <div style="font-weight: 700; font-size: 16.5px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>➕</span> เพิ่มสื่อการเรียนรู้
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeAddLearningMediaModal()">✕</button>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+             <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📝 ชื่อสื่อการเรียนรู้</label>
+             <input type="text" id="media-title-input" class="modern-input" placeholder="เช่น บัตรคำศัพท์ภาษาไทย / ใบงาน" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
+          </div>
+
+          <div style="margin-bottom: 10px;">
+             <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📁 หมวดหมู่ที่เคยบันทึก</label>
+             <select id="media-existing-category" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 8px 10px; margin-bottom: 6px;" onchange="onSelectExistingMediaCategory(this.value)">
+                <option value="">-- สร้างหมวดหมู่ใหม่ด้านล่าง --</option>
+             </select>
+             <input type="text" id="media-category-input" class="modern-input" placeholder="พิมพ์ชื่อหมวดหมู่ (เช่น ภาษาไทย, คณิตศาสตร์, นิทาน)" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+             <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🖼️ เลือกรูปภาพ / ไฟล์สื่อ</label>
+             <button type="button" class="action-btn" style="width: 100%; margin: 0; padding: 10px; border-radius: 14px; background: #F0FFF4; color: #1B4332; border: 1.5px dashed #52B788; box-shadow: none; font-size: 13px;" onclick="document.getElementById('media-file-input').click()">
+                📷 กดเพื่อเลือกรูปภาพจากเครื่อง
+             </button>
+             <input type="file" id="media-file-input" accept="image/*,.pdf" style="display: none;" onchange="handleMediaFileSelect(this)">
+             <div id="media-file-preview-box" style="display: none; margin-top: 8px; text-align: center; background: #F8FAFC; padding: 8px; border-radius: 12px; border: 1px solid #E2E8F0;">
+                <img id="media-file-preview-img" src="" style="display: none; max-height: 140px; max-width: 100%; border-radius: 8px; margin: 0 auto 4px auto;">
+                <div id="media-file-preview-name" style="font-size: 11.5px; color: var(--primary); font-weight: 600;"></div>
+             </div>
+          </div>
+
+          <div style="display: flex; gap: 8px;">
+             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 11px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13.5px;" onclick="closeAddLearningMediaModal()">
+                ยกเลิก
+             </button>
+             <button type="button" class="action-btn" style="flex: 2; margin: 0; padding: 11px; border-radius: 14px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 14px;" onclick="submitAddLearningMedia()">
+                💾 บันทึกลง Drive
              </button>
           </div>
        </div>
@@ -1919,7 +2030,7 @@
           </div>
 
           <div style="display: flex; gap: 8px; margin-top: 14px;">
-             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13.5px;" onclick="closeActivityArchiveModal(); openSaveCenterChoiceModal();">
+             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13.5px;" onclick="closeActivityArchiveModal(); openDocumentHubModal();">
                 ⬅️ ย้อนกลับ
              </button>
              <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-size: 13.5px;" onclick="closeActivityArchiveModal()">
@@ -2050,7 +2161,7 @@
              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                 <div>
                    <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🎓 ระดับชั้น</label>
-                   <select id="contest-level" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 8px;">
+                   <select id="contest-level" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 8px;" onchange="syncContestLevelInput(this.value)">
                       <option value="อนุบาล">อนุบาล</option>
                       <option value="ประถมศึกษา">ประถมศึกษา</option>
                       <option value="มัธยมศึกษา">มัธยมศึกษา</option>
@@ -2068,40 +2179,37 @@
              </div>
 
              <div style="margin-bottom: 10px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">✏️ แก้ไขระดับชั้นที่แสดง</label>
+                <input type="text" id="contest-level-text" class="modern-input" placeholder="เช่น ประถมศึกษาปีที่ 4 / อนุบาล 2" value="ประถมศึกษา" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 8px 12px; text-align: left;">
+             </div>
+
+             <div style="margin-bottom: 10px;">
                 <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📅 ออกให้ ณ วันที่ (วว/ดด/ปปปป พ.ศ.)</label>
                 <div style="position: relative; display: flex; align-items: center;">
                    <input type="text" id="contest-date-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px; cursor: pointer; text-align: center; background: #fff;" onclick="openContestCalendar()">
                    <input type="date" id="contest-date" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="onContestDateChange(this.value)">
                 </div>
              </div>
-
-             <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 12px; padding: 9px 11px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                <div style="font-size: 12px; color: #0369A1; flex: 1;">
-                   🖼️ พื้นหลัง: <b id="contest-cert-bg-name">เขียว-ทอง (ค่าเริ่มต้น)</b>
-                </div>
-                <button type="button" class="action-btn" style="margin: 0; padding: 6px 12px; font-size: 12px; border-radius: 10px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; white-space: nowrap;" onclick="openCertBgModal('contest')">
-                   เลือกพื้นหลัง
-                </button>
-             </div>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-             <div style="display: flex; gap: 8px;">
-                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 11px; border-radius: 14px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 13.5px;" onclick="handleContestCertAction('print')">
-                   🖨️ พิมพ์เกียรติบัตร
+             <div style="display: flex; gap: 6px; align-items: center;">
+                <button type="button" class="action-btn" style="flex: 0 0 42px; width: 42px; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 17px; display: inline-flex; align-items: center; justify-content: center;" onclick="openCertBgModal('contest')" title="เลือกพื้นหลังเกียรติบัตร">
+                   🖼️
                 </button>
-                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 11px; border-radius: 14px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 13.5px;" onclick="handleContestCertAction('download')">
-                   💾 ดาวน์โหลดเกียรติบัตร
+                <button type="button" class="action-btn" style="flex: 0 0 42px; width: 42px; height: 42px; padding: 0; margin: 0; border-radius: 13px; background: #FEF3C7; color: #92400E; box-shadow: none; font-size: 17px; display: inline-flex; align-items: center; justify-content: center;" onclick="handleContestCertAction('preview')" title="ดูตัวอย่างเกียรติบัตร">
+                   👁️
                 </button>
-             </div>
-             <div style="display: flex; gap: 8px;">
-                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 9px; border-radius: 12px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="closeContestCertModal(); openCertTypeChoiceModal();">
-                   ⬅️ ย้อนกลับ
+                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 13px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 13px; white-space: nowrap;" onclick="handleContestCertAction('print')">
+                   🖨️ พิมพ์
                 </button>
-                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 9px; border-radius: 12px; background: #FEF3C7; color: #92400E; box-shadow: none; font-size: 13px;" onclick="handleContestCertAction('preview')">
-                   👁️ ดูตัวอย่าง
+                <button type="button" class="action-btn" style="flex: 1 1 0%; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 13px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 13px; white-space: nowrap;" onclick="handleContestCertAction('download')">
+                   💾 ดาวน์โหลด
                 </button>
              </div>
+             <button type="button" class="action-btn" style="width: 100%; margin: 0; padding: 9px; border-radius: 12px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="closeContestCertModal(); openCertTypeChoiceModal();">
+                ⬅️ ย้อนกลับ
+             </button>
           </div>
        </div>
     </div>
@@ -7931,10 +8039,21 @@
       }
 
       // 🏅 ตัวสร้างเกียรติบัตรการประกวด
+      function syncContestLevelInput(val) {
+        const txtEl = document.getElementById('contest-level-text');
+        if (txtEl && val) txtEl.value = val;
+      }
+
       function openContestCertModal() {
         _updateCertBgLabels();
         const pickerBox = document.getElementById('contest-student-picker-box');
         if (pickerBox) pickerBox.style.display = 'none';
+
+        const lvlSel = document.getElementById('contest-level');
+        const lvlTxt = document.getElementById('contest-level-text');
+        if (lvlSel && lvlTxt && !lvlTxt.value.trim()) {
+          lvlTxt.value = lvlSel.value || 'ประถมศึกษา';
+        }
 
         const now = new Date();
         const yCE = now.getFullYear();
@@ -8026,11 +8145,13 @@
           else if (!cur.split(',').map(x => x.trim()).includes(name)) input.value = cur + ', ' + name;
         }
         const levelEl = document.getElementById('contest-level');
+        const levelTxt = document.getElementById('contest-level-text');
         if (levelEl && grade) {
           const g = String(grade).trim();
           if (g.startsWith('อ') || g.includes('อนุบาล')) levelEl.value = 'อนุบาล';
           else if (g.startsWith('ป') || g.includes('ประถม')) levelEl.value = 'ประถมศึกษา';
           else if (g.startsWith('ม') || g.includes('มัธยม')) levelEl.value = 'มัธยมศึกษา';
+          if (levelTxt) levelTxt.value = _formatFullThaiGrade(g) || levelEl.value;
         }
       }
 
@@ -8055,7 +8176,8 @@
       function handleContestCertAction(actionType) {
         const contestTitle = (document.getElementById('contest-title')?.value || '').trim();
         const rawNames = (document.getElementById('contest-student-name')?.value || '').trim();
-        const level = (document.getElementById('contest-level')?.value || 'ประถมศึกษา').trim();
+        const levelTextVal = (document.getElementById('contest-level-text')?.value || '').trim();
+        const level = levelTextVal || (document.getElementById('contest-level')?.value || 'ประถมศึกษา').trim();
         const award = (document.getElementById('contest-award')?.value || 'ชนะเลิศ').trim();
         const dateIso = (document.getElementById('contest-date')?.value || '').trim();
 
@@ -8185,14 +8307,6 @@
                 </div>
 
                 <div class="cert-footer-wrap">
-                  <div class="cert-seal-box">
-                    <div class="cert-seal-ring">
-                      <span style="font-size: 24px; line-height: 1;">${isContest ? '🏅' : '🌟'}</span>
-                      <span style="font-size: 11px; font-weight: 700; margin-top: 3px; line-height:1.1;">${_escReportHtml(sealTitle)}</span>
-                      <span style="font-size: 9px; font-weight: 600;">WNTK Library</span>
-                    </div>
-                  </div>
-
                   <div class="cert-sig-block">
                     <div class="cert-sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
                     <div class="cert-sig-pos">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
@@ -8367,6 +8481,361 @@
         window.addEventListener('afterprint', cleanupCertPrint);
         setTimeout(cleanupCertPrint, 15000);
         window.print();
+      }
+
+      // ==============================================================
+      // 📚 คลังเอกสาร: รายงานกิจกรรม & สื่อการเรียนรู้ (Google Drive ตามหมวดหมู่ + พิมพ์ได้ในแอป)
+      // ==============================================================
+
+      let cachedLearningMediaItems = [];
+      let cachedLearningMediaCategories = [];
+      let pendingMediaUploadFile = null;
+
+      function openDocumentHubModal() {
+        if (currentUserRole !== 'admin') {
+          cuteAlert('ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ', 'สงวนสิทธิ์ Admin', '🔒');
+          return;
+        }
+        const m = document.getElementById('documentHubModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeDocumentHubModal() {
+        const m = document.getElementById('documentHubModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function showLearningMediaModal() {
+        if (currentUserRole !== 'admin') {
+          cuteAlert('ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ', 'สงวนสิทธิ์ Admin', '🔒');
+          return;
+        }
+        const modal = document.getElementById('learningMediaModal');
+        if (modal) modal.style.display = 'none';
+        showLoadingPopup();
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            hideLoadingPopup();
+            if (!res || res.status === 'error') {
+              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถโหลดคลังสื่อการเรียนรู้ได้ครับ', 'เกิดข้อผิดพลาด', '❌');
+              return;
+            }
+            cachedLearningMediaItems = res.items || [];
+            cachedLearningMediaCategories = res.categories || [];
+
+            const folderBtn = document.getElementById('media-folder-link');
+            if (folderBtn) {
+              if (res.folderUrl) {
+                folderBtn.href = res.folderUrl;
+                folderBtn.style.display = 'inline-flex';
+              } else {
+                folderBtn.style.display = 'none';
+              }
+            }
+
+            _populateMediaCategorySelects();
+            const searchEl = document.getElementById('media-search-input');
+            if (searchEl) searchEl.value = '';
+            renderLearningMediaList(cachedLearningMediaItems);
+            if (modal) modal.style.display = 'flex';
+          })
+          .withFailureHandler(function(err) {
+            hideLoadingPopup();
+            cuteAlert('ไม่สามารถเชื่อมต่อคลังสื่อการเรียนรู้ได้: ' + err, 'เกิดข้อผิดพลาด', '❌');
+          })
+          .getLearningMediaList();
+      }
+
+      function closeLearningMediaModal() {
+        const m = document.getElementById('learningMediaModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function _populateMediaCategorySelects() {
+        const filterEl = document.getElementById('media-category-filter');
+        const existEl = document.getElementById('media-existing-category');
+        const cats = cachedLearningMediaCategories || [];
+
+        if (filterEl) {
+          const prev = filterEl.value;
+          let html = '<option value="all">ทุกหมวดหมู่</option>';
+          cats.forEach(c => { html += `<option value="${_escReportHtml(c)}">${_escReportHtml(c)}</option>`; });
+          filterEl.innerHTML = html;
+          filterEl.value = cats.includes(prev) ? prev : 'all';
+        }
+        if (existEl) {
+          let html = '<option value="">-- สร้างหมวดหมู่ใหม่ด้านล่าง --</option>';
+          cats.forEach(c => { html += `<option value="${_escReportHtml(c)}">${_escReportHtml(c)}</option>`; });
+          existEl.innerHTML = html;
+        }
+      }
+
+      function filterLearningMedia() {
+        const catVal = document.getElementById('media-category-filter')?.value || 'all';
+        const q = (document.getElementById('media-search-input')?.value || '').trim().toLowerCase();
+        const filtered = (cachedLearningMediaItems || []).filter(item => {
+          const matchCat = catVal === 'all' || item.category === catVal;
+          const matchQ = !q ||
+            String(item.title || '').toLowerCase().includes(q) ||
+            String(item.category || '').toLowerCase().includes(q);
+          return matchCat && matchQ;
+        });
+        renderLearningMediaList(filtered);
+      }
+
+      function renderLearningMediaList(items) {
+        const container = document.getElementById('learning-media-list');
+        if (!container) return;
+        if (!items || items.length === 0) {
+          container.innerHTML = '<div style="text-align:center; padding:26px 12px; color:var(--text-sub); font-size:13px; background:#F8FAFC; border-radius:14px; border:1.5px dashed #CBD5E1;">📭 ยังไม่พบสื่อการเรียนรู้ในคลังครับ</div>';
+          return;
+        }
+        let html = '';
+        items.forEach(item => {
+          const isPdf = String(item.fileType || '').toUpperCase().includes('PDF');
+          const safeId = _escReportHtml(item.fileId || '');
+          const safeTitleJs = String(item.title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          const safeCatJs = String(item.category || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          const safePrevJs = String(item.previewUrl || item.fileUrl || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          const safeTypeJs = String(item.fileType || '').replace(/'/g, "\\'");
+          const rowIndex = Number(item.rowIndex || 0);
+
+          const thumbHtml = (!isPdf && item.previewUrl)
+            ? `<img src="${_escReportHtml(item.previewUrl)}" onerror="this.style.display='none'" style="width:54px; height:54px; object-fit:cover; border-radius:10px; border:1px solid #E2E8F0; flex-shrink:0; background:#F1F5F9;">`
+            : `<div style="width:54px; height:54px; border-radius:10px; background:#FEF3C7; color:#92400E; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">📄</div>`;
+
+          html += `
+            <div style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:14px; padding:10px 12px; margin-bottom:8px; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+              <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+                ${thumbHtml}
+                <div style="flex:1; min-width:0; text-align:left;">
+                  <div style="font-weight:700; font-size:13.5px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escReportHtml(item.title || '-')}</div>
+                  <div style="margin-top:3px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+                    <span style="background:#D8F3DC; color:#1B4332; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:99px;">📁 ${_escReportHtml(item.category || 'ทั่วไป')}</span>
+                    ${item.savedAt ? `<span style="font-size:10.5px; color:var(--text-sub);">${_escReportHtml(item.savedAt)}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                ${item.fileUrl ? `<a href="${_escReportHtml(item.fileUrl)}" target="_blank" class="action-btn" style="flex:1; min-width:78px; margin:0; padding:6px 8px; font-size:12px; border-radius:10px; background:#0284C7; color:white; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:4px;">👁️ เปิดดู</a>` : ''}
+                <button type="button" class="action-btn" style="flex:1; min-width:78px; margin:0; padding:6px 8px; font-size:12px; border-radius:10px; background:#2D6A4F; color:white; display:inline-flex; align-items:center; justify-content:center; gap:4px;" onclick="printLearningMediaItem('${safeId}', '${safeTitleJs}', '${safeCatJs}', '${safePrevJs}', '${safeTypeJs}')">
+                  🖨️ พิมพ์
+                </button>
+                <button type="button" class="action-btn" style="flex:0 0 auto; width:auto; margin:0; padding:6px 11px; font-size:12px; border-radius:10px; background:#FEE2E2; color:#B91C1C; box-shadow:none;" onclick="confirmDeleteLearningMedia('${safeId}', ${rowIndex}, '${safeTitleJs}')" title="ลบสื่อนี้">🗑️</button>
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      function openAddLearningMediaModal() {
+        _populateMediaCategorySelects();
+        pendingMediaUploadFile = null;
+        const titleEl = document.getElementById('media-title-input');
+        const catSel = document.getElementById('media-existing-category');
+        const catInput = document.getElementById('media-category-input');
+        const fileEl = document.getElementById('media-file-input');
+        const prevBox = document.getElementById('media-file-preview-box');
+        const prevImg = document.getElementById('media-file-preview-img');
+        if (titleEl) titleEl.value = '';
+        if (catSel) catSel.value = '';
+        if (catInput) catInput.value = '';
+        if (fileEl) fileEl.value = '';
+        if (prevBox) prevBox.style.display = 'none';
+        if (prevImg) { prevImg.src = ''; prevImg.style.display = 'none'; }
+
+        const m = document.getElementById('addLearningMediaModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeAddLearningMediaModal() {
+        const m = document.getElementById('addLearningMediaModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function onSelectExistingMediaCategory(val) {
+        const catInput = document.getElementById('media-category-input');
+        if (catInput && val) catInput.value = val;
+      }
+
+      function handleMediaFileSelect(input) {
+        const file = input && input.files ? input.files[0] : null;
+        if (!file) return;
+        const prevBox = document.getElementById('media-file-preview-box');
+        const prevImg = document.getElementById('media-file-preview-img');
+        const prevName = document.getElementById('media-file-preview-name');
+        const titleEl = document.getElementById('media-title-input');
+        if (titleEl && !titleEl.value.trim()) {
+          titleEl.value = file.name.replace(/\.[^.]+$/, '');
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const dataUrl = e.target.result;
+          if (file.type && file.type.startsWith('image/')) {
+            const img = new Image();
+            img.onload = function() {
+              const maxSide = 1800;
+              let w = img.width, h = img.height;
+              if (w > maxSide || h > maxSide) {
+                const ratio = Math.min(maxSide / w, maxSide / h);
+                w = Math.round(w * ratio);
+                h = Math.round(h * ratio);
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+              const outUrl = canvas.toDataURL('image/jpeg', 0.9);
+              pendingMediaUploadFile = {
+                fileName: file.name,
+                mimeType: 'image/jpeg',
+                base64Data: outUrl
+              };
+              if (prevImg) { prevImg.src = outUrl; prevImg.style.display = 'block'; }
+              if (prevName) prevName.innerText = file.name;
+              if (prevBox) prevBox.style.display = 'block';
+            };
+            img.src = dataUrl;
+          } else {
+            pendingMediaUploadFile = {
+              fileName: file.name,
+              mimeType: file.type || 'application/pdf',
+              base64Data: dataUrl
+            };
+            if (prevImg) prevImg.style.display = 'none';
+            if (prevName) prevName.innerText = '📄 ' + file.name;
+            if (prevBox) prevBox.style.display = 'block';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function submitAddLearningMedia() {
+        const title = (document.getElementById('media-title-input')?.value || '').trim();
+        const category = (document.getElementById('media-category-input')?.value || '').trim();
+        if (!title) {
+          cuteAlert('กรุณาตั้งชื่อสื่อการเรียนรู้ก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '📝');
+          return;
+        }
+        if (!category) {
+          cuteAlert('กรุณาเลือกหรือระบุหมวดหมู่ก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '📁');
+          return;
+        }
+        if (!pendingMediaUploadFile || !pendingMediaUploadFile.base64Data) {
+          cuteAlert('กรุณาเลือกรูปภาพหรือไฟล์สื่อก่อนบันทึกครับ', 'ยังไม่ได้เลือกไฟล์', '📷');
+          return;
+        }
+
+        closeAddLearningMediaModal();
+        showLoadingPopup();
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            hideLoadingPopup();
+            if (res && res.status === 'success') {
+              cuteAlert(res.msg || 'บันทึกสื่อการเรียนรู้ลง Google Drive เรียบร้อยแล้วครับ', 'บันทึกสำเร็จ', '✅').then(() => {
+                showLearningMediaModal();
+              });
+            } else {
+              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกสื่อได้ครับ', 'เกิดข้อผิดพลาด', '❌');
+            }
+          })
+          .withFailureHandler(function(err) {
+            hideLoadingPopup();
+            cuteAlert('เกิดข้อผิดพลาดในการบันทึกสื่อ: ' + err, 'เกิดข้อผิดพลาด', '❌');
+          })
+          .saveLearningMediaToDrive({
+            title: title,
+            category: category,
+            fileName: pendingMediaUploadFile.fileName,
+            mimeType: pendingMediaUploadFile.mimeType,
+            base64Data: pendingMediaUploadFile.base64Data
+          });
+      }
+
+      function printLearningMediaItem(fileId, title, category, previewUrl, fileType) {
+        const isPdf = String(fileType || '').toUpperCase().includes('PDF');
+        if (isPdf) {
+          const pdfUrl = fileId ? (`https://drive.google.com/file/d/${fileId}/preview`) : previewUrl;
+          window.open(pdfUrl, '_blank');
+          return;
+        }
+
+        const primarySrc = fileId ? (`https://lh3.googleusercontent.com/d/${fileId}`) : previewUrl;
+        const fallbackSrc = fileId ? (`https://drive.google.com/thumbnail?id=${fileId}&sz=w2000`) : previewUrl;
+
+        const win = window.open('', '_blank');
+        if (win) {
+          const html = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'
+            + '<title>' + _escReportHtml(title || 'สื่อการเรียนรู้') + '</title>'
+            + '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">'
+            + '<style>'
+            + '*, *::before, *::after { box-sizing: border-box; font-family: "Sarabun", sans-serif !important; }'
+            + '@page { size: auto; margin: 10mm; }'
+            + 'body { margin: 0; padding: 0; background: #f1f5f9; text-align: center; }'
+            + '.bar { display: flex; justify-content: center; gap: 10px; padding: 10px; background: #1B4332; position: sticky; top: 0; }'
+            + '.bar button { border: none; border-radius: 10px; padding: 8px 18px; font-size: 15px; cursor: pointer; color: #fff; background: #40916C; }'
+            + '.bar button.cls { background: #64748B; }'
+            + '.sheet { max-width: 960px; margin: 16px auto; background: #fff; padding: 16px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }'
+            + '.sheet img { max-width: 100%; max-height: 85vh; object-fit: contain; display: block; margin: 0 auto; }'
+            + '.caption { margin-top: 8px; font-size: 16px; font-weight: 700; color: #1B4332; }'
+            + '@media print { .bar { display: none !important; } body { background: #fff; } .sheet { margin: 0; padding: 0; box-shadow: none; } .sheet img { max-height: 92vh; } }'
+            + '</style></head><body>'
+            + '<div class="bar"><button onclick="window.print()">🖨️ พิมพ์เอกสาร</button><button class="cls" onclick="window.close()">✕ ปิด</button></div>'
+            + '<div class="sheet"><img id="m-print-img" src="' + _escReportHtml(primarySrc) + '" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'' + _escReportHtml(fallbackSrc) + '\';}" alt="">'
+            + '<div class="caption">' + _escReportHtml(title || '') + (category ? ' (' + _escReportHtml(category) + ')' : '') + '</div></div>'
+            + '<' + 'script>window.addEventListener("load", function(){ setTimeout(function(){ window.print(); }, 500); });<' + '/script>'
+            + '</body></html>';
+          win.document.open();
+          win.document.write(html);
+          win.document.close();
+          return;
+        }
+
+        // Synchronous Fallback กรณี popup ถูกบล็อก
+        const printContainer = document.getElementById('print-only-report-container');
+        if (!printContainer) return;
+        printContainer.innerHTML = `<div class="a4-sheet" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px;"><img src="${_escReportHtml(primarySrc)}" style="max-width:100%; max-height:92%; object-fit:contain;"><div style="margin-top:10px; font-size:18px; font-weight:700;">${_escReportHtml(title || '')}</div></div>`;
+        document.documentElement.classList.add('printing-activity-report');
+        document.body.classList.add('printing-activity-report');
+        const cleanupMediaPrint = function() {
+          document.documentElement.classList.remove('printing-activity-report');
+          document.body.classList.remove('printing-activity-report');
+          window.removeEventListener('afterprint', cleanupMediaPrint);
+        };
+        window.addEventListener('afterprint', cleanupMediaPrint);
+        setTimeout(cleanupMediaPrint, 15000);
+        window.print();
+      }
+
+      function confirmDeleteLearningMedia(fileId, rowIndex, title) {
+        cuteConfirm(
+          'ต้องการลบสื่อ "' + (title || 'รายการนี้') + '" ออกจากคลังและ Google Drive ใช่ไหมครับ?',
+          'ยืนยันการลบสื่อ',
+          '🗑️'
+        ).then(ok => {
+          if (!ok) return;
+          showLoadingPopup();
+          google.script.run
+            .withSuccessHandler(function(res) {
+              hideLoadingPopup();
+              if (res && res.status === 'success') {
+                cuteAlert(res.msg || 'ลบสื่อเรียบร้อยแล้วครับ', 'สำเร็จ', '✅').then(() => {
+                  showLearningMediaModal();
+                });
+              } else {
+                cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถลบสื่อได้ครับ', 'ผิดพลาด', '❌');
+              }
+            })
+            .withFailureHandler(function(err) {
+              hideLoadingPopup();
+              cuteAlert('เกิดข้อผิดพลาด: ' + err, 'ผิดพลาด', '❌');
+            })
+            .deleteLearningMediaItem(fileId, rowIndex);
+        });
       }
 
 // 📱 PWA Service Worker Registration
