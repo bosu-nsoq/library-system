@@ -119,7 +119,7 @@
 
       /* Login Screen */
 
-      .login-box { text-align: center; margin-top: 15vh; }
+      .login-box { text-align: center; margin: 0 auto !important; }
 
       .school-logo { width: 85px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 
@@ -151,12 +151,12 @@
 
       #login-overlay {
 
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        position: fixed; inset: 0; top: 0; left: 0; width: 100%; height: 100%; height: 100dvh;
 
         background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 
-        background-size: cover; z-index: 9999; display: none; align-items: center; justify-content: center;
-        overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 12px; box-sizing: border-box;
+        z-index: 9999; display: none; align-items: center; justify-content: center;
+        overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; box-sizing: border-box;
 
       }
 
@@ -970,8 +970,98 @@
 
       .tx-loader-overlay {
         display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; height: 100dvh;
-        background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        background: rgba(15, 34, 24, 0.42); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
         z-index: 100001; align-items: center; justify-content: center; flex-direction: column;
+      }
+
+      .tx-loader-card {
+        max-width: 245px;
+        width: 78%;
+        padding: 24px 20px 20px 20px;
+        border-radius: 28px;
+        background: linear-gradient(160deg, #FFFFFF 0%, #F2FBF5 100%);
+        border: 2px solid #B7E4C7;
+        box-shadow: 0 14px 34px rgba(45, 106, 79, 0.24), 0 0 0 6px rgba(255, 255, 255, 0.35);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        animation: txPopIn 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      @keyframes txPopIn {
+        from { opacity: 0; transform: scale(0.86); }
+        to { opacity: 1; transform: scale(1); }
+      }
+
+      .tx-cute-orb {
+        position: relative;
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #D8F3DC, #FEF3C7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 16px rgba(82, 183, 136, 0.25);
+        margin-bottom: 12px;
+      }
+
+      .tx-cute-ring {
+        position: absolute;
+        inset: -5px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #2D6A4F;
+        border-right-color: #F59E0B;
+        animation: spin 1.1s linear infinite;
+      }
+
+      .tx-cute-book {
+        font-size: 32px;
+        line-height: 1;
+        animation: txFloatBook 1.3s ease-in-out infinite;
+      }
+
+      @keyframes txFloatBook {
+        0%, 100% { transform: translateY(0) rotate(-3deg); }
+        50% { transform: translateY(-5px) rotate(4deg) scale(1.06); }
+      }
+
+      .tx-cute-sparkle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 14px;
+        animation: txTwinkle 1s ease-in-out infinite alternate;
+      }
+
+      @keyframes txTwinkle {
+        from { transform: scale(0.8); opacity: 0.65; }
+        to { transform: scale(1.18); opacity: 1; }
+      }
+
+      .tx-cute-dots {
+        display: inline-flex;
+        gap: 5px;
+        margin-top: 8px;
+      }
+
+      .tx-cute-dots span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #52B788;
+        animation: txBounceDot 1.1s infinite ease-in-out;
+      }
+
+      .tx-cute-dots span:nth-child(2) { background: #F59E0B; animation-delay: 0.18s; }
+      .tx-cute-dots span:nth-child(3) { background: #2D6A4F; animation-delay: 0.36s; }
+
+      @keyframes txBounceDot {
+        0%, 80%, 100% { transform: scale(0.75); opacity: 0.45; }
+        40% { transform: scale(1.25); opacity: 1; }
       }
 
       .tx-spinner {
@@ -1009,9 +1099,14 @@
     <!-- หน้าต่างโหลดตอนทำรายการ -->
 
     <div id="tx-loader" class="tx-loader-overlay">
-      <div class="modal-box" style="max-width: 240px; width: 78%; padding: 26px 20px; border-radius: 26px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <div class="tx-spinner" style="margin: 0 auto;"></div>
-        <div id="tx-loader-text" style="margin-top: 14px; font-weight: 700; color: var(--primary); font-size: 16px;">กำลังโหลด...</div>
+      <div class="tx-loader-card">
+        <div class="tx-cute-orb">
+          <div class="tx-cute-ring"></div>
+          <span class="tx-cute-book">📖</span>
+          <span class="tx-cute-sparkle">✨</span>
+        </div>
+        <div id="tx-loader-text" style="font-weight: 700; color: var(--primary); font-size: 16px;">กำลังโหลด...</div>
+        <div class="tx-cute-dots"><span></span><span></span><span></span></div>
       </div>
     </div>
 
@@ -1031,7 +1126,7 @@
 
         <div class="app-title" style="justify-content:center; margin-bottom: 15px;">ระบบห้องสมุดดิจิทัล</div>
 
-        <input type="password" id="login-pin" class="pin-input" inputmode="numeric" maxlength="6" placeholder="กรอกรหัส" oninput="checkPinLogin(this)" onkeypress="if(event.key==='Enter') checkPinLogin(this, true)">
+        <input type="password" id="login-pin" class="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="กรอกรหัส" oninput="this.value=this.value.replace(/\D/g,''); checkPinLogin(this)" onkeydown="if(!event.ctrlKey && !event.metaKey && !event.altKey && event.key.length===1 && !/[0-9]/.test(event.key)){ event.preventDefault(); }" onkeypress="if(event.key==='Enter') checkPinLogin(this, true)">
 
         <div id="login-loader" class="loader"></div>
 
@@ -3445,6 +3540,11 @@
 
 
       function checkPinLogin(input, isEnter) {
+
+        if (input) {
+          const digitsOnly = String(input.value || '').replace(/\D/g, '').slice(0, 6);
+          if (input.value !== digitsOnly) input.value = digitsOnly;
+        }
 
         if (input.value.length === 4 || (isEnter && input.value.length >= 3)) {
 
