@@ -1715,7 +1715,7 @@
 
              </select>
 
-             <button type="button" class="action-btn" style="width: 44px; height: 38px; padding: 0; font-size: 18px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="openBatchMemberPrintChoice()" title="สั่งพิมพ์ (เลือกหลายคนได้)">
+             <button type="button" class="action-btn" style="width: 44px; height: 38px; padding: 0; font-size: 18px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="printFilteredOrSelectedCards()" title="สั่งพิมพ์บัตรสมาชิก">
 
                 🖨️
 
@@ -1753,29 +1753,6 @@
 
        </div>
 
-    </div>
-
-    <!-- ป๊อปอัพเลือกพิมพ์ระหว่าง บัตรสมาชิก กับ เกียรติบัตร (รายคน / หลายคน) -->
-    <div id="memberPrintChoiceModal" class="modal-overlay" style="z-index: 2510;">
-       <div class="modal-box" style="max-width: 390px;">
-          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
-             <button type="button" class="cute-close-x" onclick="closeMemberPrintChoiceModal()">✕</button>
-          </div>
-          <div class="cute-icon-circle"><span>🖨️</span></div>
-          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 4px;">เลือกรายการที่ต้องการพิมพ์</div>
-          <div id="member-print-choice-sub" style="font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 16px;"></div>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15px;" onclick="executeMemberPrintChoice('card')">
-                🪪 บัตรสมาชิก
-             </button>
-             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 15px;" onclick="executeMemberPrintChoice('cert')">
-                🏆 เกียรติบัตร (ยอดนักอ่าน)
-             </button>
-             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeMemberPrintChoiceModal()">
-                ยกเลิก
-             </button>
-          </div>
-       </div>
     </div>
 
 
@@ -2008,17 +1985,13 @@
              <button type="button" class="cute-close-x" onclick="closeReaderCertBuilderModal()">✕</button>
           </div>
 
-          <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-             <select id="reader-cert-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterReaderCertStudents()">
+          <div style="display: flex; gap: 6px; margin-bottom: 8px; align-items: center;">
+             <select id="reader-cert-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1; min-width: 0;" onchange="filterReaderCertStudents()">
                 <option value="all">ทุกระดับชั้น</option>
              </select>
-             <button type="button" class="action-btn" style="padding: 8px 12px; font-size: 12.5px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; margin: 0; border-radius: 12px; white-space: nowrap;" onclick="openCertBgModal('reader')">
+             <button type="button" class="action-btn" style="width: auto; min-width: 0; flex: 0 0 auto; padding: 8px 11px; font-size: 12px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; margin: 0; border-radius: 12px; white-space: nowrap;" onclick="openCertBgModal('reader')" title="เลือกพื้นหลังเกียรติบัตร">
                 🖼️ พื้นหลัง
              </button>
-          </div>
-
-          <div id="reader-cert-bg-pill" style="font-size: 11.5px; color: #0369A1; background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 10px; padding: 5px 10px; margin-bottom: 8px; text-align: left;">
-             พื้นหลังที่เลือก: <b id="reader-cert-bg-name">เขียว-ทอง (ค่าเริ่มต้น)</b>
           </div>
 
           <div style="margin-bottom: 8px;">
@@ -5386,7 +5359,7 @@
                   </div>
                 </div>
               </label>
-              <button type="button" style="width: 38px; height: 34px; flex: 0 0 38px; padding: 0; font-size: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; margin: 0; box-shadow: none; display: inline-flex; align-items: center; justify-content: center;" onclick="openSingleMemberPrintChoice('${safeId}', '${safeName}', '${safeGrade}')" title="เลือกพิมพ์บัตร หรือ เกียรติบัตร">
+              <button type="button" style="width: 38px; height: 34px; flex: 0 0 38px; padding: 0; font-size: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; margin: 0; box-shadow: none; display: inline-flex; align-items: center; justify-content: center;" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')" title="พิมพ์บัตรสมาชิก">
                 🖨️
               </button>
             </div>
@@ -5438,7 +5411,7 @@
         }
       }
 
-      function openBatchMemberPrintChoice() {
+      function printFilteredOrSelectedCards() {
         const gradeEl = document.getElementById('card-grade-filter');
         const gradeVal = gradeEl ? gradeEl.value : 'all';
         const qEl = document.getElementById('card-search-input');
@@ -5460,45 +5433,10 @@
           return;
         }
 
-        pendingMemberPrintTargets = targets;
-        const sub = document.getElementById('member-print-choice-sub');
-        if (sub) {
-          sub.innerText = selectedTargets.length > 0
-            ? `สมาชิกที่เลือก: ${targets.length} คน`
-            : `สมาชิกทั้งหมดที่แสดง: ${targets.length} คน`;
-        }
-        const m = document.getElementById('memberPrintChoiceModal');
-        if (m) m.style.display = 'flex';
-      }
-
-      function openSingleMemberPrintChoice(id, name, grade) {
-        pendingMemberPrintTargets = [{ id: id, name: name, grade: grade }];
-        const sub = document.getElementById('member-print-choice-sub');
-        if (sub) sub.innerText = `สมาชิก: ${name || id}`;
-        const m = document.getElementById('memberPrintChoiceModal');
-        if (m) m.style.display = 'flex';
-      }
-
-      function closeMemberPrintChoiceModal() {
-        const m = document.getElementById('memberPrintChoiceModal');
-        if (m) m.style.display = 'none';
-      }
-
-      function executeMemberPrintChoice(type) {
-        closeMemberPrintChoiceModal();
-        const targets = pendingMemberPrintTargets || [];
-        if (targets.length === 0) {
-          cuteAlert("ไม่พบรายชื่อสมาชิกที่เลือกครับ", "แจ้งเตือน", "📭");
-          return;
-        }
-        if (type === 'card') {
-          const title = targets.length === 1
-            ? `บัตรสมาชิก - ${targets[0].name}`
-            : `บัตรสมาชิก (${targets.length} คน)`;
-          generateAndPrintCards(targets, title);
-        } else {
-          openBestReaderCerts(targets);
-        }
+        const title = selectedTargets.length > 0
+          ? `บัตรสมาชิก (${targets.length} คน)`
+          : `บัตรสมาชิก (${gradeVal === 'all' ? 'ทุกระดับชั้น' : 'ชั้น ' + gradeVal})`;
+        generateAndPrintCards(targets, title);
       }
 
       function printFilteredCards() {
