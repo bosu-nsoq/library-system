@@ -2639,7 +2639,7 @@
     <!-- ✨ Screen Saver (ทำงานเมื่อหน้าจอไม่มีการโต้ตอบ 1 นาที) -->
     <div id="library-screensaver" aria-hidden="true">
        <div id="ss-stage"></div>
-       <div class="ss-center-badge">📚 ห้องสมุดโรงเรียนวัดหนองตาเกิด • แตะหน้าจอเพื่อใช้งานต่อ ✨</div>
+       <div class="ss-center-badge">📚 ห้องสมุดโรงเรียนวัดหนองตาเกิด • แตะหน้าจอ คลิก หรือกดแป้นพิมพ์เพื่อใช้งานต่อ ✨</div>
     </div>
 
     <script>
@@ -9093,7 +9093,7 @@
         });
       }
 
-      // ✨ Cute Library Book Screensaver (เริ่มทำงานเมื่อไม่มีการใช้งาน 1 นาที)
+      // ✨ Cute Library Book Screensaver (เริ่มทำงานเมื่อไม่มีการใช้งาน 1 นาที — เฉพาะแตะหน้าจอ คลิก หรือกดแป้นพิมพ์)
       (function initLibraryScreensaver() {
         const IDLE_LIMIT_MS = 60 * 1000;
         const BOOK_ICONS = ['📖', '📘', '📗', '📙', '📕', '📚'];
@@ -9105,14 +9105,14 @@
           'นิทานพื้นบ้านไทย', 'สารานุกรมสำหรับเด็ก'
         ];
 
-        let idleTimer = null;
+        let idleCheckInterval = null;
+        let lastActivityTime = Date.now();
         let spawnTimer = null;
         let hideFinishTimer = null;
         let isRunning = false;
+        let isInitialized = false;
         let fetchedBookTitles = [];
         let fetchRequested = false;
-        let lastMouseX = -1;
-        let lastMouseY = -1;
         let laneCursor = 0;
 
         function _collectBookTitles() {
@@ -9157,10 +9157,10 @@
 
         function _isBlockedBySystemState() {
           const txLoader = document.getElementById('tx-loader');
-          if (txLoader && txLoader.style.display && txLoader.style.display !== 'none') return true;
+          if (txLoader && window.getComputedStyle(txLoader).display !== 'none') return true;
           const camModal = document.getElementById('cameraModal');
-          if (camModal && camModal.style.display && camModal.style.display !== 'none') return true;
-          return document.hidden;
+          if (camModal && window.getComputedStyle(camModal).display !== 'none') return true;
+          return !!document.hidden;
         }
 
         function _spawnFloatingItem(immediateProgress) {
@@ -9237,7 +9237,6 @@
 
           stage.appendChild(el);
 
-          // กันกรณีคลายแท็บหรือการ์ดล้นหน้าจอด้านขวา on narrow viewports
           const rect = el.getBoundingClientRect();
           if (rect.right > window.innerWidth - 10) {
             const overflowRight = rect.right - (window.innerWidth - 10);
@@ -9249,7 +9248,7 @@
         function showScreensaver() {
           if (isRunning) return;
           if (_isBlockedBySystemState()) {
-            scheduleIdleTimer();
+            lastActivityTime = Date.now();
             return;
           }
           const overlay = document.getElementById('library-screensaver');
@@ -9265,18 +9264,17 @@
           stage.innerHTML = '';
           overlay.style.display = 'block';
           overlay.setAttribute('aria-hidden', 'false');
+          void overlay.offsetWidth;
+          overlay.classList.add('ss-active');
 
-          // กระจายหนังสือลอยขึ้นทันทีหลายเล่มทั่วหน้าจอ (ไม่ต้องรอจากขอบล่างอย่างเดียว)
+          // กระจายหนังสือลอยขึ้นทันทีหลายเล่มทั่วหน้าจอ
           const initialOffsets = [0.08, 0.22, 0.36, 0.50, 0.64, 0.78, 0.15, 0.43, 0.70];
           initialOffsets.forEach(p => _spawnFloatingItem(p));
 
+          if (spawnTimer) clearInterval(spawnTimer);
           spawnTimer = setInterval(function() {
             if (isRunning && !document.hidden) _spawnFloatingItem(0);
           }, 950);
-
-          requestAnimationFrame(function() {
-            if (isRunning) overlay.classList.add('ss-active');
-          });
         }
 
         function hideScreensaver() {
@@ -9299,24 +9297,30 @@
           }, 560);
         }
 
-        function scheduleIdleTimer() {
-          if (idleTimer) clearTimeout(idleTimer);
-          idleTimer = setTimeout(showScreensaver, IDLE_LIMIT_MS);
+        function markUserActivity() {
+          lastActivityTime = Date.now();
+          if (isRunning) hideScreensaver();
         }
 
-        function onUserActivity(e) {
-          if (e && e.type === 'mousemove') {
-            if (lastMouseX >= 0 && Math.abs(e.clientX - lastMouseX) < 8 && Math.abs(e.clientY - lastMouseY) < 8) {
+        function startIdleLoop() {
+          if (idleCheckInterval) clearInterval(idleCheckInterval);
+          idleCheckInterval = setInterval(function() {
+            if (isRunning) return;
+            if (_isBlockedBySystemState()) {
+              lastActivityTime = Date.now();
               return;
             }
-            lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
-          }
-          if (isRunning) hideScreensaver();
-          scheduleIdleTimer();
+            if (Date.now() - lastActivityTime >= IDLE_LIMIT_MS) {
+              showScreensaver();
+            }
+          }, 1000);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        function setupScreensaver() {
+          if (isInitialized) return;
+          isInitialized = true;
+          lastActivityTime = Date.now();
+
           const overlay = document.getElementById('library-screensaver');
           if (overlay) {
             const wakeAndAbsorb = function(e) {
@@ -9325,21 +9329,21 @@
                 e.preventDefault();
                 e.stopPropagation();
               }
-              hideScreensaver();
-              scheduleIdleTimer();
+              markUserActivity();
             };
             overlay.addEventListener('pointerdown', wakeAndAbsorb, true);
+            overlay.addEventListener('mousedown', wakeAndAbsorb, true);
             overlay.addEventListener('touchstart', wakeAndAbsorb, { passive: false, capture: true });
             overlay.addEventListener('click', wakeAndAbsorb, true);
           }
 
-          ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll', 'mousemove', 'input'].forEach(evt => {
-            document.addEventListener(evt, onUserActivity, { passive: true, capture: true });
+          // เฉพาะ แตะหน้าจอ คลิก หรือกดแป้นพิมพ์ เท่านั้น (ไม่นับการขยับเมาส์)
+          ['pointerdown', 'mousedown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, markUserActivity, { passive: true, capture: true });
           });
 
           document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
-              if (idleTimer) clearTimeout(idleTimer);
               if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
             } else {
               if (isRunning && !spawnTimer) {
@@ -9347,12 +9351,18 @@
                   if (isRunning && !document.hidden) _spawnFloatingItem(0);
                 }, 950);
               }
-              scheduleIdleTimer();
+              if (!isRunning) lastActivityTime = Date.now();
             }
           });
 
-          scheduleIdleTimer();
-        });
+          startIdleLoop();
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', setupScreensaver);
+        } else {
+          setupScreensaver();
+        }
       })();
 
     </script>
