@@ -950,7 +950,9 @@
       #archive-reports-list,
       #reader-cert-students-list,
       #cert-bg-gallery-list,
-      #contest-student-pick-list {
+      #contest-student-pick-list,
+      #guest-usage-table-wrap,
+      #guest-top-readers {
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
@@ -1041,12 +1043,12 @@
 
 
 
-    <!-- Guest Home (หน้าแรกก่อนเข้าสู่ระบบ: ตารางการใช้งาน + อันดับยอดนักอ่านประจำปี พ.ศ.) -->
+    <!-- Guest Home (หน้าแรกก่อนเข้าสู่ระบบ: ปุ่มสถิติการเข้าใช้ห้องสมุด + ปุ่มจัดอันดับยอดนักอ่าน) -->
     <div class="card container" id="guest-home" style="display: none;">
       <div style="text-align:center"><img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px"></div>
       <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:6px; flex-wrap:nowrap;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:6px; flex-wrap:nowrap;">
          <div class="app-title" style="font-size:16px; white-space:nowrap; flex-shrink:0; display:inline-flex; align-items:center; gap:4px;">📚 ห้องสมุด</div>
          <div style="display:flex; align-items:center; gap:6px; min-width:0; flex-shrink:0; justify-content:flex-end;">
             <div class="user-pill" style="max-width:none;">Guest</div>
@@ -1056,51 +1058,70 @@
          </div>
       </div>
 
-      <!-- สรุปยอดการใช้งานปี พ.ศ. ปัจจุบัน -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-         <div style="font-weight: 700; font-size: 14.5px; color: var(--primary); display: flex; align-items: center; gap: 5px;">
-            <span>📋</span> การใช้งานห้องสมุด <span id="guest-year-label" style="font-size: 12px; background: #D8F3DC; color: var(--primary); padding: 2px 8px; border-radius: 10px;">ปี พ.ศ. -</span>
-         </div>
-         <button type="button" onclick="loadGuestHomeData()" style="border: none; background: #F1F5F9; color: var(--primary); padding: 4px 10px; border-radius: 10px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: 'Mali', cursive, sans-serif;">🔄 อัปเดต</button>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 6px;">
+         <button type="button" id="btn-guest-usage" class="action-btn" style="margin: 0; width: 100%; padding: 15px 16px; border-radius: 18px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15.5px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 5px 14px rgba(45,106,79,0.22);" onclick="openGuestUsageModal()">
+            <span>📋</span> สถิติการเข้าใช้ห้องสมุด
+         </button>
+         <button type="button" id="btn-guest-readers" class="action-btn" style="margin: 0; width: 100%; padding: 15px 16px; border-radius: 18px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 15.5px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 5px 14px rgba(217,119,6,0.22);" onclick="openGuestReadersModal()">
+            <span>🏆</span> จัดอันดับยอดนักอ่าน
+         </button>
       </div>
+    </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-         <div style="background: #F0FFF4; border: 1.5px solid #D8F3DC; border-radius: 14px; padding: 10px; text-align: center;">
-            <div style="font-size: 11.5px; color: var(--text-sub);">ยอดยืมในปีนี้</div>
-            <div style="font-size: 20px; font-weight: 700; color: var(--primary);"><span id="guest-borrows">-</span> <span style="font-size: 11.5px; font-weight: 500;">เล่ม</span></div>
-         </div>
-         <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 14px; padding: 10px; text-align: center;">
-            <div style="font-size: 11.5px; color: var(--text-sub);">ยอดคืนในปีนี้</div>
-            <div style="font-size: 20px; font-weight: 700; color: #0284C7;"><span id="guest-returns">-</span> <span style="font-size: 11.5px; font-weight: 500;">เล่ม</span></div>
-         </div>
-      </div>
+    <!-- Modal สถิติการเข้าใช้ห้องสมุด (โหมด Guest) -->
+    <div id="guestUsageModal" class="modal-overlay" style="z-index: 2430;">
+       <div class="modal-box" style="max-width: 520px; width: 94vw; max-height: 86vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>📋</span> สถิติการเข้าใช้ห้องสมุด
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeGuestUsageModal()">✕</button>
+          </div>
 
-      <div class="guest-table-wrap" style="margin-bottom: 16px;">
-         <table class="guest-table">
-            <thead>
-               <tr>
-                  <th>วันที่ (พ.ศ.)</th>
-                  <th>เวลา</th>
-                  <th>รายการ</th>
-                  <th>สมาชิก</th>
-                  <th>หนังสือ</th>
-               </tr>
-            </thead>
-            <tbody id="guest-usage-tbody">
-               <tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">⏳ กำลังโหลดข้อมูล...</td></tr>
-            </tbody>
-         </table>
-      </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+             <div style="background: #F0FFF4; border: 1.5px solid #D8F3DC; border-radius: 14px; padding: 10px; text-align: center;">
+                <div style="font-size: 11.5px; color: var(--text-sub);">ยอดการยืม</div>
+                <div style="font-size: 20px; font-weight: 700; color: var(--primary);"><span id="guest-borrows">-</span> <span style="font-size: 11.5px; font-weight: 500;">เล่ม</span></div>
+             </div>
+             <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 14px; padding: 10px; text-align: center;">
+                <div style="font-size: 11.5px; color: var(--text-sub);">ยอดการคืน</div>
+                <div style="font-size: 20px; font-weight: 700; color: #0284C7;"><span id="guest-returns">-</span> <span style="font-size: 11.5px; font-weight: 500;">เล่ม</span></div>
+             </div>
+          </div>
 
-      <!-- จัดอันดับยอดนักอ่าน (ในรอบปี พ.ศ.) -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-         <div style="font-weight: 700; font-size: 14.5px; color: var(--primary); display: flex; align-items: center; gap: 5px;">
-            <span>🏆</span> จัดอันดับยอดนักอ่าน (<span id="guest-rank-year">ปี พ.ศ. -</span>)
-         </div>
-      </div>
-      <div id="guest-top-readers" class="guest-rank-list">
-         <div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 12.5px;">⏳ กำลังโหลดอันดับ...</div>
-      </div>
+          <div class="guest-table-wrap" id="guest-usage-table-wrap" style="flex: 1; max-height: 48vh;">
+             <table class="guest-table">
+                <thead>
+                   <tr>
+                      <th>วันที่</th>
+                      <th>เวลา</th>
+                      <th>รายการ</th>
+                      <th>สมาชิก</th>
+                      <th>หนังสือ</th>
+                   </tr>
+                </thead>
+                <tbody id="guest-usage-tbody"></tbody>
+             </table>
+          </div>
+
+          <button type="button" class="action-btn" style="width: 100%; margin-top: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeGuestUsageModal()">ปิดหน้าต่าง</button>
+       </div>
+    </div>
+
+    <!-- Modal จัดอันดับยอดนักอ่าน (โหมด Guest) -->
+    <div id="guestReadersModal" class="modal-overlay" style="z-index: 2430;">
+       <div class="modal-box" style="max-width: 480px; width: 93vw; max-height: 86vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>🏆</span> จัดอันดับยอดนักอ่าน
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeGuestReadersModal()">✕</button>
+          </div>
+
+          <div id="guest-top-readers" class="guest-rank-list" style="flex: 1; max-height: 55vh;"></div>
+
+          <button type="button" class="action-btn" style="width: 100%; margin-top: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeGuestReadersModal()">ปิดหน้าต่าง</button>
+       </div>
     </div>
 
 
@@ -2443,7 +2464,11 @@
 
       function syncLibraryData(onDone) {
 
-        google.script.run.withSuccessHandler(function(data) {
+        google.script.run
+          .withFailureHandler(function() {
+            if (onDone) onDone();
+          })
+          .withSuccessHandler(function(data) {
 
           if (data) {
 
@@ -2533,10 +2558,24 @@
         updateBodyScrollLock();
       }
 
+      let suppressNextSidFocus = false;
+
+      function _isMobileOrTouchDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+          || (navigator.maxTouchPoints > 1 && window.innerWidth <= 1024);
+      }
+
       document.addEventListener("DOMContentLoaded", function() {
 
          initPrintDate();
          initModalScrollLock();
+
+         const guestHome = document.getElementById('guest-home');
+         const mainApp = document.getElementById('main-app');
+         const loginOverlay = document.getElementById('login-overlay');
+         if (guestHome) guestHome.style.display = 'none';
+         if (mainApp) mainApp.style.display = 'none';
+         if (loginOverlay) loginOverlay.style.display = 'none';
 
          let savedUser = sessionStorage.getItem('library_logged_in_user');
          let savedRole = sessionStorage.getItem('library_logged_in_role') || 'admin';
@@ -2548,20 +2587,19 @@
 
              applyRolePermissions(currentUserRole, currentUser);
 
-             document.getElementById('login-overlay').style.display = 'none';
-             const guestHome = document.getElementById('guest-home');
-             if (guestHome) guestHome.style.display = 'none';
-
-             document.getElementById('main-app').style.display = 'block';
-
-             document.getElementById('sid').focus();
-
-             syncLibraryData(); // โหลดฐานข้อมูลทั้งหมดเข้าหน่วยความจำทันที
+             // โหลดข้อมูลทั้งหมดให้เสร็จก่อนแสดงหน้าใช้งานหลัก
+             showLoadingPopup();
+             syncLibraryData(function() {
+               hideLoadingPopup();
+               if (mainApp) mainApp.style.display = 'block';
+               if (!_isMobileOrTouchDevice()) {
+                 const sidEl = document.getElementById('sid');
+                 if (sidEl) sidEl.focus();
+               }
+             });
 
          } else {
-             const guestHome = document.getElementById('guest-home');
-             if (guestHome) guestHome.style.display = 'block';
-             loadGuestHomeData();
+             loadGuestHomeData(true);
          }
 
       });
@@ -2583,32 +2621,51 @@
         if (pin) pin.value = '';
       }
 
-      function loadGuestHomeData() {
-        const tbody = document.getElementById('guest-usage-tbody');
-        const rankEl = document.getElementById('guest-top-readers');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">⏳ กำลังโหลด...</td></tr>';
-        if (rankEl) rankEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 12.5px;">⏳ กำลังโหลด...</div>';
+      let cachedGuestSummary = null;
+
+      function loadGuestHomeData(showAfterLoad) {
+        const guestHome = document.getElementById('guest-home');
+        if (showAfterLoad && guestHome) guestHome.style.display = 'none';
+        showLoadingPopup();
 
         google.script.run
           .withSuccessHandler(function(res) {
+            hideLoadingPopup();
+            cachedGuestSummary = res || null;
             renderGuestHomeData(res);
+            if (showAfterLoad && guestHome) guestHome.style.display = 'block';
           })
           .withFailureHandler(function() {
-            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #E63946;">❌ ไม่สามารถโหลดข้อมูลได้ครับ</td></tr>';
-            if (rankEl) rankEl.innerHTML = '<div style="text-align: center; padding: 20px; color: #E63946; font-size: 12.5px;">❌ ไม่สามารถโหลดอันดับได้ครับ</div>';
+            hideLoadingPopup();
+            renderGuestHomeData(null);
+            if (showAfterLoad && guestHome) guestHome.style.display = 'block';
           })
           .getGuestLibrarySummary();
       }
 
+      function openGuestUsageModal() {
+        renderGuestHomeData(cachedGuestSummary);
+        const m = document.getElementById('guestUsageModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeGuestUsageModal() {
+        const m = document.getElementById('guestUsageModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function openGuestReadersModal() {
+        renderGuestHomeData(cachedGuestSummary);
+        const m = document.getElementById('guestReadersModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeGuestReadersModal() {
+        const m = document.getElementById('guestReadersModal');
+        if (m) m.style.display = 'none';
+      }
+
       function renderGuestHomeData(res) {
-        const nowBE = new Date().getFullYear() + 543;
-        const yearBE = (res && res.yearBE) ? res.yearBE : nowBE;
-
-        const yearLabel = document.getElementById('guest-year-label');
-        const rankYearLabel = document.getElementById('guest-rank-year');
-        if (yearLabel) yearLabel.innerText = 'ปี พ.ศ. ' + yearBE;
-        if (rankYearLabel) rankYearLabel.innerText = 'ปี พ.ศ. ' + yearBE;
-
         const bEl = document.getElementById('guest-borrows');
         const rEl = document.getElementById('guest-returns');
         if (bEl) bEl.innerText = res ? (res.borrows || 0) : 0;
@@ -2618,7 +2675,7 @@
         if (tbody) {
           const logs = (res && Array.isArray(res.usageLogs)) ? res.usageLogs : [];
           if (logs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">ยังไม่มีประวัติการใช้งานในปี พ.ศ. ' + yearBE + ' ครับ</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">ยังไม่มีสถิติการเข้าใช้ห้องสมุดครับ</td></tr>';
           } else {
             let rowsHtml = '';
             logs.forEach(item => {
@@ -2642,7 +2699,7 @@
         if (rankEl) {
           const readers = (res && Array.isArray(res.topReaders)) ? res.topReaders : [];
           if (readers.length === 0) {
-            rankEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 12.5px;">ยังไม่มีข้อมูลการจัดอันดับในปี พ.ศ. ' + yearBE + ' ครับ</div>';
+            rankEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 12.5px;">ยังไม่มีข้อมูลการจัดอันดับยอดนักอ่านครับ</div>';
           } else {
             const medals = ['🥇', '🥈', '🥉'];
             let rankHtml = '';
@@ -2682,10 +2739,10 @@
              document.getElementById('main-app').style.display = 'none';
              document.getElementById('login-overlay').style.display = 'none';
              document.getElementById('login-pin').value = "";
+             closeGuestUsageModal();
+             closeGuestReadersModal();
 
-             const guestHome = document.getElementById('guest-home');
-             if (guestHome) guestHome.style.display = 'block';
-             loadGuestHomeData();
+             loadGuestHomeData(true);
 
          }});
 
@@ -3437,6 +3494,7 @@
                }
 
                const roleTitle = currentUserRole === 'admin' ? 'ครูบรรณารักษ์' : 'ยุวบรรณารักษ์';
+               suppressNextSidFocus = true;
                showModal("success:✅ เข้าสู่ระบบสำเร็จ (" + roleTitle + ")\nยินดีต้อนรับ " + currentUser);
 
             } else { 
@@ -6445,7 +6503,10 @@
           document.getElementById('msgModal').style.display = 'none'; 
           if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
 
-          if (document.getElementById('tab1').classList.contains('active')) {
+          const shouldSkip = suppressNextSidFocus || _isMobileOrTouchDevice();
+          suppressNextSidFocus = false;
+
+          if (!shouldSkip && document.getElementById('tab1').classList.contains('active')) {
 
               document.getElementById('sid').focus();
 
