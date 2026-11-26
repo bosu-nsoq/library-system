@@ -828,6 +828,77 @@
         color: #334155;
         line-height: 1.35;
       }
+
+      /* ธีมพื้นหลังเกียรติบัตรเพิ่มเติม (ยอดนักอ่าน & การประกวด) + พื้นหลังลิ้งก์กำหนดเอง */
+      .cert-sheet.bg-royal-gold {
+        background:
+          radial-gradient(circle at 50% 42%, #FFFFFF 0%, #FFFBEB 46%, #FEF3C7 82%, #FDE68A 100%);
+        color: #78350F;
+      }
+      .cert-sheet.bg-royal-gold .cert-outer-border { border-color: #92400E; }
+      .cert-sheet.bg-royal-gold .cert-ribbon-tl { background: linear-gradient(135deg, #92400E 0%, #B45309 42%, #F59E0B 42%, #FDE68A 49%, #78350F 49%, #78350F 52%, transparent 52%); }
+      .cert-sheet.bg-royal-gold .cert-ribbon-br { background: linear-gradient(315deg, #92400E 0%, #B45309 42%, #F59E0B 42%, #FDE68A 49%, #78350F 49%, #78350F 52%, transparent 52%); }
+      .cert-sheet.bg-royal-gold .cert-inner-border { border-color: #D97706; box-shadow: inset 0 0 0 6px #FFFDF5, inset 0 0 0 8px #F59E0B; }
+      .cert-sheet.bg-royal-gold .cert-school-title,
+      .cert-sheet.bg-royal-gold .cert-student-name { color: #78350F; }
+
+      .cert-sheet.bg-navy-gold {
+        background:
+          radial-gradient(circle at 50% 42%, #FFFFFF 0%, #F8FAFC 48%, #E0E7FF 86%, #DBEAFE 100%);
+        color: #1E3A8A;
+      }
+      .cert-sheet.bg-navy-gold .cert-outer-border { border-color: #1E3A8A; }
+      .cert-sheet.bg-navy-gold .cert-ribbon-tl { background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 42%, #D4AF37 42%, #FDE68A 49%, #1E3A8A 49%, #1E3A8A 52%, transparent 52%); }
+      .cert-sheet.bg-navy-gold .cert-ribbon-br { background: linear-gradient(315deg, #1E3A8A 0%, #1D4ED8 42%, #D4AF37 42%, #FDE68A 49%, #1E3A8A 49%, #1E3A8A 52%, transparent 52%); }
+      .cert-sheet.bg-navy-gold .cert-inner-border { border-color: #C9A227; box-shadow: inset 0 0 0 6px #FFFFFF, inset 0 0 0 8px #3B82F6; }
+      .cert-sheet.bg-navy-gold .cert-school-title,
+      .cert-sheet.bg-navy-gold .cert-student-name { color: #1E3A8A; }
+
+      .cert-sheet.bg-rose-cream {
+        background:
+          radial-gradient(circle at 50% 42%, #FFFFFF 0%, #FFF5F7 48%, #FCE7F3 84%, #FBCFE8 100%);
+        color: #831843;
+      }
+      .cert-sheet.bg-rose-cream .cert-outer-border { border-color: #9D174D; }
+      .cert-sheet.bg-rose-cream .cert-ribbon-tl { background: linear-gradient(135deg, #9D174D 0%, #BE185D 42%, #EAB308 42%, #FEF08A 49%, #831843 49%, #831843 52%, transparent 52%); }
+      .cert-sheet.bg-rose-cream .cert-ribbon-br { background: linear-gradient(315deg, #9D174D 0%, #BE185D 42%, #EAB308 42%, #FEF08A 49%, #831843 49%, #831843 52%, transparent 52%); }
+      .cert-sheet.bg-rose-cream .cert-inner-border { border-color: #D4AF37; box-shadow: inset 0 0 0 6px #FFFDF9, inset 0 0 0 8px #F472B6; }
+      .cert-sheet.bg-rose-cream .cert-school-title,
+      .cert-sheet.bg-rose-cream .cert-student-name { color: #831843; }
+
+      .cert-sheet.bg-custom-img {
+        background: #FFFFFF;
+        padding: 0;
+      }
+      .cert-sheet.bg-custom-img .cert-outer-border {
+        border: none;
+        background: transparent;
+        padding: 34px;
+      }
+      .cert-sheet.bg-custom-img .cert-inner-border {
+        border: none;
+        box-shadow: none;
+        background: rgba(255, 255, 255, 0.56);
+        border-radius: 18px;
+        padding: 24px 52px 20px 52px;
+      }
+      .cert-sheet.bg-custom-img .cert-ribbon-tl,
+      .cert-sheet.bg-custom-img .cert-ribbon-br,
+      .cert-sheet.bg-custom-img .cert-corner-tl,
+      .cert-sheet.bg-custom-img .cert-corner-tr,
+      .cert-sheet.bg-custom-img .cert-corner-bl,
+      .cert-sheet.bg-custom-img .cert-corner-br {
+        display: none;
+      }
+      .cert-bg-img-layer {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        pointer-events: none;
+      }
       .act-photo-placeholder {
         display: flex;
         flex-direction: column;
@@ -876,7 +947,10 @@
       #card-students-list,
       #book-labels-list,
       #backup-files-list,
-      #archive-reports-list {
+      #archive-reports-list,
+      #reader-cert-students-list,
+      #cert-bg-gallery-list,
+      #contest-student-pick-list {
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
@@ -1059,7 +1133,7 @@
 
         <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ (ประวัติล่าสุด)">🕒</div>
 
-        <div class="icon-btn admin-only" id="btn-menu-card" onclick="showCardModal()" title="พิมพ์บัตรสมาชิก">🪪</div>
+        <div class="icon-btn admin-only" id="btn-menu-card" onclick="openCardOrCertHubModal()" title="พิมพ์บัตรสมาชิกและเกียรติบัตร">🪪</div>
 
         <div class="icon-btn admin-only" id="btn-menu-label" onclick="showBookBarcodeModal()" title="พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ">🏷️</div>
 
@@ -1762,15 +1836,223 @@
        </div>
     </div>
 
-    <!-- Modal พรีวิวเกียรติบัตร "ยอดนักอ่าน" (A4 แนวนอน 1 หน้า) -->
+    <!-- ป๊อปอัพเลือกจากปุ่ม 🪪: พิมพ์บัตรสมาชิก หรือ พิมพ์เกียรติบัตร -->
+    <div id="cardOrCertHubModal" class="modal-overlay" style="z-index: 2440;">
+       <div class="modal-box" style="max-width: 390px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+             <button type="button" class="cute-close-x" onclick="closeCardOrCertHubModal()">✕</button>
+          </div>
+          <div class="cute-icon-circle"><span>🪪</span></div>
+          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">พิมพ์บัตรและเกียรติบัตร</div>
+          <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">กรุณาเลือกรายการที่ต้องการใช้งานครับ</div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15px;" onclick="closeCardOrCertHubModal(); showCardModal();">
+                🪪 พิมพ์บัตรสมาชิก
+             </button>
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 15px;" onclick="closeCardOrCertHubModal(); openCertTypeChoiceModal();">
+                🏆 พิมพ์เกียรติบัตร
+             </button>
+             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeCardOrCertHubModal()">
+                ปิดหน้าต่าง
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- ป๊อปอัพเลือกประเภทเกียรติบัตร: ยอดนักอ่าน หรือ การประกวด -->
+    <div id="certTypeChoiceModal" class="modal-overlay" style="z-index: 2450;">
+       <div class="modal-box" style="max-width: 390px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+             <button type="button" class="cute-close-x" onclick="closeCertTypeChoiceModal()">✕</button>
+          </div>
+          <div class="cute-icon-circle"><span>🏆</span></div>
+          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 6px;">เลือกประเภทเกียรติบัตร</div>
+          <div style="font-size: 13px; color: var(--text-sub); margin-bottom: 18px;">ต้องการจัดทำเกียรติบัตรประเภทใดครับ?</div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15px;" onclick="closeCertTypeChoiceModal(); openReaderCertBuilderModal();">
+                🌟 ยอดนักอ่าน
+             </button>
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 15px;" onclick="closeCertTypeChoiceModal(); openContestCertModal();">
+                🏅 การประกวด
+             </button>
+             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none;" onclick="closeCertTypeChoiceModal(); openCardOrCertHubModal();">
+                ⬅️ ย้อนกลับ
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal จัดทำเกียรติบัตรยอดนักอ่าน (เลือกได้หลายแผ่นตามชื่อ + เลือกพื้นหลัง) -->
+    <div id="readerCertModal" class="modal-overlay" style="z-index: 2470;">
+       <div class="modal-box" style="max-width: 500px; width: 93vw; max-height: 88vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 16.5px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>🌟</span> เกียรติบัตรยอดนักอ่าน
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeReaderCertBuilderModal()">✕</button>
+          </div>
+
+          <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+             <select id="reader-cert-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterReaderCertStudents()">
+                <option value="all">ทุกระดับชั้น</option>
+             </select>
+             <button type="button" class="action-btn" style="padding: 8px 12px; font-size: 12.5px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; margin: 0; border-radius: 12px; white-space: nowrap;" onclick="openCertBgModal('reader')">
+                🖼️ พื้นหลัง
+             </button>
+          </div>
+
+          <div id="reader-cert-bg-pill" style="font-size: 11.5px; color: #0369A1; background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 10px; padding: 5px 10px; margin-bottom: 8px; text-align: left;">
+             พื้นหลังที่เลือก: <b id="reader-cert-bg-name">เขียว-ทอง (ค่าเริ่มต้น)</b>
+          </div>
+
+          <div style="margin-bottom: 8px;">
+             <input type="text" id="reader-cert-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักเรียน..." oninput="filterReaderCertStudents()">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 6px 4px; margin-bottom: 6px; font-size: 12px; color: var(--text-sub); border-bottom: 1px dashed #EAEAEA;">
+             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; color: var(--primary); margin: 0;">
+                <input type="checkbox" id="reader-cert-select-all" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;" onchange="toggleSelectAllReaderCerts(this.checked)">
+                เลือกทั้งหมด (<span id="reader-cert-selected-count">0</span> แผ่น)
+             </label>
+             <button type="button" style="border: none; background: transparent; color: #64748B; font-size: 11.5px; cursor: pointer; padding: 2px 6px;" onclick="toggleSelectAllReaderCerts(false)">ล้างที่เลือก</button>
+          </div>
+
+          <div id="reader-cert-students-list" style="flex: 1; overflow-y: auto; max-height: 40vh; padding-right: 2px;"></div>
+
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+             <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 11px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13.5px;" onclick="closeReaderCertBuilderModal(); openCertTypeChoiceModal();">
+                ⬅️ ย้อนกลับ
+             </button>
+             <button type="button" class="action-btn" style="flex: 2; margin: 0; padding: 11px; border-radius: 14px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 14px;" onclick="generateReaderCertsFromBuilder()">
+                🏆 จัดทำเกียรติบัตร
+             </button>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal จัดทำเกียรติบัตรการประกวด -->
+    <div id="contestCertModal" class="modal-overlay" style="z-index: 2470;">
+       <div class="modal-box" style="max-width: 500px; width: 93vw; max-height: 88vh; display: flex; flex-direction: column; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #D8F3DC; padding-bottom: 10px;">
+             <div style="font-weight: 700; font-size: 16.5px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>🏅</span> เกียรติบัตรการประกวด
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeContestCertModal()">✕</button>
+          </div>
+
+          <div style="flex: 1; overflow-y: auto; padding-right: 4px; overscroll-behavior: contain;">
+             <div style="margin-bottom: 10px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🏆 รายการประกวด</label>
+                <input type="text" id="contest-title" class="modern-input" placeholder="เช่น การแข่งขันคัดลายมือ / วาดภาพระบายสี" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
+             </div>
+
+             <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                   <label style="font-size: 12.5px; font-weight: 700; color: var(--text-main);">👤 ชื่อผู้ได้รับเกียรติบัตร</label>
+                   <button type="button" style="border: none; background: #D8F3DC; color: #1B4332; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px; cursor: pointer;" onclick="toggleContestStudentPicker()">👥 เลือกจากรายชื่อ</button>
+                </div>
+                <input type="text" id="contest-student-name" class="modern-input" placeholder="พิมพ์ชื่อ-นามสกุล (หรือคั่นด้วย , หากหลายคน)" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 9px 12px; text-align: left;">
+                <div id="contest-student-picker-box" style="display: none; margin-top: 6px; background: #F8FAFC; border: 1.5px solid #D8F3DC; border-radius: 12px; padding: 8px;">
+                   <input type="text" id="contest-student-search" class="modern-input" placeholder="🔍 ค้นหาชื่อนักเรียน..." oninput="filterContestPickStudents()" style="width: 100%; box-sizing: border-box; font-size: 12px; padding: 6px 10px; margin-bottom: 6px; text-align: left;">
+                   <div id="contest-student-pick-list" style="max-height: 150px; overflow-y: auto;"></div>
+                </div>
+             </div>
+
+             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div>
+                   <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🎓 ระดับชั้น</label>
+                   <select id="contest-level" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 8px;">
+                      <option value="อนุบาล">อนุบาล</option>
+                      <option value="ประถมศึกษา">ประถมศึกษา</option>
+                      <option value="มัธยมศึกษา">มัธยมศึกษา</option>
+                   </select>
+                </div>
+                <div>
+                   <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🥇 รางวัล</label>
+                   <select id="contest-award" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 8px;">
+                      <option value="ชนะเลิศ">ชนะเลิศ</option>
+                      <option value="รองชนะเลิศอันดับ 1">รองชนะเลิศอันดับ 1</option>
+                      <option value="รองชนะเลิศอันดับ 2">รองชนะเลิศอันดับ 2</option>
+                      <option value="ชมเชย">ชมเชย</option>
+                   </select>
+                </div>
+             </div>
+
+             <div style="margin-bottom: 10px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">📅 ออกให้ ณ วันที่ (วว/ดด/ปปปป พ.ศ.)</label>
+                <div style="position: relative; display: flex; align-items: center;">
+                   <input type="text" id="contest-date-display" class="modern-input" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 9px 12px; cursor: pointer; text-align: center; background: #fff;" onclick="openContestCalendar()">
+                   <input type="date" id="contest-date" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="onContestDateChange(this.value)">
+                </div>
+             </div>
+
+             <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 12px; padding: 9px 11px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <div style="font-size: 12px; color: #0369A1; flex: 1;">
+                   🖼️ พื้นหลัง: <b id="contest-cert-bg-name">เขียว-ทอง (ค่าเริ่มต้น)</b>
+                </div>
+                <button type="button" class="action-btn" style="margin: 0; padding: 6px 12px; font-size: 12px; border-radius: 10px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; white-space: nowrap;" onclick="openCertBgModal('contest')">
+                   เลือกพื้นหลัง
+                </button>
+             </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+             <div style="display: flex; gap: 8px;">
+                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 11px; border-radius: 14px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 13.5px;" onclick="handleContestCertAction('print')">
+                   🖨️ พิมพ์เกียรติบัตร
+                </button>
+                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 11px; border-radius: 14px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 13.5px;" onclick="handleContestCertAction('download')">
+                   💾 ดาวน์โหลดเกียรติบัตร
+                </button>
+             </div>
+             <div style="display: flex; gap: 8px;">
+                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 9px; border-radius: 12px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="closeContestCertModal(); openCertTypeChoiceModal();">
+                   ⬅️ ย้อนกลับ
+                </button>
+                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 9px; border-radius: 12px; background: #FEF3C7; color: #92400E; box-shadow: none; font-size: 13px;" onclick="handleContestCertAction('preview')">
+                   👁️ ดูตัวอย่าง
+                </button>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal เลือกพื้นหลังเกียรติบัตร & อัปโหลดเป็นลิ้งก์เพิ่มได้ -->
+    <div id="certBgModal" class="modal-overlay" style="z-index: 2600;">
+       <div class="modal-box" style="max-width: 460px; width: 93vw; max-height: 86vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 8px;">
+             <div style="font-weight: 700; font-size: 16.5px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>🖼️</span> เลือกพื้นหลังเกียรติบัตร
+             </div>
+             <button type="button" class="cute-close-x" onclick="closeCertBgModal()">✕</button>
+          </div>
+
+          <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 10px; margin-bottom: 12px; text-align: left;">
+             <div style="font-size: 12.5px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">🔗 เพิ่มพื้นหลังใหม่ด้วยลิ้งก์รูปภาพ</div>
+             <input type="text" id="cert-bg-url-name" class="modern-input" placeholder="ชื่อพื้นหลัง (ไม่บังคับ)" style="width: 100%; box-sizing: border-box; font-size: 12.5px; padding: 7px 10px; margin-bottom: 6px; text-align: left;">
+             <div style="display: flex; gap: 6px;">
+                <input type="url" id="cert-bg-url-input" class="modern-input" placeholder="วางลิ้งก์รูปภาพ https://..." style="flex: 1; font-size: 12.5px; padding: 7px 10px; text-align: left;">
+                <button type="button" class="action-btn" style="margin: 0; padding: 7px 12px; font-size: 12.5px; border-radius: 12px; background: var(--primary); color: white; white-space: nowrap;" onclick="addCustomCertBgLink()">
+                   ➕ เพิ่ม
+                </button>
+             </div>
+          </div>
+
+          <div id="cert-bg-gallery-list" style="flex: 1; overflow-y: auto; max-height: 44vh; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-right: 2px;"></div>
+
+          <button type="button" class="action-btn" style="width: 100%; margin-top: 12px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeCertBgModal()">ปิดหน้าต่าง</button>
+       </div>
+    </div>
+
+    <!-- Modal พรีวิวเกียรติบัตร (A4 แนวนอน 1 หน้าต่อแผ่น) -->
     <div id="certPreviewModal" class="modal-overlay" style="z-index: 2520;">
        <div class="modal-box cert-preview-shell">
           <div class="activity-preview-toolbar no-print">
              <button type="button" class="action-btn" style="margin:0; padding: 7px 12px; font-size: 12.5px; border-radius: 12px; background: #F1F5F9; color: #334155; box-shadow: none;" onclick="closeCertPreviewModal()">
-                ⬅️ หน้ารายชื่อ
+                ⬅️ ย้อนกลับ
              </button>
-             <div style="font-weight: 700; font-size: 13.5px; color: var(--primary); display: flex; align-items: center; gap: 5px;">
-                🏆 เกียรติบัตรยอดนักอ่าน
+             <div id="cert-preview-toolbar-title" style="font-weight: 700; font-size: 13.5px; color: var(--primary); display: flex; align-items: center; gap: 5px;">
+                🏆 เกียรติบัตร
              </div>
              <div style="display: flex; gap: 8px; align-items: center;">
                 <button type="button" class="action-btn" style="margin:0; padding: 8px 13px; font-size: 18px; line-height: 1; border-radius: 12px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white;" onclick="printBestReaderCert()" title="สั่งพิมพ์เกียรติบัตร">
@@ -7240,8 +7522,503 @@
       }
 
       // ==============================================================
-      // 🏆 ระบบพิมพ์เกียรติบัตร "ยอดนักอ่าน" (A4 แนวนอน 1 หน้า)
+      // 🏆 ระบบเกียรติบัตร (ยอดนักอ่าน & การประกวด + เลือก/เพิ่มพื้นหลัง)
       // ==============================================================
+
+      const CERT_PRESET_BACKGROUNDS = [
+        { id: 'emerald-gold', name: 'เขียว-ทอง (ค่าเริ่มต้น)', className: '', preview: 'linear-gradient(135deg, #FFFDF5 0%, #D8F3DC 65%, #D4AF37 100%)' },
+        { id: 'royal-gold', name: 'ทองหรูหรา', className: 'bg-royal-gold', preview: 'linear-gradient(135deg, #FFFBEB 0%, #FDE68A 65%, #B45309 100%)' },
+        { id: 'navy-gold', name: 'น้ำเงิน-ทอง', className: 'bg-navy-gold', preview: 'linear-gradient(135deg, #F8FAFC 0%, #DBEAFE 65%, #1E3A8A 100%)' },
+        { id: 'rose-cream', name: 'ชมพูพาสเทล', className: 'bg-rose-cream', preview: 'linear-gradient(135deg, #FFF5F7 0%, #FBCFE8 65%, #9D174D 100%)' }
+      ];
+
+      function _getCustomCertBgs() {
+        try {
+          const raw = localStorage.getItem('wntk_cert_custom_bgs');
+          const arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr) ? arr : [];
+        } catch (e) { return []; }
+      }
+
+      function _saveCustomCertBgs(arr) {
+        try { localStorage.setItem('wntk_cert_custom_bgs', JSON.stringify(arr || [])); } catch (e) {}
+      }
+
+      function _getSelectedCertBgId() {
+        try { return localStorage.getItem('wntk_cert_selected_bg') || 'emerald-gold'; }
+        catch (e) { return 'emerald-gold'; }
+      }
+
+      function _setSelectedCertBgId(bgId) {
+        try { localStorage.setItem('wntk_cert_selected_bg', bgId || 'emerald-gold'); } catch (e) {}
+      }
+
+      function _getActiveCertBgObj() {
+        const activeId = _getSelectedCertBgId();
+        const preset = CERT_PRESET_BACKGROUNDS.find(b => b.id === activeId);
+        if (preset) return { type: 'preset', ...preset };
+        const custom = _getCustomCertBgs().find(b => b.id === activeId);
+        if (custom) return { type: 'custom', ...custom };
+        return { type: 'preset', ...CERT_PRESET_BACKGROUNDS[0] };
+      }
+
+      function _updateCertBgLabels() {
+        const active = _getActiveCertBgObj();
+        const rName = document.getElementById('reader-cert-bg-name');
+        const cName = document.getElementById('contest-cert-bg-name');
+        if (rName) rName.innerText = active.name;
+        if (cName) cName.innerText = active.name;
+      }
+
+      function _normalizeCertBgUrl(rawUrl) {
+        const u = String(rawUrl || '').trim();
+        const driveMatch = u.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/i) || u.match(/drive\.google\.com\/open\?id=([^&]+)/i);
+        if (driveMatch && driveMatch[1]) {
+          return 'https://lh3.googleusercontent.com/d/' + driveMatch[1];
+        }
+        return u;
+      }
+
+      function openCardOrCertHubModal() {
+        if (currentUserRole !== 'admin') {
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ", "สงวนสิทธิ์ Admin", "🔒");
+          return;
+        }
+        const m = document.getElementById('cardOrCertHubModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeCardOrCertHubModal() {
+        const m = document.getElementById('cardOrCertHubModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function openCertTypeChoiceModal() {
+        if (currentUserRole !== 'admin') {
+          cuteAlert("ฟังก์ชันนี้สำหรับครูบรรณารักษ์ (Admin) เท่านั้นครับ", "สงวนสิทธิ์ Admin", "🔒");
+          return;
+        }
+        const m = document.getElementById('certTypeChoiceModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeCertTypeChoiceModal() {
+        const m = document.getElementById('certTypeChoiceModal');
+        if (m) m.style.display = 'none';
+      }
+
+      // 🖼️ จัดการพื้นหลังเกียรติบัตร
+      function openCertBgModal() {
+        renderCertBgGallery();
+        const m = document.getElementById('certBgModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeCertBgModal() {
+        const m = document.getElementById('certBgModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function selectCertBg(bgId) {
+        _setSelectedCertBgId(bgId);
+        _updateCertBgLabels();
+        renderCertBgGallery();
+      }
+
+      function addCustomCertBgLink() {
+        const urlInput = document.getElementById('cert-bg-url-input');
+        const nameInput = document.getElementById('cert-bg-url-name');
+        const rawUrl = (urlInput ? urlInput.value : '').trim();
+        if (!rawUrl || !/^https?:\/\//i.test(rawUrl)) {
+          cuteAlert('กรุณาวางลิ้งก์รูปภาพที่ขึ้นต้นด้วย http:// หรือ https:// ครับ', 'ลิ้งก์ไม่ถูกต้อง', '🔗');
+          return;
+        }
+        const normUrl = _normalizeCertBgUrl(rawUrl);
+        const customs = _getCustomCertBgs();
+        const customName = (nameInput ? nameInput.value : '').trim() || ('พื้นหลังลิ้งก์ #' + (customs.length + 1));
+        const newId = 'custom_' + Date.now();
+        customs.unshift({ id: newId, name: customName, url: normUrl });
+        _saveCustomCertBgs(customs);
+        _setSelectedCertBgId(newId);
+        if (urlInput) urlInput.value = '';
+        if (nameInput) nameInput.value = '';
+        _updateCertBgLabels();
+        renderCertBgGallery();
+      }
+
+      function removeCustomCertBg(bgId, ev) {
+        if (ev) ev.stopPropagation();
+        const customs = _getCustomCertBgs().filter(b => b.id !== bgId);
+        _saveCustomCertBgs(customs);
+        if (_getSelectedCertBgId() === bgId) _setSelectedCertBgId('emerald-gold');
+        _updateCertBgLabels();
+        renderCertBgGallery();
+      }
+
+      function renderCertBgGallery() {
+        const container = document.getElementById('cert-bg-gallery-list');
+        if (!container) return;
+        const activeId = _getSelectedCertBgId();
+        let html = '';
+
+        CERT_PRESET_BACKGROUNDS.forEach(bg => {
+          const isAct = activeId === bg.id;
+          html += `
+            <div onclick="selectCertBg('${bg.id}')" style="cursor:pointer; border: 2px solid ${isAct ? '#2D6A4F' : '#E2E8F0'}; border-radius: 12px; padding: 6px; background: white; text-align: center; box-shadow: ${isAct ? '0 0 0 2px rgba(45,106,79,0.2)' : 'none'};">
+              <div style="height: 54px; border-radius: 8px; background: ${bg.preview}; border: 1px solid #CBD5E1; margin-bottom: 5px; display:flex; align-items:center; justify-content:center;">
+                ${isAct ? '<span style="background:rgba(255,255,255,0.92); color:#1B4332; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px;">✅ เลือกอยู่</span>' : ''}
+              </div>
+              <div style="font-size: 11.5px; font-weight: 700; color: var(--text-main);">${_escReportHtml(bg.name)}</div>
+            </div>
+          `;
+        });
+
+        _getCustomCertBgs().forEach(bg => {
+          const isAct = activeId === bg.id;
+          html += `
+            <div onclick="selectCertBg('${_escReportHtml(bg.id)}')" style="cursor:pointer; position:relative; border: 2px solid ${isAct ? '#2D6A4F' : '#E2E8F0'}; border-radius: 12px; padding: 6px; background: white; text-align: center; box-shadow: ${isAct ? '0 0 0 2px rgba(45,106,79,0.2)' : 'none'};">
+              <button type="button" onclick="removeCustomCertBg('${_escReportHtml(bg.id)}', event)" title="ลบพื้นหลังนี้" style="position:absolute; top:3px; right:3px; z-index:2; width:20px; height:20px; border-radius:50%; border:none; background:rgba(220,38,38,0.9); color:#fff; font-size:11px; cursor:pointer; line-height:1;">×</button>
+              <div style="height: 54px; border-radius: 8px; overflow:hidden; border: 1px solid #CBD5E1; margin-bottom: 5px; background:#F8FAFC; position:relative;">
+                <img src="${_escReportHtml(bg.url)}" style="width:100%; height:100%; object-fit:cover;" alt="">
+                ${isAct ? '<span style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.22); color:#fff; font-size:11px; font-weight:700;">✅ เลือกอยู่</span>' : ''}
+              </div>
+              <div style="font-size: 11.5px; font-weight: 700; color: var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escReportHtml(bg.name)}</div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      // 🌟 ตัวสร้างเกียรติบัตรยอดนักอ่าน (เลือกได้หลายแผ่นตามชื่อ)
+      let readerCertSelectedIds = new Set();
+
+      function _ensureCertStudentsLoaded(onReady) {
+        if (cachedCardStudents && cachedCardStudents.length > 0) {
+          onReady(cachedCardStudents);
+          return;
+        }
+        showLoadingPopup();
+        google.script.run
+          .withSuccessHandler(function(data) {
+            hideLoadingPopup();
+            cachedCardStudents = Array.isArray(data) ? data : [];
+            onReady(cachedCardStudents);
+          })
+          .withFailureHandler(function(err) {
+            hideLoadingPopup();
+            cuteAlert('ไม่สามารถโหลดรายชื่อนักเรียนได้: ' + err, 'เกิดข้อผิดพลาด', '❌');
+          })
+          .getAllStudentsForCards();
+      }
+
+      function openReaderCertBuilderModal() {
+        _updateCertBgLabels();
+        const modal = document.getElementById('readerCertModal');
+        const gEl = document.getElementById('reader-cert-grade-filter');
+        const sEl = document.getElementById('reader-cert-search-input');
+        if (gEl) gEl.value = 'all';
+        if (sEl) sEl.value = '';
+        if (modal) modal.style.display = 'none';
+
+        _ensureCertStudentsLoaded(function(list) {
+          const gradeSelect = document.getElementById('reader-cert-grade-filter');
+          if (gradeSelect) {
+            let grades = [];
+            list.forEach(st => { if (st.grade && st.grade !== '-' && !grades.includes(st.grade)) grades.push(st.grade); });
+            let html = '<option value="all">ทุกระดับชั้น</option>';
+            grades.forEach(g => { html += `<option value="${_escReportHtml(g)}">${_escReportHtml(g)}</option>`; });
+            gradeSelect.innerHTML = html;
+          }
+          filterReaderCertStudents();
+          if (modal) modal.style.display = 'flex';
+        });
+      }
+
+      function closeReaderCertBuilderModal() {
+        const m = document.getElementById('readerCertModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function filterReaderCertStudents() {
+        const gradeVal = (document.getElementById('reader-cert-grade-filter')?.value || 'all');
+        const q = (document.getElementById('reader-cert-search-input')?.value || '').trim().toLowerCase();
+        const filtered = (cachedCardStudents || []).filter(st => {
+          const matchG = gradeVal === 'all' || st.grade === gradeVal;
+          const matchQ = !q ||
+            (st.name && st.name.toLowerCase().includes(q)) ||
+            (st.id && String(st.id).toLowerCase().includes(q)) ||
+            (st.grade && String(st.grade).toLowerCase().includes(q));
+          return matchG && matchQ;
+        });
+        renderReaderCertStudentsList(filtered);
+      }
+
+      function renderReaderCertStudentsList(list) {
+        const container = document.getElementById('reader-cert-students-list');
+        if (!container) return;
+        if (!list || list.length === 0) {
+          container.innerHTML = "<div style='text-align:center; color:var(--text-sub); padding:28px;'>❌ ไม่พบรายชื่อนักเรียนครับ</div>";
+          _updateReaderCertCountBadge();
+          return;
+        }
+        let html = '';
+        list.forEach((st, idx) => {
+          const sid = String(st.id || '');
+          const isChecked = readerCertSelectedIds.has(sid) ? 'checked' : '';
+          const fullG = st.grade && st.grade !== '-' ? _formatFullThaiGrade(st.grade) : '-';
+          html += `
+            <label style="background:white; border:1.5px solid #E9ECEF; border-radius:12px; padding:8px 12px; margin-bottom:7px; display:flex; align-items:center; gap:9px; cursor:pointer; text-align:left;">
+              <input type="checkbox" class="reader-cert-cb" data-id="${_escReportHtml(sid)}" ${isChecked} onchange="toggleReaderCertSelect('${sid.replace(/'/g, "\\'")}', this.checked)" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer; flex-shrink:0;">
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; color:var(--text-main); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                  ${idx + 1}. ${_escReportHtml(st.name || '-')}
+                </div>
+                <div style="font-size:11px; color:var(--text-sub);">รหัส: <b>${_escReportHtml(sid)}</b> | ชั้น: <b>${_escReportHtml(fullG)}</b></div>
+              </div>
+            </label>
+          `;
+        });
+        container.innerHTML = html;
+        _updateReaderCertCountBadge();
+      }
+
+      function toggleReaderCertSelect(id, checked) {
+        const key = String(id || '');
+        if (checked) readerCertSelectedIds.add(key);
+        else readerCertSelectedIds.delete(key);
+        _updateReaderCertCountBadge();
+      }
+
+      function toggleSelectAllReaderCerts(checked) {
+        const gradeVal = (document.getElementById('reader-cert-grade-filter')?.value || 'all');
+        const q = (document.getElementById('reader-cert-search-input')?.value || '').trim().toLowerCase();
+        const visible = (cachedCardStudents || []).filter(st => {
+          const matchG = gradeVal === 'all' || st.grade === gradeVal;
+          const matchQ = !q ||
+            (st.name && st.name.toLowerCase().includes(q)) ||
+            (st.id && String(st.id).toLowerCase().includes(q)) ||
+            (st.grade && String(st.grade).toLowerCase().includes(q));
+          return matchG && matchQ;
+        });
+        visible.forEach(st => {
+          const key = String(st.id || '');
+          if (checked) readerCertSelectedIds.add(key);
+          else readerCertSelectedIds.delete(key);
+        });
+        document.querySelectorAll('.reader-cert-cb').forEach(cb => { cb.checked = checked; });
+        _updateReaderCertCountBadge();
+      }
+
+      function _updateReaderCertCountBadge() {
+        const cntEl = document.getElementById('reader-cert-selected-count');
+        if (cntEl) cntEl.innerText = readerCertSelectedIds.size;
+        const allCb = document.getElementById('reader-cert-select-all');
+        if (allCb) {
+          const cbs = document.querySelectorAll('.reader-cert-cb');
+          const checkedCbs = document.querySelectorAll('.reader-cert-cb:checked');
+          allCb.checked = cbs.length > 0 && cbs.length === checkedCbs.length;
+        }
+      }
+
+      function generateReaderCertsFromBuilder() {
+        const selected = (cachedCardStudents || []).filter(st => readerCertSelectedIds.has(String(st.id || '')));
+        if (selected.length === 0) {
+          cuteAlert('กรุณาติ๊กเลือกรายชื่อนักเรียนอย่างน้อย 1 คนครับ', 'ยังไม่ได้เลือกรายชื่อ', '🌟');
+          return;
+        }
+        closeReaderCertBuilderModal();
+        openBestReaderCerts(selected);
+      }
+
+      // 🏅 ตัวสร้างเกียรติบัตรการประกวด
+      function openContestCertModal() {
+        _updateCertBgLabels();
+        const pickerBox = document.getElementById('contest-student-picker-box');
+        if (pickerBox) pickerBox.style.display = 'none';
+
+        const now = new Date();
+        const yCE = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const dateEl = document.getElementById('contest-date');
+        if (dateEl && !dateEl.value) {
+          dateEl.value = `${yCE}-${m}-${d}`;
+        }
+        if (dateEl) onContestDateChange(dateEl.value);
+
+        const mEl = document.getElementById('contestCertModal');
+        if (mEl) mEl.style.display = 'flex';
+      }
+
+      function closeContestCertModal() {
+        const mEl = document.getElementById('contestCertModal');
+        if (mEl) mEl.style.display = 'none';
+      }
+
+      function openContestCalendar() {
+        const el = document.getElementById('contest-date');
+        if (el) {
+          if (typeof el.showPicker === 'function') {
+            try { el.showPicker(); return; } catch (e) {}
+          }
+          el.focus();
+          el.click();
+        }
+      }
+
+      function onContestDateChange(val) {
+        const disp = document.getElementById('contest-date-display');
+        if (!disp) return;
+        if (!val) { disp.value = ''; return; }
+        const parts = val.split('-');
+        if (parts.length === 3) {
+          const yBE = parseInt(parts[0], 10) > 2400 ? parseInt(parts[0], 10) : parseInt(parts[0], 10) + 543;
+          disp.value = `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${yBE}`;
+        }
+      }
+
+      function toggleContestStudentPicker() {
+        const box = document.getElementById('contest-student-picker-box');
+        if (!box) return;
+        if (box.style.display === 'none' || !box.style.display) {
+          _ensureCertStudentsLoaded(function() {
+            const s = document.getElementById('contest-student-search');
+            if (s) s.value = '';
+            filterContestPickStudents();
+            box.style.display = 'block';
+          });
+        } else {
+          box.style.display = 'none';
+        }
+      }
+
+      function filterContestPickStudents() {
+        const listEl = document.getElementById('contest-student-pick-list');
+        if (!listEl) return;
+        const q = (document.getElementById('contest-student-search')?.value || '').trim().toLowerCase();
+        const filtered = (cachedCardStudents || []).filter(st =>
+          !q || (st.name && st.name.toLowerCase().includes(q)) || (st.id && String(st.id).toLowerCase().includes(q))
+        ).slice(0, 40);
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = "<div style='text-align:center; padding:12px; font-size:12px; color:var(--text-sub);'>ไม่พบรายชื่อนักเรียน</div>";
+          return;
+        }
+        let html = '';
+        filtered.forEach(st => {
+          const sName = String(st.name || '').replace(/'/g, "\\'");
+          const sGrade = String(st.grade || '').replace(/'/g, "\\'");
+          html += `
+            <div onclick="pickContestStudent('${sName}', '${sGrade}')" style="cursor:pointer; padding:6px 8px; border-radius:8px; font-size:12px; display:flex; justify-content:space-between; border-bottom:1px solid #E2E8F0; background:white; margin-bottom:4px;">
+              <span style="font-weight:700; color:var(--text-main);">${_escReportHtml(st.name || '')}</span>
+              <span style="color:var(--text-sub); font-size:11px;">${_escReportHtml(_formatFullThaiGrade(st.grade) || '')}</span>
+            </div>
+          `;
+        });
+        listEl.innerHTML = html;
+      }
+
+      function pickContestStudent(name, grade) {
+        const input = document.getElementById('contest-student-name');
+        if (input) {
+          const cur = input.value.trim();
+          if (!cur) input.value = name;
+          else if (!cur.split(',').map(x => x.trim()).includes(name)) input.value = cur + ', ' + name;
+        }
+        const levelEl = document.getElementById('contest-level');
+        if (levelEl && grade) {
+          const g = String(grade).trim();
+          if (g.startsWith('อ') || g.includes('อนุบาล')) levelEl.value = 'อนุบาล';
+          else if (g.startsWith('ป') || g.includes('ประถม')) levelEl.value = 'ประถมศึกษา';
+          else if (g.startsWith('ม') || g.includes('มัธยม')) levelEl.value = 'มัธยมศึกษา';
+        }
+      }
+
+      function _formatIsoToThaiFullDate(isoVal) {
+        const thaiMonths = [
+          'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+          'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+        if (isoVal && isoVal.includes('-')) {
+          const p = isoVal.split('-');
+          if (p.length === 3) {
+            const yBE = parseInt(p[0], 10) > 2400 ? parseInt(p[0], 10) : parseInt(p[0], 10) + 543;
+            const mIdx = parseInt(p[1], 10) - 1;
+            const d = parseInt(p[2], 10);
+            return `${d} ${thaiMonths[mIdx] || p[1]} ${yBE}`;
+          }
+        }
+        const now = new Date();
+        return `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
+      }
+
+      function handleContestCertAction(actionType) {
+        const contestTitle = (document.getElementById('contest-title')?.value || '').trim();
+        const rawNames = (document.getElementById('contest-student-name')?.value || '').trim();
+        const level = (document.getElementById('contest-level')?.value || 'ประถมศึกษา').trim();
+        const award = (document.getElementById('contest-award')?.value || 'ชนะเลิศ').trim();
+        const dateIso = (document.getElementById('contest-date')?.value || '').trim();
+
+        if (!contestTitle) {
+          cuteAlert('กรุณากรอกชื่อ "รายการประกวด" ก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '🏅');
+          return;
+        }
+        if (!rawNames) {
+          cuteAlert('กรุณากรอกหรือเลือกชื่อผู้ได้รับเกียรติบัตรก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '👤');
+          return;
+        }
+
+        const names = rawNames.split(',').map(n => n.trim()).filter(Boolean);
+        const thaiDateText = _formatIsoToThaiFullDate(dateIso);
+        preloadOfficialReportAssets();
+
+        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        const isSingle = names.length === 1;
+        const safeContestFile = contestTitle.replace(/[\\/:*?"<>|]/g, '_');
+
+        currentCertMeta = {
+          studentId: '',
+          studentName: isSingle ? names[0] : `${names.length} คน`,
+          title: `เกียรติบัตร_${contestTitle}`,
+          contestTitle: contestTitle,
+          level: level,
+          award: award,
+          date: thaiDateText,
+          fileBaseName: isSingle
+            ? `เกียรติบัตร_${safeContestFile}_${names[0].replace(/[\\/:*?"<>|]/g, '_')}`
+            : `เกียรติบัตร_${safeContestFile}_${names.length}คน`,
+          isCertificate: true,
+          count: names.length
+        };
+
+        let allHtml = '';
+        names.forEach((nm, idx) => {
+          allHtml += _buildCertSheetHtml(nm, level, thaiDateText, logoSrc, idx === 0, {
+            certType: 'contest',
+            contestTitle: contestTitle,
+            level: level,
+            award: award
+          });
+        });
+
+        const mount = document.getElementById('certSheetMount');
+        if (mount) mount.innerHTML = allHtml;
+        const tbTitle = document.getElementById('cert-preview-toolbar-title');
+        if (tbTitle) tbTitle.innerText = '🏅 ' + contestTitle;
+
+        if (actionType === 'print') {
+          printBestReaderCert();
+        } else if (actionType === 'download') {
+          openCertSaveFormatModal();
+        } else {
+          closeContestCertModal();
+          const prevModal = document.getElementById('certPreviewModal');
+          if (prevModal) prevModal.style.display = 'flex';
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+          setTimeout(scaleCertPreview, 30);
+        }
+      }
 
       function _formatFullThaiGrade(rawGrade) {
         let g = String(rawGrade || '').trim();
@@ -7253,15 +8030,40 @@
         return g.replace(/\s+/g, ' ').trim();
       }
 
-      function _buildCertSheetHtml(studentName, studentGrade, thaiDateText, logoSrc, isFirst) {
+      function _buildCertSheetHtml(studentName, studentGrade, thaiDateText, logoSrc, isFirst, opts) {
+        opts = opts || {};
+        const isContest = opts.certType === 'contest';
         const nameClean = String(studentName || 'นักเรียน').trim();
-        const gradeClean = _formatFullThaiGrade(studentGrade);
-        const gradeLineHtml = gradeClean
-          ? `<div class="cert-student-grade">นักเรียนชั้น ${_escReportHtml(gradeClean)}</div>`
+        const gradeClean = isContest ? String(opts.level || studentGrade || '').trim() : _formatFullThaiGrade(studentGrade);
+
+        const bgObj = _getActiveCertBgObj();
+        const bgClass = bgObj.type === 'custom' ? 'bg-custom-img' : (bgObj.className || '');
+        const customBgImgHtml = (bgObj.type === 'custom' && bgObj.url)
+          ? `<img src="${_escReportHtml(bgObj.url)}" crossorigin="anonymous" class="cert-bg-img-layer" alt="">`
           : '';
+
+        const gradeLineHtml = gradeClean
+          ? `<div class="cert-student-grade">${isContest ? 'ระดับ' : 'นักเรียนชั้น'} ${_escReportHtml(gradeClean)}</div>`
+          : '';
+
+        const awardBodyHtml = isContest
+          ? `<div class="cert-award-desc">
+               ได้รับรางวัลจากการประกวดแข่งขัน<br>
+               <b style="color:#0F5132;">รายการ "${_escReportHtml(opts.contestTitle || '')}"</b>
+             </div>
+             <div class="cert-award-badge">🏅 รางวัล${_escReportHtml(opts.award || 'ชนะเลิศ')} 🏅</div>`
+          : `<div class="cert-award-desc">
+               เป็นผู้มีความมุ่งมั่น ตั้งใจ และรักการอ่านอย่างสม่ำเสมอ<br>
+               สมควรได้รับการยกย่องและเชิดชูเกียรติเป็น
+             </div>
+             <div class="cert-award-badge">🏆 ยอดนักอ่าน 🏆</div>`;
+
+        const sealTitle = isContest ? (opts.award || 'ผู้ชนะการประกวด') : 'ยอดนักอ่าน';
+
         return `
-          <div class="cert-sheet" ${isFirst ? 'id="active-cert-sheet"' : ''} style="margin-bottom: 18px;">
-            <div class="cert-outer-border">
+          <div class="cert-sheet ${bgClass}" ${isFirst ? 'id="active-cert-sheet"' : ''} style="margin-bottom: 18px;">
+            ${customBgImgHtml}
+            <div class="cert-outer-border" style="position:relative; z-index:1;">
               <div class="cert-ribbon-tl"></div>
               <div class="cert-ribbon-br"></div>
               <div class="cert-inner-border">
@@ -7279,20 +8081,16 @@
                 <div class="cert-body-wrap">
                   <div class="cert-student-name">${_escReportHtml(nameClean)}</div>
                   ${gradeLineHtml}
-                  <div class="cert-award-desc">
-                    เป็นผู้มีความมุ่งมั่น ตั้งใจ และรักการอ่านอย่างสม่ำเสมอ<br>
-                    สมควรได้รับการยกย่องและเชิดชูเกียรติเป็น
-                  </div>
-                  <div class="cert-award-badge">🏆 ยอดนักอ่าน 🏆</div>
+                  ${awardBodyHtml}
                   <div class="cert-date-text">ให้ไว้ ณ วันที่ ${_escReportHtml(thaiDateText)}</div>
                 </div>
 
                 <div class="cert-footer-wrap">
                   <div class="cert-seal-box">
                     <div class="cert-seal-ring">
-                      <span style="font-size: 24px; line-height: 1;">🌟</span>
-                      <span style="font-size: 12px; font-weight: 700; margin-top: 3px;">ยอดนักอ่าน</span>
-                      <span style="font-size: 9.5px; font-weight: 600;">WNTK Library</span>
+                      <span style="font-size: 24px; line-height: 1;">${isContest ? '🏅' : '🌟'}</span>
+                      <span style="font-size: 11px; font-weight: 700; margin-top: 3px; line-height:1.1;">${_escReportHtml(sealTitle)}</span>
+                      <span style="font-size: 9px; font-weight: 600;">WNTK Library</span>
                     </div>
                   </div>
 
@@ -7340,11 +8138,13 @@
         const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
         let allHtml = '';
         studentList.forEach((st, idx) => {
-          allHtml += _buildCertSheetHtml(st.name, st.grade, thaiDateText, logoSrc, idx === 0);
+          allHtml += _buildCertSheetHtml(st.name, st.grade, thaiDateText, logoSrc, idx === 0, { certType: 'reader' });
         });
 
         const mount = document.getElementById('certSheetMount');
         if (mount) mount.innerHTML = allHtml;
+        const tbTitle = document.getElementById('cert-preview-toolbar-title');
+        if (tbTitle) tbTitle.innerText = '🏆 เกียรติบัตรยอดนักอ่าน';
 
         const prevModal = document.getElementById('certPreviewModal');
         if (prevModal) prevModal.style.display = 'flex';
@@ -7393,7 +8193,7 @@
             + '.print-bar button { border: none; border-radius: 10px; padding: 8px 18px; font-size: 16px; cursor: pointer; color: #fff; background: #40916C; }'
             + '.print-bar button.close-b { background: #64748B; }'
             + '.wrap { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 16px; }'
-            + '.cert-sheet { width: 1122px; height: 794px; margin: 0 !important; background: radial-gradient(circle at 50% 44%, rgba(255,255,255,0.96) 0%, rgba(255,252,240,0.92) 48%, rgba(244,236,210,0.85) 82%, rgba(223,240,230,0.95) 100%), repeating-linear-gradient(45deg, rgba(201,162,39,0.035) 0px, rgba(201,162,39,0.035) 14px, transparent 14px, transparent 28px); color: #1B4332; padding: 26px; box-shadow: 0 4px 18px rgba(0,0,0,0.14); display: flex; align-items: stretch; justify-content: stretch; overflow: hidden; }'
+            + '.cert-sheet { width: 1122px; height: 794px; position: relative; margin: 0 !important; background: radial-gradient(circle at 50% 44%, rgba(255,255,255,0.96) 0%, rgba(255,252,240,0.92) 48%, rgba(244,236,210,0.85) 82%, rgba(223,240,230,0.95) 100%), repeating-linear-gradient(45deg, rgba(201,162,39,0.035) 0px, rgba(201,162,39,0.035) 14px, transparent 14px, transparent 28px); color: #1B4332; padding: 26px; box-shadow: 0 4px 18px rgba(0,0,0,0.14); display: flex; align-items: stretch; justify-content: stretch; overflow: hidden; }'
             + '.cert-outer-border { width: 100%; height: 100%; border: 5px solid #1B4332; padding: 9px; position: relative; background: radial-gradient(circle at 18% 18%, rgba(201,162,39,0.09) 0%, transparent 40%), radial-gradient(circle at 82% 82%, rgba(45,106,79,0.09) 0%, transparent 42%), linear-gradient(160deg, rgba(255,253,246,0.97) 0%, rgba(255,255,255,0.98) 52%, rgba(245,251,247,0.97) 100%); overflow: hidden; }'
             + '.cert-ribbon-tl { position: absolute; top: 0; left: 0; width: 118px; height: 118px; background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 42%, #D4AF37 42%, #F3D979 49%, #1B4332 49%, #1B4332 52%, transparent 52%); z-index: 2; }'
             + '.cert-ribbon-br { position: absolute; bottom: 0; right: 0; width: 118px; height: 118px; background: linear-gradient(315deg, #1B4332 0%, #2D6A4F 42%, #D4AF37 42%, #F3D979 49%, #1B4332 49%, #1B4332 52%, transparent 52%); z-index: 2; }'
@@ -7419,6 +8219,29 @@
             + '.cert-sig-block { text-align: center; min-width: 360px; color: #111827; margin: 0 auto 6px auto; }'
             + '.cert-sig-name { font-size: 22px; font-weight: 700; line-height: 1.35; }'
             + '.cert-sig-pos { font-size: 19px; font-weight: 500; color: #334155; line-height: 1.35; }'
+            + '.cert-sheet.bg-royal-gold { background: radial-gradient(circle at 50% 42%, #FFFFFF 0%, #FFFBEB 46%, #FEF3C7 82%, #FDE68A 100%); color: #78350F; }'
+            + '.cert-sheet.bg-royal-gold .cert-outer-border { border-color: #92400E; }'
+            + '.cert-sheet.bg-royal-gold .cert-ribbon-tl { background: linear-gradient(135deg, #92400E 0%, #B45309 42%, #F59E0B 42%, #FDE68A 49%, #78350F 49%, #78350F 52%, transparent 52%); }'
+            + '.cert-sheet.bg-royal-gold .cert-ribbon-br { background: linear-gradient(315deg, #92400E 0%, #B45309 42%, #F59E0B 42%, #FDE68A 49%, #78350F 49%, #78350F 52%, transparent 52%); }'
+            + '.cert-sheet.bg-royal-gold .cert-inner-border { border-color: #D97706; box-shadow: inset 0 0 0 6px #FFFDF5, inset 0 0 0 8px #F59E0B; }'
+            + '.cert-sheet.bg-royal-gold .cert-school-title, .cert-sheet.bg-royal-gold .cert-student-name { color: #78350F; }'
+            + '.cert-sheet.bg-navy-gold { background: radial-gradient(circle at 50% 42%, #FFFFFF 0%, #F8FAFC 48%, #E0E7FF 86%, #DBEAFE 100%); color: #1E3A8A; }'
+            + '.cert-sheet.bg-navy-gold .cert-outer-border { border-color: #1E3A8A; }'
+            + '.cert-sheet.bg-navy-gold .cert-ribbon-tl { background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 42%, #D4AF37 42%, #FDE68A 49%, #1E3A8A 49%, #1E3A8A 52%, transparent 52%); }'
+            + '.cert-sheet.bg-navy-gold .cert-ribbon-br { background: linear-gradient(315deg, #1E3A8A 0%, #1D4ED8 42%, #D4AF37 42%, #FDE68A 49%, #1E3A8A 49%, #1E3A8A 52%, transparent 52%); }'
+            + '.cert-sheet.bg-navy-gold .cert-inner-border { border-color: #C9A227; box-shadow: inset 0 0 0 6px #FFFFFF, inset 0 0 0 8px #3B82F6; }'
+            + '.cert-sheet.bg-navy-gold .cert-school-title, .cert-sheet.bg-navy-gold .cert-student-name { color: #1E3A8A; }'
+            + '.cert-sheet.bg-rose-cream { background: radial-gradient(circle at 50% 42%, #FFFFFF 0%, #FFF5F7 48%, #FCE7F3 84%, #FBCFE8 100%); color: #831843; }'
+            + '.cert-sheet.bg-rose-cream .cert-outer-border { border-color: #9D174D; }'
+            + '.cert-sheet.bg-rose-cream .cert-ribbon-tl { background: linear-gradient(135deg, #9D174D 0%, #BE185D 42%, #EAB308 42%, #FEF08A 49%, #831843 49%, #831843 52%, transparent 52%); }'
+            + '.cert-sheet.bg-rose-cream .cert-ribbon-br { background: linear-gradient(315deg, #9D174D 0%, #BE185D 42%, #EAB308 42%, #FEF08A 49%, #831843 49%, #831843 52%, transparent 52%); }'
+            + '.cert-sheet.bg-rose-cream .cert-inner-border { border-color: #D4AF37; box-shadow: inset 0 0 0 6px #FFFDF9, inset 0 0 0 8px #F472B6; }'
+            + '.cert-sheet.bg-rose-cream .cert-school-title, .cert-sheet.bg-rose-cream .cert-student-name { color: #831843; }'
+            + '.cert-sheet.bg-custom-img { background: #FFFFFF; padding: 0; }'
+            + '.cert-sheet.bg-custom-img .cert-outer-border { border: none; background: transparent; padding: 34px; }'
+            + '.cert-sheet.bg-custom-img .cert-inner-border { border: none; box-shadow: none; background: rgba(255,255,255,0.56); border-radius: 18px; padding: 24px 52px 20px 52px; }'
+            + '.cert-sheet.bg-custom-img .cert-ribbon-tl, .cert-sheet.bg-custom-img .cert-ribbon-br, .cert-sheet.bg-custom-img .cert-corner-tl, .cert-sheet.bg-custom-img .cert-corner-tr, .cert-sheet.bg-custom-img .cert-corner-bl, .cert-sheet.bg-custom-img .cert-corner-br { display: none; }'
+            + '.cert-bg-img-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none; }'
             + '@media print { .print-bar { display: none !important; } body { background: #fff; } .wrap { padding: 0; gap: 0; } .cert-sheet { width: 297mm; height: 210mm; box-shadow: none; page-break-after: always; break-after: page; page-break-inside: avoid; } .cert-sheet:last-child { page-break-after: auto; break-after: auto; } }'
             + '</style></head><body>'
             + '<div class="print-bar"><button onclick="window.print()" title="สั่งพิมพ์">🖨️</button><button class="close-b" onclick="window.close()" title="ปิด">✕</button></div>'
