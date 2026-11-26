@@ -153,11 +153,75 @@
 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
 
-        background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?q=80&w=2000&auto=format&fit=crop');
+        background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 
-        background-size: cover; z-index: 9999; display: flex; align-items: flex-start; justify-content: center;
-        overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 25px; box-sizing: border-box;
+        background-size: cover; z-index: 9999; display: none; align-items: center; justify-content: center;
+        overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 12px; box-sizing: border-box;
 
+      }
+
+      /* ตารางการใช้งานและอันดับยอดนักอ่านสำหรับ Guest */
+      .guest-lock-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #F59E0B, #D97706);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+        box-shadow: 0 3px 8px rgba(217, 119, 6, 0.28);
+        transition: 0.2s;
+        padding: 0;
+      }
+      .guest-lock-btn:hover { transform: scale(1.06); }
+
+      .guest-table-wrap {
+        width: 100%;
+        max-height: 290px;
+        overflow: auto;
+        border: 1.5px solid #D8F3DC;
+        border-radius: 14px;
+        background: #FFFFFF;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      .guest-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        text-align: left;
+      }
+      .guest-table thead th {
+        position: sticky;
+        top: 0;
+        background: #2D6A4F;
+        color: #FFFFFF;
+        padding: 8px 8px;
+        font-weight: 700;
+        white-space: nowrap;
+        z-index: 2;
+      }
+      .guest-table tbody td {
+        padding: 7px 8px;
+        border-bottom: 1px solid #F1F5F9;
+        color: var(--text-main);
+        vertical-align: middle;
+      }
+      .guest-table tbody tr:nth-child(even) {
+        background: #FAFDFB;
+      }
+      .guest-rank-list {
+        max-height: 280px;
+        overflow-y: auto;
+        padding-right: 2px;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
       }
 
 
@@ -519,8 +583,11 @@
           height: 210mm !important;
           box-shadow: none !important;
           margin: 0 !important;
-          page-break-after: avoid !important;
           page-break-inside: avoid !important;
+        }
+        body.printing-certificate-report #print-only-report-container .cert-sheet + .cert-sheet {
+          page-break-before: always !important;
+          break-before: page !important;
         }
       }
 
@@ -874,11 +941,13 @@
 
 
 
-    <!-- Login Screen -->
+    <!-- Login Screen (เปิดเมื่อกดไอคอนแม่กุญแจจากหน้า Guest) -->
 
-    <div id="login-overlay">
+    <div id="login-overlay" style="display: none;">
 
-      <div class="card login-box">
+      <div class="card login-box" style="position: relative; margin-top: 0;">
+
+        <button type="button" class="cute-close-x" onclick="closeMemberLoginModal()" title="กลับหน้า Guest" style="position: absolute; top: 14px; right: 14px;">✕</button>
 
         <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="school-logo" alt="School Logo">
 
@@ -886,7 +955,7 @@
 
         <div class="app-title" style="justify-content:center; margin-bottom: 15px;">ระบบห้องสมุดดิจิทัล</div>
 
-        <input type="password" id="login-pin" class="pin-input" inputmode="numeric" maxlength="6" placeholder="กรอกรหัส" oninput="checkPinLogin(this)" onkeypress="if(event.key==='Enter') checkPinLogin(this, true)" autofocus>
+        <input type="password" id="login-pin" class="pin-input" inputmode="numeric" maxlength="6" placeholder="กรอกรหัส" oninput="checkPinLogin(this)" onkeypress="if(event.key==='Enter') checkPinLogin(this, true)">
 
         <div id="login-loader" class="loader"></div>
 
@@ -894,6 +963,70 @@
 
       </div>
 
+    </div>
+
+
+
+    <!-- Guest Home (หน้าแรกก่อนเข้าสู่ระบบ: ตารางการใช้งาน + อันดับยอดนักอ่านประจำปี พ.ศ.) -->
+    <div class="card container" id="guest-home" style="display: none;">
+      <div style="text-align:center"><img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px"></div>
+      <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:6px; flex-wrap:nowrap;">
+         <div class="app-title" style="font-size:16px; white-space:nowrap; flex-shrink:0; display:inline-flex; align-items:center; gap:4px;">📚 ห้องสมุด</div>
+         <div style="display:flex; align-items:center; gap:6px; min-width:0; flex-shrink:0; justify-content:flex-end;">
+            <div class="user-pill" style="max-width:none;">Guest</div>
+            <button type="button" id="btn-guest-login" class="guest-lock-btn" onclick="openMemberLoginModal()" title="เข้าสู่ระบบสำหรับสมาชิก">
+               🔒
+            </button>
+         </div>
+      </div>
+
+      <!-- สรุปยอดการใช้งานปี พ.ศ. ปัจจุบัน -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+         <div style="font-weight: 700; font-size: 14.5px; color: var(--primary); display: flex; align-items: center; gap: 5px;">
+            <span>📋</span> การใช้งานห้องสมุด <span id="guest-year-label" style="font-size: 12px; background: #D8F3DC; color: var(--primary); padding: 2px 8px; border-radius: 10px;">ปี พ.ศ. -</span>
+         </div>
+         <button type="button" onclick="loadGuestHomeData()" style="border: none; background: #F1F5F9; color: var(--primary); padding: 4px 10px; border-radius: 10px; font-size: 11.5px; font-weight: 600; cursor: pointer; font-family: 'Mali', cursive, sans-serif;">🔄 อัปเดต</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+         <div style="background: #F0FFF4; border: 1.5px solid #D8F3DC; border-radius: 14px; padding: 10px; text-align: center;">
+            <div style="font-size: 11.5px; color: var(--text-sub);">ยอดยืมในปีนี้</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--primary);"><span id="guest-borrows">-</span> <span style="font-size: 11.5px; font-weight: 500;">เล่ม</span></div>
+         </div>
+         <div style="background: #F0F9FF; border: 1.5px solid #BAE6FD; border-radius: 14px; padding: 10px; text-align: center;">
+            <div style="font-size: 11.5px; color: var(--text-sub);">ยอดคืนในปีนี้</div>
+            <div style="font-size: 20px; font-weight: 700; color: #0284C7;"><span id="guest-returns">-</span> <span style="font-size: 11.5px; font-weight: 500;">เล่ม</span></div>
+         </div>
+      </div>
+
+      <div class="guest-table-wrap" style="margin-bottom: 16px;">
+         <table class="guest-table">
+            <thead>
+               <tr>
+                  <th>วันที่ (พ.ศ.)</th>
+                  <th>เวลา</th>
+                  <th>รายการ</th>
+                  <th>สมาชิก</th>
+                  <th>หนังสือ</th>
+               </tr>
+            </thead>
+            <tbody id="guest-usage-tbody">
+               <tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">⏳ กำลังโหลดข้อมูล...</td></tr>
+            </tbody>
+         </table>
+      </div>
+
+      <!-- จัดอันดับยอดนักอ่าน (ในรอบปี พ.ศ.) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+         <div style="font-weight: 700; font-size: 14.5px; color: var(--primary); display: flex; align-items: center; gap: 5px;">
+            <span>🏆</span> จัดอันดับยอดนักอ่าน (<span id="guest-rank-year">ปี พ.ศ. -</span>)
+         </div>
+      </div>
+      <div id="guest-top-readers" class="guest-rank-list">
+         <div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 12.5px;">⏳ กำลังโหลดอันดับ...</div>
+      </div>
     </div>
 
 
@@ -926,7 +1059,7 @@
 
         <div class="icon-btn" onclick="showHistory()" title="ประวัติการทำรายการ (ประวัติล่าสุด)">🕒</div>
 
-        <div class="icon-btn admin-only" id="btn-menu-card" onclick="showCardModal()" title="พิมพ์บัตรสมาชิกห้องสมุด (พร้อมบาร์โค้ด)">🪪</div>
+        <div class="icon-btn admin-only" id="btn-menu-card" onclick="showCardModal()" title="พิมพ์บัตรสมาชิก">🪪</div>
 
         <div class="icon-btn admin-only" id="btn-menu-label" onclick="showBookBarcodeModal()" title="พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ">🏷️</div>
 
@@ -1358,7 +1491,7 @@
 
     
 
-    <!-- Modal พิมพ์บัตรสมาชิกห้องสมุดพร้อมบาร์โค้ด -->
+    <!-- Modal พิมพ์บัตรสมาชิก -->
 
     <div id="cardModal" class="modal-overlay">
 
@@ -1368,7 +1501,7 @@
 
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
 
-                <span>🪪</span> พิมพ์บัตรสมาชิกห้องสมุด
+                <span>🪪</span> พิมพ์บัตรสมาชิก
 
              </div>
 
@@ -1382,9 +1515,9 @@
 
 
 
-          <!-- ตัวกรองระดับชั้น และปุ่มพิมพ์ -->
+          <!-- ตัวกรองระดับชั้น และปุ่มพิมพ์ (ไอคอนเท่านั้น) -->
 
-          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+          <div style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center;">
 
              <select id="card-grade-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterStudentCards()">
 
@@ -1392,9 +1525,9 @@
 
              </select>
 
-             <button class="action-btn" style="padding: 8px 14px; font-size: 13px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; font-family: 'Mali', cursive, sans-serif !important;" onclick="printFilteredCards()">
+             <button type="button" class="action-btn" style="width: 44px; height: 38px; padding: 0; font-size: 18px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="openBatchMemberPrintChoice()" title="สั่งพิมพ์ (เลือกหลายคนได้)">
 
-                🖨️ สั่งพิมพ์ (A4)
+                🖨️
 
              </button>
 
@@ -1402,15 +1535,23 @@
 
 
 
-          <div style="margin-bottom: 10px;">
+          <div style="margin-bottom: 8px;">
 
              <input type="text" id="card-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อ หรือ รหัสนักเรียน..." oninput="filterStudentCards()">
 
           </div>
 
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 6px 4px; margin-bottom: 6px; font-size: 12px; color: var(--text-sub); border-bottom: 1px dashed #EAEAEA;">
+             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; color: var(--primary); margin: 0;">
+                <input type="checkbox" id="card-select-all-cb" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;" onchange="toggleSelectAllMembers(this.checked)">
+                เลือกหลายคน (<span id="card-selected-count">0</span> คน)
+             </label>
+             <button type="button" style="border: none; background: transparent; color: #64748B; font-size: 11.5px; cursor: pointer; padding: 2px 6px; font-family: 'Mali', cursive, sans-serif;" onclick="toggleSelectAllMembers(false)">ล้างที่เลือก</button>
+          </div>
 
 
-          <div id="card-students-list" style="flex: 1; overflow-y: auto; max-height: 48vh; padding-right: 2px;">
+
+          <div id="card-students-list" style="flex: 1; overflow-y: auto; max-height: 44vh; padding-right: 2px;">
 
              
 
@@ -1422,6 +1563,29 @@
 
        </div>
 
+    </div>
+
+    <!-- ป๊อปอัพเลือกพิมพ์ระหว่าง บัตรสมาชิก กับ เกียรติบัตร (รายคน / หลายคน) -->
+    <div id="memberPrintChoiceModal" class="modal-overlay" style="z-index: 2510;">
+       <div class="modal-box" style="max-width: 390px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: -10px;">
+             <button type="button" class="cute-close-x" onclick="closeMemberPrintChoiceModal()">✕</button>
+          </div>
+          <div class="cute-icon-circle"><span>🖨️</span></div>
+          <div style="font-weight: 700; font-size: 18px; color: var(--text-main); margin-bottom: 4px;">เลือกรายการที่ต้องการพิมพ์</div>
+          <div id="member-print-choice-sub" style="font-size: 13px; color: var(--primary); font-weight: 600; margin-bottom: 16px;"></div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 15px;" onclick="executeMemberPrintChoice('card')">
+                🪪 บัตรสมาชิก
+             </button>
+             <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 13px; border-radius: 16px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 15px;" onclick="executeMemberPrintChoice('cert')">
+                🏆 เกียรติบัตร (ยอดนักอ่าน)
+             </button>
+             <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeMemberPrintChoiceModal()">
+                ยกเลิก
+             </button>
+          </div>
+       </div>
     </div>
 
 
@@ -1438,35 +1602,23 @@
              </div>
           </div>
 
-          <!-- ตัวกรองผู้แต่ง และปุ่มพิมพ์ -->
-          <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+          <!-- ตัวกรองผู้แต่ง และปุ่มพิมพ์ (ไอคอนเท่านั้น) -->
+          <div style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center;">
              <select id="book-category-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1;" onchange="filterBookLabels()">
                 <option value="all">ผู้แต่ง</option>
              </select>
-             <button class="action-btn" style="padding: 8px 14px; font-size: 13px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSelectedBookLabels()">
-                🖨️ สั่งพิมพ์ (A4)
+             <button type="button" class="action-btn" style="width: 44px; height: 38px; padding: 0; font-size: 18px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSelectedBookLabels()" title="สั่งพิมพ์สติ๊กเกอร์">
+                🖨️
              </button>
           </div>
 
           <!-- ช่องค้นหา -->
-          <div style="margin-bottom: 8px;">
+          <div style="margin-bottom: 10px;">
              <input type="text" id="book-label-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อเรื่อง, รหัส, หรือผู้แต่ง..." oninput="filterBookLabels()">
           </div>
 
-          <!-- ตัวเลือกเลือกทั้งหมด / พิมพ์ตามจำนวนเล่ม -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; margin-bottom: 6px; font-size: 12px; color: var(--text-sub); border-bottom: 1px dashed #EAEAEA;">
-             <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 600; color: var(--primary);">
-                <input type="checkbox" id="book-select-all-cb" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;" onchange="toggleSelectAllBookLabels(this.checked)" checked>
-                เลือกทั้งหมด (<span id="book-selected-count">0</span> ชิ้น)
-             </label>
-             <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
-                <input type="checkbox" id="book-print-all-copies-cb" style="width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer;" checked onchange="updateSelectedCountBadge()">
-                พิมพ์ตามจำนวนเล่มจริง
-             </label>
-          </div>
-
           <!-- รายการหนังสือ -->
-          <div id="book-labels-list" style="flex: 1; overflow-y: auto; max-height: 44vh; padding-right: 2px;">
+          <div id="book-labels-list" style="flex: 1; overflow-y: auto; max-height: 48vh; padding-right: 2px;">
              
           </div>
 
@@ -1519,21 +1671,11 @@
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
                 <span>💾</span> ระบบสำรองข้อมูลอัตโนมัติ
              </div>
-             <div id="backup-status-badge" style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
-                🟢 พร้อมทำงาน
-             </div>
           </div>
 
-          <!-- ข้อมูลสถานะและระบบอัตโนมัติ -->
+          <!-- ปุ่มดำเนินการสำรองข้อมูล -->
           <div style="background: #F8F9FA; border: 1px solid #E9ECEF; border-radius: 14px; padding: 12px; margin-bottom: 12px; text-align: left;">
-             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                <span style="font-weight: 700; font-size: 13px; color: var(--primary);">⏱️ สำรองอัตโนมัติ:</span>
-                <span id="backup-schedule-text" style="font-size: 12px; font-weight: 600; color: #2D6A4F; background: #D8F3DC; padding: 2px 8px; border-radius: 10px;">ทำงานเมื่อล็อกอินเข้าใช้งานครั้งแรกของวัน</span>
-             </div>
-             <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.45;">
-                ระบบสร้างไฟล์สำรองข้อมูลไปยัง Google Drive เมื่อล็อกอินเข้าใช้งานครั้งแรกของวันโดยอัตโนมัติ
-             </div>
-             <div style="margin-top: 10px; display: flex; gap: 8px;">
+             <div style="display: flex; gap: 8px;">
                 <a id="backup-folder-link" href="#" target="_blank" class="action-btn" style="flex: 1; padding: 7px 10px; font-size: 12px; background: white; border: 1.5px solid #2D6A4F; color: #2D6A4F; text-decoration: none; border-radius: 10px; text-align: center; margin: 0; box-shadow: none; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
                    📁 เปิดโฟลเดอร์ Google Drive
                 </a>
@@ -2125,6 +2267,8 @@
              applyRolePermissions(currentUserRole, currentUser);
 
              document.getElementById('login-overlay').style.display = 'none';
+             const guestHome = document.getElementById('guest-home');
+             if (guestHome) guestHome.style.display = 'none';
 
              document.getElementById('main-app').style.display = 'block';
 
@@ -2132,9 +2276,114 @@
 
              syncLibraryData(); // โหลดฐานข้อมูลทั้งหมดเข้าหน่วยความจำทันที
 
+         } else {
+             const guestHome = document.getElementById('guest-home');
+             if (guestHome) guestHome.style.display = 'block';
+             loadGuestHomeData();
          }
 
       });
+
+      function openMemberLoginModal() {
+        const overlay = document.getElementById('login-overlay');
+        const pin = document.getElementById('login-pin');
+        if (overlay) overlay.style.display = 'flex';
+        if (pin) {
+          pin.value = '';
+          setTimeout(() => pin.focus(), 60);
+        }
+      }
+
+      function closeMemberLoginModal() {
+        const overlay = document.getElementById('login-overlay');
+        const pin = document.getElementById('login-pin');
+        if (overlay) overlay.style.display = 'none';
+        if (pin) pin.value = '';
+      }
+
+      function loadGuestHomeData() {
+        const tbody = document.getElementById('guest-usage-tbody');
+        const rankEl = document.getElementById('guest-top-readers');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">⏳ กำลังโหลด...</td></tr>';
+        if (rankEl) rankEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 12.5px;">⏳ กำลังโหลด...</div>';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            renderGuestHomeData(res);
+          })
+          .withFailureHandler(function() {
+            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #E63946;">❌ ไม่สามารถโหลดข้อมูลได้ครับ</td></tr>';
+            if (rankEl) rankEl.innerHTML = '<div style="text-align: center; padding: 20px; color: #E63946; font-size: 12.5px;">❌ ไม่สามารถโหลดอันดับได้ครับ</div>';
+          })
+          .getGuestLibrarySummary();
+      }
+
+      function renderGuestHomeData(res) {
+        const nowBE = new Date().getFullYear() + 543;
+        const yearBE = (res && res.yearBE) ? res.yearBE : nowBE;
+
+        const yearLabel = document.getElementById('guest-year-label');
+        const rankYearLabel = document.getElementById('guest-rank-year');
+        if (yearLabel) yearLabel.innerText = 'ปี พ.ศ. ' + yearBE;
+        if (rankYearLabel) rankYearLabel.innerText = 'ปี พ.ศ. ' + yearBE;
+
+        const bEl = document.getElementById('guest-borrows');
+        const rEl = document.getElementById('guest-returns');
+        if (bEl) bEl.innerText = res ? (res.borrows || 0) : 0;
+        if (rEl) rEl.innerText = res ? (res.returns || 0) : 0;
+
+        const tbody = document.getElementById('guest-usage-tbody');
+        if (tbody) {
+          const logs = (res && Array.isArray(res.usageLogs)) ? res.usageLogs : [];
+          if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-sub);">ยังไม่มีประวัติการใช้งานในปี พ.ศ. ' + yearBE + ' ครับ</td></tr>';
+          } else {
+            let rowsHtml = '';
+            logs.forEach(item => {
+              const isBorrow = item.action === 'ยืม';
+              const badgeStyle = isBorrow
+                ? 'background:#D8F3DC; color:#2D6A4F;'
+                : 'background:#E0F2FE; color:#0369A1;';
+              rowsHtml += `<tr>
+                <td style="white-space:nowrap;">${_escReportHtml(item.date || '-')}</td>
+                <td style="white-space:nowrap;">${_escReportHtml(item.time || '-')}</td>
+                <td style="white-space:nowrap;"><span style="${badgeStyle} padding:2px 7px; border-radius:8px; font-weight:700; font-size:11px;">${_escReportHtml(item.action || '')}</span></td>
+                <td style="min-width:110px;">${_escReportHtml(item.studentName || '-')}</td>
+                <td style="min-width:130px; color:var(--primary); font-weight:600;">${_escReportHtml(item.bookName || '-')}</td>
+              </tr>`;
+            });
+            tbody.innerHTML = rowsHtml;
+          }
+        }
+
+        const rankEl = document.getElementById('guest-top-readers');
+        if (rankEl) {
+          const readers = (res && Array.isArray(res.topReaders)) ? res.topReaders : [];
+          if (readers.length === 0) {
+            rankEl.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 12.5px;">ยังไม่มีข้อมูลการจัดอันดับในปี พ.ศ. ' + yearBE + ' ครับ</div>';
+          } else {
+            const medals = ['🥇', '🥈', '🥉'];
+            let rankHtml = '';
+            readers.forEach((st, i) => {
+              const medal = medals[i] || `<span style="display:inline-block; width:20px; text-align:center; font-weight:700; color:var(--primary);">${i + 1}.</span>`;
+              const fullGrade = st.grade ? _formatFullThaiGrade(st.grade) : '';
+              rankHtml += `
+                <div class="hist-item" style="background:white; border:1.5px solid #E9ECEF; margin-bottom:6px;">
+                  <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
+                    <span style="font-size:16px; flex-shrink:0;">${medal}</span>
+                    <div style="min-width:0; text-align:left;">
+                      <div style="font-weight:700; font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${_escReportHtml(st.name || '-')}</div>
+                      ${fullGrade ? `<div style="font-size:11px; color:var(--text-sub);">ชั้น ${_escReportHtml(fullGrade)}</div>` : ''}
+                    </div>
+                  </div>
+                  <b style="color:var(--primary); font-size:13.5px; white-space:nowrap; margin-left:8px;">${st.count || 0} เล่ม</b>
+                </div>
+              `;
+            });
+            rankEl.innerHTML = rankHtml;
+          }
+        }
+      }
 
 
 
@@ -2149,12 +2398,12 @@
              currentUserRole = "admin";
 
              document.getElementById('main-app').style.display = 'none';
-
-             document.getElementById('login-overlay').style.display = 'flex';
-
+             document.getElementById('login-overlay').style.display = 'none';
              document.getElementById('login-pin').value = "";
 
-             document.getElementById('login-pin').focus();
+             const guestHome = document.getElementById('guest-home');
+             if (guestHome) guestHome.style.display = 'block';
+             loadGuestHomeData();
 
          }});
 
@@ -2884,6 +3133,8 @@
                applyRolePermissions(currentUserRole, currentUser);
 
                document.getElementById('login-overlay').style.display = 'none'; 
+               const guestHome = document.getElementById('guest-home');
+               if (guestHome) guestHome.style.display = 'none';
 
                document.getElementById('main-app').style.display = 'block'; 
 
@@ -3911,9 +4162,14 @@
               actionIcon = "🎁";
             }
 
-            const safeStudent = h.studentName || 'ผู้ยืมทั่วไป';
+            const safeStudent = h.studentName || 'สมาชิกทั่วไป';
             const safeBook = h.bookName || h.bookId || '-';
             const dateDisplay = (h.date ? h.date + ' ' : '') + (h.time ? h.time + ' น.' : '');
+            const cleanNote = String(h.note || '')
+              .replace(/\(\s*[+-]?\d*\s*คะแนน[^)]*\)/gi, '')
+              .replace(/\(\s*คืนช้า[^)]*\)/gi, '')
+              .replace(/\(\s*-\d+\s*\)/g, '')
+              .trim();
 
             html += `
               <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); text-align: left;">
@@ -3929,10 +4185,12 @@
                   <button type="button" onclick="deleteLog(${h.rowIndex})" title="ลบรายการนี้" style="border: none; background: transparent; cursor: pointer; color: #E63946; font-size: 14px; padding: 2px 4px; line-height: 1;">🗑️</button>
                 </div>
                 <div style="font-size: 12px; color: var(--text-main); line-height: 1.55;">
-                  <div>👤 <b>ผู้ยืม/สมาชิก:</b> ${safeStudent} ${h.studentId ? '<span style="color:var(--text-sub); font-size:11px;">[รหัส: ' + h.studentId + ']</span>' : ''}</div>
-                  <div>📚 <b>หนังสือ:</b> <span style="color: var(--primary); font-weight: 700;">${safeBook}</span> ${h.bookId && safeBook !== h.bookId ? '<span style="color:var(--text-sub); font-size:11px;">[รหัส: ' + h.bookId + ']</span>' : ''}</div>
+                  <div>👤 <b>สมาชิก:</b> ${safeStudent}</div>
+                  ${h.studentId ? `<div style="font-size:11px; color:var(--text-sub); padding-left:18px;">รหัสผู้ใช้: ${h.studentId}</div>` : ''}
+                  <div>📚 <b>หนังสือ:</b> <span style="color: var(--primary); font-weight: 700;">${safeBook}</span></div>
+                  ${h.bookId ? `<div style="font-size:11px; color:var(--text-sub); padding-left:18px;">รหัสหนังสือ: ${h.bookId}</div>` : ''}
                   ${h.dueDate ? `<div style="font-size: 11.5px; color: #D00000; font-weight: 600;">⏰ กำหนดส่ง: ${h.dueDate}</div>` : ''}
-                  ${h.note ? `<div style="font-size: 11.5px; color: #555; background: #F8F9FA; padding: 2px 6px; border-radius: 6px; margin-top: 3px; display: inline-block;">💬 ${h.note}</div>` : ''}
+                  ${cleanNote ? `<div style="font-size: 11.5px; color: #555; background: #F8F9FA; padding: 2px 6px; border-radius: 6px; margin-top: 3px; display: inline-block;">💬 ${cleanNote}</div>` : ''}
                   ${h.staffName ? `<div style="font-size: 10.5px; color: #888; margin-top: 2px; text-align: right;">เจ้าหน้าที่: ${h.staffName}</div>` : ''}
                 </div>
               </div>
@@ -4041,7 +4299,7 @@
 
         if (!list || list.length === 0) {
 
-          contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>✅ ไม่มีหนังสือค้างส่ง (ทุกคนคืนครบแล้ว)</div>";
+          contentEl.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>✅ ไม่มีหนังสือค้างส่ง</div>";
 
           return;
 
@@ -4652,6 +4910,9 @@
         renderCardStudentsList(filtered);
       }
 
+      let selectedMemberPrintIds = new Set();
+      let pendingMemberPrintTargets = [];
+
       function renderCardStudentsList(list) {
         const container = document.getElementById('card-students-list');
         const badge = document.getElementById('card-count-badge');
@@ -4660,37 +4921,144 @@
 
         if (!list || list.length === 0) {
           container.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>❌ ไม่พบรายชื่อนักเรียน</div>";
+          updateSelectedMemberCountBadge();
           return;
         }
 
         let html = "";
         list.forEach((st, idx) => {
+          const sidStr = String(st.id || '');
+          const isChecked = selectedMemberPrintIds.has(sidStr) ? 'checked' : '';
           const safeName = String(st.name || '').replace(/'/g, "\\'");
           const safeGrade = String(st.grade || '').replace(/'/g, "\\'");
-          const safeId = String(st.id || '').replace(/'/g, "\\'");
+          const safeId = sidStr.replace(/'/g, "\\'");
           html += `
             <div style="background: white; border: 1.5px solid #E9ECEF; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
-              <div style="text-align: left; flex: 1; min-width: 0;">
-                <div style="font-weight: 700; color: var(--text-main); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
-                  <span style="display:inline-block; width:18px; height:18px; min-width:18px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:18px; font-size:10px;">${idx+1}</span>
-                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${st.name}</span>
+              <label style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; cursor: pointer; margin: 0;">
+                <input type="checkbox" class="member-select-cb" data-id="${_escReportHtml(sidStr)}" ${isChecked} onchange="toggleMemberPrintSelection('${safeId}', this.checked)" style="width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0;">
+                <div style="text-align: left; flex: 1; min-width: 0;">
+                  <div style="font-weight: 700; color: var(--text-main); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
+                    <span style="display:inline-block; width:18px; height:18px; min-width:18px; background:#D8F3DC; color:var(--primary); border-radius:50%; text-align:center; line-height:18px; font-size:10px;">${idx+1}</span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${st.name}</span>
+                  </div>
+                  <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px; white-space: nowrap;">
+                    รหัส: <b>${st.id}</b> | ชั้น: <b>${st.grade || '-'}</b>
+                  </div>
                 </div>
-                <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px; white-space: nowrap;">
-                  รหัส: <b>${st.id}</b> | ชั้น: <b>${st.grade || '-'}</b>
-                </div>
-              </div>
-              <div style="display: flex; gap: 5px; flex-shrink: 0; align-items: center;">
-                <button type="button" style="width: 68px; height: 32px; padding: 0 6px; font-size: 11px; font-weight: 600; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleCard('${safeId}', '${safeName}', '${safeGrade}')" title="พิมพ์บัตรนักเรียน">
-                  🖨️ บัตร
-                </button>
-                <button type="button" style="width: 92px; height: 32px; padding: 0 7px; font-size: 11px; font-weight: 600; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="openBestReaderCert('${safeId}', '${safeName}', '${safeGrade}')" title="พิมพ์เกียรติบัตรยอดนักอ่าน">
-                  🏆 เกียรติบัตร
-                </button>
-              </div>
+              </label>
+              <button type="button" style="width: 38px; height: 34px; flex: 0 0 38px; padding: 0; font-size: 16px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; margin: 0; box-shadow: none; display: inline-flex; align-items: center; justify-content: center;" onclick="openSingleMemberPrintChoice('${safeId}', '${safeName}', '${safeGrade}')" title="เลือกพิมพ์บัตร หรือ เกียรติบัตร">
+                🖨️
+              </button>
             </div>
           `;
         });
         container.innerHTML = html;
+        updateSelectedMemberCountBadge();
+      }
+
+      function toggleMemberPrintSelection(id, checked) {
+        const key = String(id || '');
+        if (checked) selectedMemberPrintIds.add(key);
+        else selectedMemberPrintIds.delete(key);
+        updateSelectedMemberCountBadge();
+      }
+
+      function toggleSelectAllMembers(checked) {
+        const gradeEl = document.getElementById('card-grade-filter');
+        const gradeVal = gradeEl ? gradeEl.value : 'all';
+        const qEl = document.getElementById('card-search-input');
+        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+
+        const visible = (cachedCardStudents || []).filter(st => {
+          const matchGrade = (gradeVal === 'all') || (st.grade === gradeVal);
+          const matchQ = !q ||
+            (st.name && st.name.toLowerCase().includes(q)) ||
+            (st.id && String(st.id).toLowerCase().includes(q)) ||
+            (st.grade && String(st.grade).toLowerCase().includes(q));
+          return matchGrade && matchQ;
+        });
+
+        visible.forEach(st => {
+          const key = String(st.id || '');
+          if (checked) selectedMemberPrintIds.add(key);
+          else selectedMemberPrintIds.delete(key);
+        });
+        document.querySelectorAll('.member-select-cb').forEach(cb => { cb.checked = checked; });
+        updateSelectedMemberCountBadge();
+      }
+
+      function updateSelectedMemberCountBadge() {
+        const span = document.getElementById('card-selected-count');
+        if (span) span.innerText = selectedMemberPrintIds.size;
+        const allCb = document.getElementById('card-select-all-cb');
+        if (allCb) {
+          const cbs = document.querySelectorAll('.member-select-cb');
+          const checkedCbs = document.querySelectorAll('.member-select-cb:checked');
+          allCb.checked = cbs.length > 0 && cbs.length === checkedCbs.length;
+        }
+      }
+
+      function openBatchMemberPrintChoice() {
+        const gradeEl = document.getElementById('card-grade-filter');
+        const gradeVal = gradeEl ? gradeEl.value : 'all';
+        const qEl = document.getElementById('card-search-input');
+        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+
+        const filtered = (cachedCardStudents || []).filter(st => {
+          const matchGrade = (gradeVal === 'all') || (st.grade === gradeVal);
+          const matchQ = !q ||
+            (st.name && st.name.toLowerCase().includes(q)) ||
+            (st.id && String(st.id).toLowerCase().includes(q)) ||
+            (st.grade && String(st.grade).toLowerCase().includes(q));
+          return matchGrade && matchQ;
+        });
+
+        const selectedTargets = (cachedCardStudents || []).filter(st => selectedMemberPrintIds.has(String(st.id || '')));
+        const targets = selectedTargets.length > 0 ? selectedTargets : filtered;
+        if (!targets || targets.length === 0) {
+          cuteAlert("ไม่มีรายชื่อสมาชิกที่เลือกหรือตามตัวกรองครับ", "ไม่พบข้อมูล", "📭");
+          return;
+        }
+
+        pendingMemberPrintTargets = targets;
+        const sub = document.getElementById('member-print-choice-sub');
+        if (sub) {
+          sub.innerText = selectedTargets.length > 0
+            ? `สมาชิกที่เลือก: ${targets.length} คน`
+            : `สมาชิกทั้งหมดที่แสดง: ${targets.length} คน`;
+        }
+        const m = document.getElementById('memberPrintChoiceModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function openSingleMemberPrintChoice(id, name, grade) {
+        pendingMemberPrintTargets = [{ id: id, name: name, grade: grade }];
+        const sub = document.getElementById('member-print-choice-sub');
+        if (sub) sub.innerText = `สมาชิก: ${name || id}`;
+        const m = document.getElementById('memberPrintChoiceModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeMemberPrintChoiceModal() {
+        const m = document.getElementById('memberPrintChoiceModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function executeMemberPrintChoice(type) {
+        closeMemberPrintChoiceModal();
+        const targets = pendingMemberPrintTargets || [];
+        if (targets.length === 0) {
+          cuteAlert("ไม่พบรายชื่อสมาชิกที่เลือกครับ", "แจ้งเตือน", "📭");
+          return;
+        }
+        if (type === 'card') {
+          const title = targets.length === 1
+            ? `บัตรสมาชิก - ${targets[0].name}`
+            : `บัตรสมาชิก (${targets.length} คน)`;
+          generateAndPrintCards(targets, title);
+        } else {
+          openBestReaderCerts(targets);
+        }
       }
 
       function printFilteredCards() {
@@ -5113,7 +5481,6 @@
 
         if (!list || list.length === 0) {
           container.innerHTML = "<div style='text-align: center; color: var(--text-sub); padding: 35px;'>❌ ไม่พบรายการหนังสือ</div>";
-          updateSelectedCountBadge();
           return;
         }
 
@@ -5135,18 +5502,37 @@
                     <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${b.name}</span>
                   </div>
                   <div style="font-size: 11px; color: var(--text-sub); margin-top: 2px; white-space: nowrap;">
-                    รหัส: <b>${b.id}</b> | ผู้แต่ง: <b>${b.author || b.category || '-'}</b> | <span style="background: #E8F5E9; color: #2D6A4F; padding: 1px 6px; border-radius: 8px; font-weight: 700;">${qty} เล่ม</span>
+                    รหัส: <b>${b.id}</b>
                   </div>
                 </div>
               </label>
-              <button type="button" style="height: 30px; padding: 0 8px; font-size: 11px; font-weight: 600; background: white; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 8px; cursor: pointer; margin: 0; box-shadow: none; white-space: nowrap; font-family: 'Mali', cursive, sans-serif !important; display: inline-flex; align-items: center; justify-content: center; gap: 3px;" onclick="printSingleBookLabel('${safeId}', '${safeName}', '${safeCat}', ${qty}, '${safeAuthor}')">
-                🖨️ เรื่องนี้
-              </button>
+              <div style="display: flex; gap: 5px; flex-shrink: 0; align-items: center;">
+                <button type="button" style="width: 34px; height: 32px; padding: 0; font-size: 15px; background: #F0F9FF; color: #0284C7; border: 1.5px solid #BAE6FD; border-radius: 9px; cursor: pointer; margin: 0; box-shadow: none; display: inline-flex; align-items: center; justify-content: center;" onclick="showBookLabelDetail('${safeId}')" title="รายละเอียดหนังสือ">
+                  ℹ️
+                </button>
+                <button type="button" style="width: 36px; height: 32px; padding: 0; font-size: 15px; background: white; color: var(--primary); border: 1.5px solid var(--primary); border-radius: 9px; cursor: pointer; margin: 0; box-shadow: none; display: inline-flex; align-items: center; justify-content: center;" onclick="printSingleBookLabel('${safeId}', '${safeName}', '${safeCat}', ${qty}, '${safeAuthor}')" title="พิมพ์สติกเกอร์">
+                  🖨️
+                </button>
+              </div>
             </div>
           `;
         });
         container.innerHTML = html;
-        updateSelectedCountBadge();
+      }
+
+      function showBookLabelDetail(bookId) {
+        const b = (cachedBookLabels || []).find(item => String(item.id) === String(bookId));
+        const localB = (localDB && localDB.books) ? localDB.books[bookId] : null;
+        if (!b && !localB) {
+          cuteAlert("ไม่พบข้อมูลรายละเอียดหนังสือครับ", "แจ้งเตือน", "📖");
+          return;
+        }
+        const name = (b && b.name) || (localB && localB.name) || bookId;
+        const author = (b && (b.author || b.category)) || (localB && (localB.author || localB.category)) || '-';
+        const qty = Math.max(1, Number((b && b.totalQty) || (localB && localB.totalQty)) || 1);
+        const status = (localB && localB.status) ? localB.status : `จำนวน ${qty} เล่ม`;
+        const msg = `📖 ชื่อเรื่อง: ${name}\n🏷️ รหัสหนังสือ: ${bookId}\n✍️ ผู้แต่ง/หมวดหมู่: ${author}\n📚 จำนวนทั้งหมด: ${qty} เล่ม\n📌 สถานะ: ${status}`;
+        cuteAlert(msg, "รายละเอียดหนังสือ", "📖");
       }
 
       function toggleBookLabelSelection(id, checked) {
@@ -5155,78 +5541,22 @@
         } else {
           selectedBookLabelIds.delete(id);
         }
-        updateSelectedCountBadge();
       }
 
-      function toggleSelectAllBookLabels(checked) {
-        const qEl = document.getElementById('book-label-search-input');
-        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
-        const catEl = document.getElementById('book-category-filter');
-        const catVal = catEl ? catEl.value : 'all';
-
-        let visibleBooks = (cachedBookLabels || []).filter(b => {
-          const matchCat = (catVal === 'all') || (b.category === catVal);
-          const matchQ = !q || 
-            (b.name && b.name.toLowerCase().includes(q)) || 
-            (b.id && String(b.id).toLowerCase().includes(q)) || 
-            (b.category && String(b.category).toLowerCase().includes(q)) ||
-            (b.author && String(b.author).toLowerCase().includes(q));
-          return matchCat && matchQ;
-        });
-
-        visibleBooks.forEach(b => {
-          if (checked) {
-            selectedBookLabelIds.add(b.id);
-          } else {
-            selectedBookLabelIds.delete(b.id);
-          }
-        });
-
-        const cbs = document.querySelectorAll('.book-item-cb');
-        cbs.forEach(cb => cb.checked = checked);
-        updateSelectedCountBadge();
-      }
-
-      function updateSelectedCountBadge() {
-        const countSpan = document.getElementById('book-selected-count');
-        const printAllCopiesCb = document.getElementById('book-print-all-copies-cb');
-        const printAllCopies = printAllCopiesCb ? printAllCopiesCb.checked : true;
-
-        let totalCopies = 0;
-        (cachedBookLabels || []).forEach(b => {
-          if (selectedBookLabelIds.has(b.id)) {
-            totalCopies += printAllCopies ? (Math.max(1, Number(b.totalQty) || 1)) : 1;
-          }
-        });
-
-        if (countSpan) countSpan.innerText = totalCopies;
-
-        const selectAllCb = document.getElementById('book-select-all-cb');
-        if (selectAllCb) {
-          const visibleCount = document.querySelectorAll('.book-item-cb').length;
-          const checkedCount = document.querySelectorAll('.book-item-cb:checked').length;
-          selectAllCb.checked = visibleCount > 0 && visibleCount === checkedCount;
-        }
-      }
+      function updateSelectedCountBadge() {}
 
       function printSelectedBookLabels() {
-        const printAllCopiesCb = document.getElementById('book-print-all-copies-cb');
-        const printAllCopies = printAllCopiesCb ? printAllCopiesCb.checked : true;
-
         let labelsToPrint = [];
         (cachedBookLabels || []).forEach(b => {
           if (selectedBookLabelIds.has(b.id)) {
-            const count = printAllCopies ? Math.max(1, Number(b.totalQty) || 1) : 1;
-            for (let c = 1; c <= count; c++) {
-              labelsToPrint.push({
-                id: b.id,
-                name: b.name,
-                category: b.category || 'ทั่วไป',
-                author: b.author || b.category || '-',
-                copyNum: count > 1 ? c : 0,
-                totalQty: b.totalQty || 1
-              });
-            }
+            labelsToPrint.push({
+              id: b.id,
+              name: b.name,
+              category: b.category || 'ทั่วไป',
+              author: b.author || b.category || '-',
+              copyNum: 0,
+              totalQty: b.totalQty || 1
+            });
           }
         });
 
@@ -5239,22 +5569,14 @@
       }
 
       function printSingleBookLabel(id, name, category, totalQty, author) {
-        const printAllCopiesCb = document.getElementById('book-print-all-copies-cb');
-        const printAllCopies = printAllCopiesCb ? printAllCopiesCb.checked : true;
-        const count = printAllCopies ? Math.max(1, Number(totalQty) || 1) : 1;
-
-        let labels = [];
-        for (let c = 1; c <= count; c++) {
-          labels.push({
-            id: id,
-            name: name,
-            category: category || 'ทั่วไป',
-            author: author || category || '-',
-            copyNum: count > 1 ? c : 0,
-            totalQty: totalQty || 1
-          });
-        }
-        generateAndPrintBookLabels(labels, `สติกเกอร์สันหนังสือ - ${name}`);
+        generateAndPrintBookLabels([{
+          id: id,
+          name: name,
+          category: category || 'ทั่วไป',
+          author: author || category || '-',
+          copyNum: 0,
+          totalQty: totalQty || 1
+        }], `สติกเกอร์สันหนังสือ - ${name}`);
       }
 
       function generateAndPrintBookLabels(labelsList, docTitle) {
@@ -5681,17 +6003,6 @@
               ? `⚠️ กรุณาอนุญาตสิทธิ์ Google Drive: <a href="${targetAuthLink}" target="_blank" style="color:#B45309; font-weight:700; text-decoration:underline;">คลิกที่นี่เพื่อกดอนุญาตสิทธิ์ (อย่าลืมติ๊กถูก ✅ ช่อง Google Drive)</a>`
               : `⚠️ ระบบยังรอการอนุญาตสิทธิ์ Google Drive (<a href="${targetAuthLink}" target="_blank" style="color:#B45309; font-weight:700; text-decoration:underline;">เปิด Apps Script</a> แล้วกด Run ฟังก์ชัน setupWNTKFolder และติ๊กถูก ✅ ช่อง Google Drive ครับ)`;
           }
-        }
-
-        // สถานะ Trigger
-        const scheduleText = document.getElementById('backup-schedule-text');
-        if (scheduleText) {
-          scheduleText.innerText = info.triggerSchedule || "ทำงานเมื่อล็อกอินเข้าใช้งานครั้งแรกของวัน";
-        }
-
-        const badge = document.getElementById('backup-status-badge');
-        if (badge) {
-          badge.innerHTML = info.hasAutoTrigger ? "🟢 ทำงานอัตโนมัติ" : "🟡 พร้อมทำงาน";
         }
 
         const totalCount = document.getElementById('backup-total-count');
@@ -6551,9 +6862,9 @@
         _openSaveFormatModalUi();
       }
 
-      // 📸 แปลง A4 Sheet (แนวตั้งหรือแนวนอน) เป็น Canvas ความละเอียดสูง (ไม่เพี้ยนบนมือถือ iOS/Android)
-      async function _renderReportToCanvas(targetId = 'active-a4-sheet', widthPx = 794, heightPx = 1122) {
-        const srcSheet = document.getElementById(targetId);
+      // 📸 แปลง A4 Sheet (element หรือ ID) เป็น Canvas ความละเอียดสูง (ไม่เพี้ยนบนมือถือ iOS/Android)
+      async function _renderReportToCanvas(targetElOrId = 'active-a4-sheet', widthPx = 794, heightPx = 1122) {
+        const srcSheet = (typeof targetElOrId === 'string') ? document.getElementById(targetElOrId) : targetElOrId;
         if (!srcSheet) throw new Error('ไม่พบเอกสารสำหรับส่งออก');
         if (typeof html2canvas === 'undefined') throw new Error('กำลังโหลดตัวแปลงไฟล์ กรุณารอสักครู่แล้วลองใหม่ครับ');
 
@@ -6618,30 +6929,42 @@
         if (loader) loader.style.display = 'flex';
 
         const isCert = (activeExportMode === 'certificate');
-        const targetId = isCert ? 'active-cert-sheet' : 'active-a4-sheet';
         const widthPx = isCert ? 1122 : 794;
         const heightPx = isCert ? 794 : 1122;
 
         try {
-          const canvas = await _renderReportToCanvas(targetId, widthPx, heightPx);
+          const sheets = isCert
+            ? Array.from(document.querySelectorAll('#certSheetMount .cert-sheet'))
+            : [document.getElementById('active-a4-sheet')].filter(Boolean);
+          if (sheets.length === 0) throw new Error('ไม่พบเอกสารสำหรับส่งออก');
+
           const meta = isCert
             ? (currentCertMeta || { title: 'เกียรติบัตรยอดนักอ่าน', date: '', fileBaseName: 'เกียรติบัตรยอดนักอ่าน', isCertificate: true })
             : (currentActivityMeta || { title: 'รายงานกิจกรรม', date: '', fileBaseName: 'รายงานกิจกรรม', isCertificate: false });
           const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
           if (selectedSaveFormat === 'image') {
-            const pngDataUrl = canvas.toDataURL('image/png');
-            const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-            const fileName = meta.fileBaseName + '.png';
-
-            if (dest === 'device') {
+            if (isCert && sheets.length > 1 && dest === 'drive') {
               if (loader) loader.style.display = 'none';
-              await _saveBlobToDevice(pngBlob, pngDataUrl, fileName, 'image/png', isIOS);
-            } else {
-              await _uploadReportFileToDrive('image', pngDataUrl, meta, loader);
+              cuteAlert('เกียรติบัตรหลายใบแนะนำให้เลือกบันทึกเป็น "เอกสาร PDF" เพื่อให้รวมทุกหน้าในไฟล์เดียวครับ', 'แนะนำรูปแบบ PDF', '📄');
+              return;
+            }
+            for (let sIdx = 0; sIdx < sheets.length; sIdx++) {
+              const canvas = await _renderReportToCanvas(sheets[sIdx], widthPx, heightPx);
+              const pngDataUrl = canvas.toDataURL('image/png');
+              const pngBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+              const suffix = sheets.length > 1 ? `_${sIdx + 1}` : '';
+              const fileName = meta.fileBaseName + suffix + '.png';
+
+              if (dest === 'device') {
+                if (sIdx === sheets.length - 1 && loader) loader.style.display = 'none';
+                await _saveBlobToDevice(pngBlob, pngDataUrl, fileName, 'image/png', isIOS);
+              } else {
+                await _uploadReportFileToDrive('image', pngDataUrl, meta, loader);
+              }
             }
           } else {
-            // PDF (Portrait A4 สำหรับรายงาน / Landscape A4 สำหรับเกียรติบัตร)
+            // PDF (รองรับหลายหน้าอัตโนมัติสำหรับเกียรติบัตรหลายคน)
             if (!window.jspdf || !window.jspdf.jsPDF) {
               throw new Error('กำลังโหลดตัวสร้าง PDF กรุณาลองอีกครั้งครับ');
             }
@@ -6651,8 +6974,12 @@
               unit: 'mm',
               format: 'a4'
             });
-            const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.94);
-            pdf.addImage(jpegDataUrl, 'JPEG', 0, 0, isCert ? 297 : 210, isCert ? 210 : 297);
+            for (let sIdx = 0; sIdx < sheets.length; sIdx++) {
+              const canvas = await _renderReportToCanvas(sheets[sIdx], widthPx, heightPx);
+              const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.94);
+              if (sIdx > 0) pdf.addPage('a4', isCert ? 'landscape' : 'portrait');
+              pdf.addImage(jpegDataUrl, 'JPEG', 0, 0, isCert ? 297 : 210, isCert ? 210 : 297);
+            }
             const fileName = meta.fileBaseName + '.pdf';
 
             if (dest === 'device') {
@@ -6926,36 +7253,14 @@
         return g.replace(/\s+/g, ' ').trim();
       }
 
-      function openBestReaderCert(studentId, studentName, studentGrade) {
-        preloadOfficialReportAssets();
+      function _buildCertSheetHtml(studentName, studentGrade, thaiDateText, logoSrc, isFirst) {
         const nameClean = String(studentName || 'นักเรียน').trim();
         const gradeClean = _formatFullThaiGrade(studentGrade);
-
-        const now = new Date();
-        const thaiMonths = [
-          'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-          'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-        ];
-        const thaiDateText = `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
-        const safeFileBase = 'เกียรติบัตรยอดนักอ่าน_' + nameClean.replace(/[\\/:*?"<>|]/g, '_');
-
-        currentCertMeta = {
-          studentId: studentId || '',
-          studentName: nameClean,
-          studentGrade: gradeClean,
-          title: 'เกียรติบัตรยอดนักอ่าน - ' + nameClean,
-          date: thaiDateText,
-          fileBaseName: safeFileBase,
-          isCertificate: true
-        };
-
-        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
         const gradeLineHtml = gradeClean
           ? `<div class="cert-student-grade">นักเรียนชั้น ${_escReportHtml(gradeClean)}</div>`
           : '';
-
-        const certHtml = `
-          <div class="cert-sheet" id="active-cert-sheet">
+        return `
+          <div class="cert-sheet" ${isFirst ? 'id="active-cert-sheet"' : ''} style="margin-bottom: 18px;">
             <div class="cert-outer-border">
               <div class="cert-ribbon-tl"></div>
               <div class="cert-ribbon-br"></div>
@@ -7000,9 +7305,46 @@
             </div>
           </div>
         `;
+      }
+
+      function openBestReaderCert(studentId, studentName, studentGrade) {
+        openBestReaderCerts([{ id: studentId, name: studentName, grade: studentGrade }]);
+      }
+
+      function openBestReaderCerts(studentList) {
+        if (!studentList || studentList.length === 0) return;
+        preloadOfficialReportAssets();
+
+        const now = new Date();
+        const thaiMonths = [
+          'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+          'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+        ];
+        const thaiDateText = `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
+        const firstStudent = studentList[0];
+        const firstClean = String(firstStudent.name || 'นักเรียน').trim();
+        const isSingle = studentList.length === 1;
+
+        currentCertMeta = {
+          studentId: isSingle ? (firstStudent.id || '') : '',
+          studentName: isSingle ? firstClean : `${studentList.length} คน`,
+          title: isSingle ? ('เกียรติบัตรยอดนักอ่าน - ' + firstClean) : (`เกียรติบัตรยอดนักอ่าน (${studentList.length} คน)`),
+          date: thaiDateText,
+          fileBaseName: isSingle
+            ? ('เกียรติบัตรยอดนักอ่าน_' + firstClean.replace(/[\\/:*?"<>|]/g, '_'))
+            : (`เกียรติบัตรยอดนักอ่าน_${studentList.length}คน`),
+          isCertificate: true,
+          count: studentList.length
+        };
+
+        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        let allHtml = '';
+        studentList.forEach((st, idx) => {
+          allHtml += _buildCertSheetHtml(st.name, st.grade, thaiDateText, logoSrc, idx === 0);
+        });
 
         const mount = document.getElementById('certSheetMount');
-        if (mount) mount.innerHTML = certHtml;
+        if (mount) mount.innerHTML = allHtml;
 
         const prevModal = document.getElementById('certPreviewModal');
         if (prevModal) prevModal.style.display = 'flex';
@@ -7017,7 +7359,8 @@
         const availW = scrollWrap.clientWidth - 12;
         if (availW <= 0) return;
         const sheetW = 1122;
-        const sheetH = 794;
+        const pageCount = Math.max(1, document.querySelectorAll('#certSheetMount .cert-sheet').length);
+        const sheetH = pageCount * 794 + Math.max(0, pageCount - 1) * 18;
         const scale = Math.min(1, availW / sheetW);
         scaleBox.style.transform = 'scale(' + scale + ')';
         scaleBox.style.width = sheetW + 'px';
@@ -7049,8 +7392,8 @@
             + '.print-bar { display: flex; justify-content: center; gap: 10px; padding: 10px; background: #1B4332; position: sticky; top: 0; z-index: 999; }'
             + '.print-bar button { border: none; border-radius: 10px; padding: 8px 18px; font-size: 16px; cursor: pointer; color: #fff; background: #40916C; }'
             + '.print-bar button.close-b { background: #64748B; }'
-            + '.wrap { padding: 16px 0; display: flex; justify-content: center; }'
-            + '.cert-sheet { width: 1122px; height: 794px; background: radial-gradient(circle at 50% 44%, rgba(255,255,255,0.96) 0%, rgba(255,252,240,0.92) 48%, rgba(244,236,210,0.85) 82%, rgba(223,240,230,0.95) 100%), repeating-linear-gradient(45deg, rgba(201,162,39,0.035) 0px, rgba(201,162,39,0.035) 14px, transparent 14px, transparent 28px); color: #1B4332; padding: 26px; box-shadow: 0 4px 18px rgba(0,0,0,0.14); display: flex; align-items: stretch; justify-content: stretch; overflow: hidden; }'
+            + '.wrap { padding: 16px 0; display: flex; flex-direction: column; align-items: center; gap: 16px; }'
+            + '.cert-sheet { width: 1122px; height: 794px; margin: 0 !important; background: radial-gradient(circle at 50% 44%, rgba(255,255,255,0.96) 0%, rgba(255,252,240,0.92) 48%, rgba(244,236,210,0.85) 82%, rgba(223,240,230,0.95) 100%), repeating-linear-gradient(45deg, rgba(201,162,39,0.035) 0px, rgba(201,162,39,0.035) 14px, transparent 14px, transparent 28px); color: #1B4332; padding: 26px; box-shadow: 0 4px 18px rgba(0,0,0,0.14); display: flex; align-items: stretch; justify-content: stretch; overflow: hidden; }'
             + '.cert-outer-border { width: 100%; height: 100%; border: 5px solid #1B4332; padding: 9px; position: relative; background: radial-gradient(circle at 18% 18%, rgba(201,162,39,0.09) 0%, transparent 40%), radial-gradient(circle at 82% 82%, rgba(45,106,79,0.09) 0%, transparent 42%), linear-gradient(160deg, rgba(255,253,246,0.97) 0%, rgba(255,255,255,0.98) 52%, rgba(245,251,247,0.97) 100%); overflow: hidden; }'
             + '.cert-ribbon-tl { position: absolute; top: 0; left: 0; width: 118px; height: 118px; background: linear-gradient(135deg, #1B4332 0%, #2D6A4F 42%, #D4AF37 42%, #F3D979 49%, #1B4332 49%, #1B4332 52%, transparent 52%); z-index: 2; }'
             + '.cert-ribbon-br { position: absolute; bottom: 0; right: 0; width: 118px; height: 118px; background: linear-gradient(315deg, #1B4332 0%, #2D6A4F 42%, #D4AF37 42%, #F3D979 49%, #1B4332 49%, #1B4332 52%, transparent 52%); z-index: 2; }'
@@ -7076,7 +7419,7 @@
             + '.cert-sig-block { text-align: center; min-width: 360px; color: #111827; margin: 0 auto 6px auto; }'
             + '.cert-sig-name { font-size: 22px; font-weight: 700; line-height: 1.35; }'
             + '.cert-sig-pos { font-size: 19px; font-weight: 500; color: #334155; line-height: 1.35; }'
-            + '@media print { .print-bar { display: none !important; } body { background: #fff; } .wrap { padding: 0; } .cert-sheet { width: 297mm; height: 210mm; box-shadow: none; page-break-after: avoid; page-break-inside: avoid; } }'
+            + '@media print { .print-bar { display: none !important; } body { background: #fff; } .wrap { padding: 0; gap: 0; } .cert-sheet { width: 297mm; height: 210mm; box-shadow: none; page-break-after: always; break-after: page; page-break-inside: avoid; } .cert-sheet:last-child { page-break-after: auto; break-after: auto; } }'
             + '</style></head><body>'
             + '<div class="print-bar"><button onclick="window.print()" title="สั่งพิมพ์">🖨️</button><button class="close-b" onclick="window.close()" title="ปิด">✕</button></div>'
             + '<div class="wrap">' + mount.innerHTML + '</div>'
