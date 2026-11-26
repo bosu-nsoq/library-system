@@ -1094,6 +1094,127 @@
         opacity: 0;
         cursor: pointer;
       }
+
+      /* ✨ Cute Library Screensaver (Idle 1 min) */
+      #library-screensaver {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 120000;
+        display: none;
+        opacity: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(82, 183, 136, 0.24) 0%, transparent 45%),
+          radial-gradient(circle at 82% 75%, rgba(251, 191, 36, 0.18) 0%, transparent 48%),
+          linear-gradient(160deg, rgba(15, 42, 31, 0.95) 0%, rgba(27, 67, 50, 0.94) 50%, rgba(17, 66, 59, 0.96) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: opacity 0.55s ease;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+        cursor: pointer;
+      }
+      #library-screensaver.ss-active {
+        opacity: 1;
+      }
+      #ss-stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .ss-float-item {
+        position: absolute;
+        bottom: -95px;
+        left: 50%;
+        pointer-events: none;
+        will-change: transform, opacity;
+        animation-name: ssFloatUp;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+        font-family: 'Mali', cursive, sans-serif !important;
+      }
+      .ss-book-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 16px;
+        border-radius: 999px;
+        font-weight: 700;
+        white-space: nowrap;
+        max-width: 78vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        border: 1.5px solid rgba(255, 255, 255, 0.65);
+        letter-spacing: 0.15px;
+      }
+      .ss-book-pill .ss-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ss-theme-mint { background: rgba(216, 243, 220, 0.93); color: #1B4332; }
+      .ss-theme-gold { background: rgba(254, 243, 199, 0.94); color: #78350F; }
+      .ss-theme-sky  { background: rgba(224, 242, 254, 0.93); color: #075985; }
+      .ss-theme-rose { background: rgba(252, 231, 243, 0.93); color: #831843; }
+      .ss-theme-lav  { background: rgba(237, 233, 254, 0.93); color: #4C1D95; }
+      .ss-emoji-item {
+        display: inline-block;
+        filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.28));
+        line-height: 1;
+      }
+      @keyframes ssFloatUp {
+        0% {
+          transform: translate3d(0, 0, 0) rotate(var(--ss-rot-start, -4deg)) scale(0.92);
+          opacity: 0;
+        }
+        10% {
+          opacity: var(--ss-max-op, 0.92);
+        }
+        50% {
+          transform: translate3d(var(--ss-sway, 18px), -58vh, 0) rotate(var(--ss-rot-mid, 4deg)) scale(1);
+          opacity: var(--ss-max-op, 0.92);
+        }
+        88% {
+          opacity: var(--ss-max-op, 0.92);
+        }
+        100% {
+          transform: translate3d(var(--ss-sway-end, -14px), -120vh, 0) rotate(var(--ss-rot-end, -3deg)) scale(0.96);
+          opacity: 0;
+        }
+      }
+      .ss-center-badge {
+        position: absolute;
+        left: 50%;
+        bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #ECFDF5;
+        padding: 9px 18px;
+        border-radius: 999px;
+        font-size: 12.5px;
+        font-weight: 600;
+        white-space: nowrap;
+        max-width: 90vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+        pointer-events: none;
+        animation: ssBadgePulse 2.8s ease-in-out infinite;
+      }
+      @keyframes ssBadgePulse {
+        0%, 100% { opacity: 0.78; transform: translateX(-50%) translateY(0); }
+        50% { opacity: 1; transform: translateX(-50%) translateY(-3px); }
+      }
     </style>
 
   </head>
@@ -2515,7 +2636,11 @@
 
     </div>
 
-
+    <!-- ✨ Screen Saver (ทำงานเมื่อหน้าจอไม่มีการโต้ตอบ 1 นาที) -->
+    <div id="library-screensaver" aria-hidden="true">
+       <div id="ss-stage"></div>
+       <div class="ss-center-badge">📚 ห้องสมุดโรงเรียนวัดหนองตาเกิด • แตะหน้าจอเพื่อใช้งานต่อ ✨</div>
+    </div>
 
     <script>
 
@@ -8967,6 +9092,268 @@
           navigator.serviceWorker.register('./sw.js').catch(function() {});
         });
       }
+
+      // ✨ Cute Library Book Screensaver (เริ่มทำงานเมื่อไม่มีการใช้งาน 1 นาที)
+      (function initLibraryScreensaver() {
+        const IDLE_LIMIT_MS = 60 * 1000;
+        const BOOK_ICONS = ['📖', '📘', '📗', '📙', '📕', '📚'];
+        const DECO_EMOJIS = ['📚', '📖', '✨', '🌟', '🦉', '🌱', '🔖', '🌼', '💫', '🦋', '🍀', '✏️'];
+        const PILL_THEMES = ['ss-theme-mint', 'ss-theme-gold', 'ss-theme-sky', 'ss-theme-rose', 'ss-theme-lav'];
+        const FALLBACK_BOOKS = [
+          'นิทานอีสปแสนสนุก', 'วิทยาศาสตร์น่ารู้', 'ภาษาไทยหรรษา', 'คณิตคิดสนุก',
+          'หนูน้อยรักการอ่าน', 'โลกกว้างของสัตว์ป่า', 'ตะลุยอวกาศ', 'ยอดนักสืบจิ๋ว',
+          'นิทานพื้นบ้านไทย', 'สารานุกรมสำหรับเด็ก'
+        ];
+
+        let idleTimer = null;
+        let spawnTimer = null;
+        let hideFinishTimer = null;
+        let isRunning = false;
+        let fetchedBookTitles = [];
+        let fetchRequested = false;
+        let lastMouseX = -1;
+        let lastMouseY = -1;
+        let laneCursor = 0;
+
+        function _collectBookTitles() {
+          const seen = new Set();
+          const titles = [];
+          const pushName = (raw) => {
+            const clean = String(raw || '').trim();
+            if (!clean || clean === '-' || seen.has(clean)) return;
+            seen.add(clean);
+            titles.push(clean);
+          };
+
+          if (typeof localDB !== 'undefined' && localDB && localDB.books) {
+            for (const k in localDB.books) {
+              if (localDB.books[k] && localDB.books[k].name) pushName(localDB.books[k].name);
+            }
+          }
+          if (typeof cachedBookLabels !== 'undefined' && Array.isArray(cachedBookLabels)) {
+            cachedBookLabels.forEach(b => pushName(b && b.name));
+          }
+          if (typeof cachedGuestSummary !== 'undefined' && cachedGuestSummary && Array.isArray(cachedGuestSummary.usageLogs)) {
+            cachedGuestSummary.usageLogs.forEach(log => pushName(log && log.bookName));
+          }
+          fetchedBookTitles.forEach(pushName);
+
+          if (titles.length < 4 && !fetchRequested && typeof google !== 'undefined' && google.script && google.script.run) {
+            fetchRequested = true;
+            try {
+              google.script.run
+                .withSuccessHandler(function(list) {
+                  if (Array.isArray(list)) {
+                    fetchedBookTitles = list.map(b => (b && b.name) ? String(b.name).trim() : '').filter(Boolean);
+                  }
+                })
+                .withFailureHandler(function() {})
+                .getAllBooksForLabels();
+            } catch (e) {}
+          }
+
+          return titles.length > 0 ? titles : FALLBACK_BOOKS;
+        }
+
+        function _isBlockedBySystemState() {
+          const txLoader = document.getElementById('tx-loader');
+          if (txLoader && txLoader.style.display && txLoader.style.display !== 'none') return true;
+          const camModal = document.getElementById('cameraModal');
+          if (camModal && camModal.style.display && camModal.style.display !== 'none') return true;
+          return document.hidden;
+        }
+
+        function _spawnFloatingItem(immediateProgress) {
+          if (!isRunning) return;
+          const stage = document.getElementById('ss-stage');
+          if (!stage) return;
+          if (stage.childElementCount > 24) return;
+
+          const titles = _collectBookTitles();
+          const el = document.createElement('div');
+          el.className = 'ss-float-item';
+
+          // สลับระหว่างป้ายชื่อหนังสือและอิโมจิน่ารัก (ประมาณ 65% ชื่อหนังสือ, 35% อิโมจิ)
+          const isEmojiOnly = Math.random() < 0.35;
+          const isMobile = window.innerWidth <= 540;
+          const laneCount = isMobile ? 4 : 6;
+          laneCursor = (laneCursor + 1) % laneCount;
+          const baseLeft = 4 + (laneCursor * (isMobile ? 20 : 14)) + Math.random() * (isMobile ? 12 : 10);
+
+          const durationSec = 10 + Math.random() * 8; // คละความเร็ว 10-18 วินาที
+          const swayPx = Math.round((Math.random() - 0.5) * 44);
+          const swayEndPx = Math.round((Math.random() - 0.5) * 44);
+          const rotStart = Math.round((Math.random() - 0.5) * 10) + 'deg';
+          const rotMid = Math.round((Math.random() - 0.5) * 8) + 'deg';
+          const rotEnd = Math.round((Math.random() - 0.5) * 10) + 'deg';
+          const maxOp = (0.76 + Math.random() * 0.22).toFixed(2);
+
+          el.style.left = Math.min(82, Math.max(3, baseLeft)) + '%';
+          el.style.animationDuration = durationSec.toFixed(2) + 's';
+          el.style.setProperty('--ss-sway', swayPx + 'px');
+          el.style.setProperty('--ss-sway-end', swayEndPx + 'px');
+          el.style.setProperty('--ss-rot-start', rotStart);
+          el.style.setProperty('--ss-rot-mid', rotMid);
+          el.style.setProperty('--ss-rot-end', rotEnd);
+          el.style.setProperty('--ss-max-op', maxOp);
+
+          if (immediateProgress) {
+            el.style.animationDelay = '-' + (durationSec * immediateProgress).toFixed(2) + 's';
+          }
+
+          if (isEmojiOnly) {
+            const emoji = DECO_EMOJIS[Math.floor(Math.random() * DECO_EMOJIS.length)];
+            const sizePx = Math.round((isMobile ? 22 : 26) + Math.random() * (isMobile ? 16 : 22));
+            const span = document.createElement('span');
+            span.className = 'ss-emoji-item';
+            span.style.fontSize = sizePx + 'px';
+            span.textContent = emoji;
+            el.appendChild(span);
+          } else {
+            const title = titles[Math.floor(Math.random() * titles.length)];
+            const icon = BOOK_ICONS[Math.floor(Math.random() * BOOK_ICONS.length)];
+            const theme = PILL_THEMES[Math.floor(Math.random() * PILL_THEMES.length)];
+            const fontSizePx = Math.round((isMobile ? 12.5 : 14) + Math.random() * (isMobile ? 7.5 : 10));
+
+            const pill = document.createElement('div');
+            pill.className = 'ss-book-pill ' + theme;
+            pill.style.fontSize = fontSizePx + 'px';
+            pill.style.padding = Math.round(fontSizePx * 0.48) + 'px ' + Math.round(fontSizePx * 0.9) + 'px';
+
+            const iconSpan = document.createElement('span');
+            iconSpan.textContent = icon;
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'ss-title';
+            titleSpan.textContent = title;
+
+            pill.appendChild(iconSpan);
+            pill.appendChild(titleSpan);
+            el.appendChild(pill);
+          }
+
+          el.addEventListener('animationend', function() {
+            if (el.parentNode) el.parentNode.removeChild(el);
+          });
+
+          stage.appendChild(el);
+
+          // กันกรณีคลายแท็บหรือการ์ดล้นหน้าจอด้านขวา on narrow viewports
+          const rect = el.getBoundingClientRect();
+          if (rect.right > window.innerWidth - 10) {
+            const overflowRight = rect.right - (window.innerWidth - 10);
+            const curLeftPx = parseFloat(el.offsetLeft || 0);
+            el.style.left = Math.max(8, curLeftPx - overflowRight) + 'px';
+          }
+        }
+
+        function showScreensaver() {
+          if (isRunning) return;
+          if (_isBlockedBySystemState()) {
+            scheduleIdleTimer();
+            return;
+          }
+          const overlay = document.getElementById('library-screensaver');
+          const stage = document.getElementById('ss-stage');
+          if (!overlay || !stage) return;
+
+          if (hideFinishTimer) {
+            clearTimeout(hideFinishTimer);
+            hideFinishTimer = null;
+          }
+
+          isRunning = true;
+          stage.innerHTML = '';
+          overlay.style.display = 'block';
+          overlay.setAttribute('aria-hidden', 'false');
+
+          // กระจายหนังสือลอยขึ้นทันทีหลายเล่มทั่วหน้าจอ (ไม่ต้องรอจากขอบล่างอย่างเดียว)
+          const initialOffsets = [0.08, 0.22, 0.36, 0.50, 0.64, 0.78, 0.15, 0.43, 0.70];
+          initialOffsets.forEach(p => _spawnFloatingItem(p));
+
+          spawnTimer = setInterval(function() {
+            if (isRunning && !document.hidden) _spawnFloatingItem(0);
+          }, 950);
+
+          requestAnimationFrame(function() {
+            if (isRunning) overlay.classList.add('ss-active');
+          });
+        }
+
+        function hideScreensaver() {
+          if (!isRunning) return;
+          isRunning = false;
+          if (spawnTimer) {
+            clearInterval(spawnTimer);
+            spawnTimer = null;
+          }
+          const overlay = document.getElementById('library-screensaver');
+          const stage = document.getElementById('ss-stage');
+          if (!overlay) return;
+          overlay.classList.remove('ss-active');
+          overlay.setAttribute('aria-hidden', 'true');
+          hideFinishTimer = setTimeout(function() {
+            if (!isRunning) {
+              overlay.style.display = 'none';
+              if (stage) stage.innerHTML = '';
+            }
+          }, 560);
+        }
+
+        function scheduleIdleTimer() {
+          if (idleTimer) clearTimeout(idleTimer);
+          idleTimer = setTimeout(showScreensaver, IDLE_LIMIT_MS);
+        }
+
+        function onUserActivity(e) {
+          if (e && e.type === 'mousemove') {
+            if (lastMouseX >= 0 && Math.abs(e.clientX - lastMouseX) < 8 && Math.abs(e.clientY - lastMouseY) < 8) {
+              return;
+            }
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+          }
+          if (isRunning) hideScreensaver();
+          scheduleIdleTimer();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+          const overlay = document.getElementById('library-screensaver');
+          if (overlay) {
+            const wakeAndAbsorb = function(e) {
+              if (!isRunning) return;
+              if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+              hideScreensaver();
+              scheduleIdleTimer();
+            };
+            overlay.addEventListener('pointerdown', wakeAndAbsorb, true);
+            overlay.addEventListener('touchstart', wakeAndAbsorb, { passive: false, capture: true });
+            overlay.addEventListener('click', wakeAndAbsorb, true);
+          }
+
+          ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll', 'mousemove', 'input'].forEach(evt => {
+            document.addEventListener(evt, onUserActivity, { passive: true, capture: true });
+          });
+
+          document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+              if (idleTimer) clearTimeout(idleTimer);
+              if (spawnTimer) { clearInterval(spawnTimer); spawnTimer = null; }
+            } else {
+              if (isRunning && !spawnTimer) {
+                spawnTimer = setInterval(function() {
+                  if (isRunning && !document.hidden) _spawnFloatingItem(0);
+                }, 950);
+              }
+              scheduleIdleTimer();
+            }
+          });
+
+          scheduleIdleTimer();
+        });
+      })();
 
     </script>
 
