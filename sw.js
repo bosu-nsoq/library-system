@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wntk-lib-v5';
+const CACHE_NAME = 'wntk-lib-v6';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
