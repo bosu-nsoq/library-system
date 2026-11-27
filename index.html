@@ -8,7 +8,7 @@
 
     <meta charset="UTF-8">
 
-    <title>WNTK Library System</title>
+    <title>Library System</title>
 
     <link rel="icon" type="image/png" href="https://bosu-nsoq.github.io/wntk-library-system/icons/icon-192.png">
 
@@ -19,7 +19,7 @@
     <meta name="theme-color" content="#2D6A4F">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="ห้องสมุด WNTK">
+    <meta name="apple-mobile-web-app-title" content="Library System">
     <link rel="apple-touch-icon" href="https://bosu-nsoq.github.io/wntk-library-system/icons/icon-180.png">
     <link rel="apple-touch-icon" sizes="152x152" href="https://bosu-nsoq.github.io/wntk-library-system/icons/icon-152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="https://bosu-nsoq.github.io/wntk-library-system/icons/icon-180.png">
@@ -31,9 +31,9 @@
 
     <meta property="og:type" content="website">
 
-    <meta property="og:title" content="WNTK Library System">
+    <meta property="og:title" content="Library System">
 
-    <meta property="og:description" content="ระบบจัดการห้องสมุดดิจิทัล โรงเรียนวัดหนองตะเฆ่">
+    <meta property="og:description" content="ระบบจัดการห้องสมุดดิจิทัล">
 
     <meta property="og:image" content="https://bosu-nsoq.github.io/wntk-library-system/icons/icon-512.png">
 
@@ -45,9 +45,9 @@
 
     <meta name="twitter:card" content="summary">
 
-    <meta name="twitter:title" content="WNTK Library System">
+    <meta name="twitter:title" content="Library System">
 
-    <meta name="twitter:description" content="ระบบจัดการห้องสมุดดิจิทัล โรงเรียนวัดหนองตะเฆ่">
+    <meta name="twitter:description" content="ระบบจัดการห้องสมุดดิจิทัล">
 
     <meta name="twitter:image" content="https://bosu-nsoq.github.io/wntk-library-system/icons/icon-512.png">
 
@@ -1258,9 +1258,9 @@
 
         <button type="button" class="cute-close-x" onclick="closeMemberLoginModal()" title="กลับหน้า Guest" style="position: absolute; top: 14px; right: 14px;">✕</button>
 
-        <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="school-logo" alt="School Logo">
+        <img id="login-school-logo" src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="school-logo" alt="School Logo">
 
-        <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+        <div class="school-header" id="login-school-header">โรงเรียนวัดหนองตะเฆ่</div>
 
         <div class="app-title" style="justify-content:center; margin-bottom: 15px;">ระบบห้องสมุดดิจิทัล</div>
 
@@ -1278,8 +1278,8 @@
 
     <!-- Guest Home (หน้าแรกก่อนเข้าสู่ระบบ: ปุ่มสถิติการเข้าใช้ห้องสมุด + ปุ่มจัดอันดับยอดนักอ่าน) -->
     <div class="card container" id="guest-home" style="display: none;">
-      <div style="text-align:center"><img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px"></div>
-      <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+      <div style="text-align:center"><img id="guest-school-logo" src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px" alt="ตราโรงเรียน"></div>
+      <div class="school-header" id="guest-school-header">โรงเรียนวัดหนองตะเฆ่</div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:6px; flex-wrap:nowrap;">
          <div class="app-title" style="font-size:16px; white-space:nowrap; flex-shrink:0; display:inline-flex; align-items:center; gap:4px;">📚 ห้องสมุด</div>
@@ -1360,9 +1360,9 @@
 
     <div class="card container" id="main-app" style="display: none;">
 
-      <div style="text-align:center"><img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px"></div>
+      <div style="text-align:center"><img id="main-school-logo" src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="width:50px;margin-bottom:5px" alt="ตราโรงเรียน"></div>
 
-      <div class="school-header">โรงเรียนวัดหนองตะเฆ่</div>
+      <div class="school-header" id="main-school-header">โรงเรียนวัดหนองตะเฆ่</div>
 
       
 
@@ -2764,7 +2764,7 @@
     <!-- ✨ Screen Saver (ทำงานเมื่อหน้าจอไม่มีการโต้ตอบ 1 นาที) -->
     <div id="library-screensaver" aria-hidden="true">
        <div id="ss-stage"></div>
-       <div class="ss-center-badge">📚 ห้องสมุดโรงเรียนวัดหนองตะเฆ่</div>
+       <div class="ss-center-badge" id="screensaver-school-badge">📚 ห้องสมุดโรงเรียนวัดหนองตะเฆ่</div>
     </div>
 
     <script>
@@ -2863,6 +2863,51 @@
 
       let bookQueue = []; // คิวหนังสือสำหรับยืม/คืนหลายเล่ม
 
+      const DEFAULT_SCHOOL_NAME = "โรงเรียนวัดหนองตะเฆ่";
+      const DEFAULT_SCHOOL_LOGO = "https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png";
+      let appSchoolConfig = {
+        schoolName: (function() { try { return localStorage.getItem('library_school_name') || DEFAULT_SCHOOL_NAME; } catch (e) { return DEFAULT_SCHOOL_NAME; } })(),
+        schoolLogoUrl: (function() { try { return localStorage.getItem('library_school_logo') || DEFAULT_SCHOOL_LOGO; } catch (e) { return DEFAULT_SCHOOL_LOGO; } })()
+      };
+
+      function getSchoolName() {
+        return (appSchoolConfig && appSchoolConfig.schoolName) ? appSchoolConfig.schoolName : DEFAULT_SCHOOL_NAME;
+      }
+
+      function getSchoolLogoUrl() {
+        return (appSchoolConfig && appSchoolConfig.schoolLogoUrl) ? appSchoolConfig.schoolLogoUrl : DEFAULT_SCHOOL_LOGO;
+      }
+
+      function applySchoolConfig(cfg) {
+        if (cfg && typeof cfg === 'object') {
+          const nextName = String(cfg.schoolName || '').trim() || DEFAULT_SCHOOL_NAME;
+          const nextLogo = String(cfg.schoolLogoUrl || '').trim() || DEFAULT_SCHOOL_LOGO;
+          if (appSchoolConfig.schoolLogoUrl !== nextLogo && typeof cachedReportAssets !== 'undefined') {
+            cachedReportAssets.logo = '';
+          }
+          appSchoolConfig.schoolName = nextName;
+          appSchoolConfig.schoolLogoUrl = nextLogo;
+          try {
+            localStorage.setItem('library_school_name', nextName);
+            localStorage.setItem('library_school_logo', nextLogo);
+          } catch (e) {}
+        }
+
+        const name = getSchoolName();
+        const logo = getSchoolLogoUrl();
+        ['login-school-header', 'guest-school-header', 'main-school-header'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = name;
+        });
+        ['login-school-logo', 'guest-school-logo', 'main-school-logo'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && el.getAttribute('src') !== logo) el.src = logo;
+        });
+        const ssBadge = document.getElementById('screensaver-school-badge');
+        if (ssBadge) ssBadge.innerText = '📚 ห้องสมุด' + name;
+        if (typeof preloadOfficialReportAssets === 'function') preloadOfficialReportAssets();
+      }
+
       let localDB = { students: {}, books: {}, rewards: [], redeemedThisMonthByStudent: {}, loaded: false };
 
       // ฟังก์ชันจัดการสิทธิ์การแสดงผลเมนูตามบทบาท (admin vs staff)
@@ -2916,6 +2961,8 @@
             if (data.rewards) localDB.rewards = data.rewards;
 
             if (data.redeemedThisMonthByStudent) localDB.redeemedThisMonthByStudent = data.redeemedThisMonthByStudent;
+
+            if (data.schoolSettings) applySchoolConfig(data.schoolSettings);
 
             localDB.loaded = true;
 
@@ -3010,6 +3057,7 @@
 
       document.addEventListener("DOMContentLoaded", function() {
 
+         applySchoolConfig(appSchoolConfig);
          initPrintDate();
          initModalScrollLock();
 
@@ -3075,6 +3123,7 @@
           .withSuccessHandler(function(res) {
             hideLoadingPopup();
             cachedGuestSummary = res || null;
+            if (res && res.schoolSettings) applySchoolConfig(res.schoolSettings);
             renderGuestHomeData(res);
             if (showAfterLoad && guestHome) guestHome.style.display = 'block';
           })
@@ -3421,7 +3470,8 @@
       }
 
       function _buildStatsHtmlTable(data, rangeText, printDateThai) {
-        const logoSrc = (typeof cachedReportAssets !== 'undefined' && cachedReportAssets.logo) ? cachedReportAssets.logo : 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        const logoSrc = (typeof cachedReportAssets !== 'undefined' && cachedReportAssets.logo) ? cachedReportAssets.logo : getSchoolLogoUrl();
+        const schoolName = getSchoolName();
         let rowsHtml = '';
         data.forEach((r, idx) => {
           rowsHtml += `<tr>
@@ -3452,7 +3502,7 @@
           <div class="header">
             <img src="${logoSrc}" crossorigin="anonymous" alt="โลโก้โรงเรียน">
             <h2>รายงานการเข้าใช้บริการห้องสมุด (${_escReportHtml(rangeText)})</h2>
-            <h3>โรงเรียนวัดหนองตะเฆ่</h3>
+            <h3>${_escReportHtml(schoolName)}</h3>
             <p>พิมพ์เมื่อ: ${_escReportHtml(printDateThai)} • ข้อมูลทั้งหมด ${data.length} รายการ</p>
           </div>
           <table><thead><tr>
@@ -3472,7 +3522,8 @@
           const now = new Date();
           const printDateThai = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear() + 543} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} น.`;
           const fileName = 'รายงานสถิติห้องสมุด_' + filenameSuffix + '.pdf';
-          const logoSrc = (typeof cachedReportAssets !== 'undefined' && cachedReportAssets.logo) ? cachedReportAssets.logo : 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+          const logoSrc = (typeof cachedReportAssets !== 'undefined' && cachedReportAssets.logo) ? cachedReportAssets.logo : getSchoolLogoUrl();
+          const schoolName = getSchoolName();
 
           if (!window.jspdf || !window.jspdf.jsPDF || typeof html2canvas === 'undefined') {
             throw new Error('กำลังโหลดตัวสร้าง PDF กรุณาลองอีกครั้งครับ');
@@ -3528,11 +3579,11 @@
               <div style="text-align:center; margin-bottom:10px;">
                 <img src="${logoSrc}" crossorigin="anonymous" style="height:56px; margin-bottom:3px;" alt="โลโก้โรงเรียน">
                 <div style="font-size:20px; font-weight:700; color:#1B4332;">รายงานการเข้าใช้บริการห้องสมุด (${_escReportHtml(rangeText)})</div>
-                <div style="font-size:16px; font-weight:600; color:#2D6A4F;">โรงเรียนวัดหนองตะเฆ่</div>
+                <div style="font-size:16px; font-weight:600; color:#2D6A4F;">${_escReportHtml(schoolName)}</div>
                 <div style="font-size:12.5px; color:#555; margin-top:2px;">พิมพ์เมื่อ: ${_escReportHtml(printDateThai)} • ข้อมูลทั้งหมด ${data.length} รายการ (หน้า ${p + 1}/${pagesData.length})</div>
               </div>` : `
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:13px; color:#555;">
-                <span><b>รายงานการเข้าใช้บริการห้องสมุด (${_escReportHtml(rangeText)})</b> — โรงเรียนวัดหนองตะเฆ่</span>
+                <span><b>รายงานการเข้าใช้บริการห้องสมุด (${_escReportHtml(rangeText)})</b> — ${_escReportHtml(schoolName)}</span>
                 <span>หน้า ${p + 1}/${pagesData.length}</span>
               </div>`;
 
@@ -3812,11 +3863,11 @@
 
           <div class="header">
 
-             <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" alt="โลโก้โรงเรียน">
+             <img src="${_escReportHtml(getSchoolLogoUrl())}" alt="โลโก้โรงเรียน">
 
              <h2>รายงานการเข้าใช้บริการห้องสมุด (${rangeText})</h2>
 
-             <h3>โรงเรียนวัดหนองตะเฆ่</h3>
+             <h3>${_escReportHtml(getSchoolName())}</h3>
 
              <p>พิมพ์เมื่อ: ${printDateThai} • ข้อมูลทั้งหมด ${data.length} รายการ</p>
 
@@ -3932,7 +3983,19 @@
 
                   localDB.rewards = res.libraryData.rewards || [];
 
+                  if (res.libraryData.redeemedThisMonthByStudent) {
+                    localDB.redeemedThisMonthByStudent = res.libraryData.redeemedThisMonthByStudent;
+                  }
+
+                  if (res.libraryData.schoolSettings) {
+                    applySchoolConfig(res.libraryData.schoolSettings);
+                  }
+
                   localDB.loaded = true;
+
+                  if (typeof _populateBookCategoryDropdowns === 'function') {
+                    _populateBookCategoryDropdowns();
+                  }
 
                } else {
 
@@ -6048,14 +6111,16 @@
         }
 
         let cardsHtml = "";
+        const cardLogo = _escReportHtml(getSchoolLogoUrl());
+        const cardSchool = _escReportHtml(getSchoolName());
         studentList.forEach(st => {
           cardsHtml += `
           <div class="card-item">
             <div class="card-header">
-              <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" class="card-logo" alt="โลโก้โรงเรียน">
+              <img src="${cardLogo}" class="card-logo" alt="โลโก้โรงเรียน">
               <div class="card-titles">
                 <div class="card-title">บัตรสมาชิกห้องสมุด</div>
-                <div class="card-school">โรงเรียนวัดหนองตะเฆ่</div>
+                <div class="card-school">${cardSchool}</div>
               </div>
             </div>
             <div class="card-body">
@@ -6082,7 +6147,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>${docTitle || 'บัตรสมาชิกห้องสมุด โรงเรียนวัดหนองตะเฆ่'}</title>
+  <title>${docTitle || ('บัตรสมาชิกห้องสมุด ' + _escReportHtml(getSchoolName()))}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -6757,7 +6822,7 @@
           <div class="spine-label-item">
             <!-- บรรทัดที่ 1 (บนสุด): ชื่อโรงเรียน -->
             <div class="label-school-row">
-              <span class="label-school">โรงเรียนวัดหนองตะเฆ่</span>
+              <span class="label-school">${_escReportHtml(getSchoolName())}</span>
               ${copyBadge ? `<span class="label-copy-tag">${copyBadge}</span>` : ''}
             </div>
             <!-- บรรทัดที่ 2: ชื่อเรื่อง -->
@@ -6779,7 +6844,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>${docTitle || 'สติกเกอร์บาร์โค้ดติดสันหนังสือ โรงเรียนวัดหนองตะเฆ่'}</title>
+  <title>${docTitle || ('สติกเกอร์บาร์โค้ดติดสันหนังสือ ' + _escReportHtml(getSchoolName()))}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -7632,7 +7697,7 @@
 
       function preloadOfficialReportAssets() {
         const assets = [
-          { key: 'logo', url: 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png' },
+          { key: 'logo', url: getSchoolLogoUrl() },
           { key: 'esign', url: 'https://i.postimg.cc/QxjthSg8/esign-(1080-x-720-px).png' }
         ];
         assets.forEach(a => {
@@ -7858,15 +7923,16 @@
           }
         }
 
-        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        const logoSrc = cachedReportAssets.logo || getSchoolLogoUrl();
         const esignSrc = cachedReportAssets.esign || 'https://i.postimg.cc/QxjthSg8/esign-(1080-x-720-px).png';
+        const schoolName = getSchoolName();
 
         const sheetHtml = `
           <div class="a4-sheet" id="active-a4-sheet">
             <div>
               <div class="gov-header">
                 <img src="${logoSrc}" crossorigin="anonymous" class="gov-logo" alt="ตราโรงเรียน">
-                <div class="gov-org">โรงเรียนวัดหนองตะเฆ่</div>
+                <div class="gov-org">${_escReportHtml(schoolName)}</div>
                 <div class="gov-doc-title">รายงานการจัดกิจกรรมห้องสมุด</div>
               </div>
               <hr class="gov-divider">
@@ -7909,7 +7975,7 @@
                     <span>ลงชื่อ ............................................................</span>
                   </div>
                   <div class="sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
-                  <div class="sig-position">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
+                  <div class="sig-position">ผู้อำนวยการ${_escReportHtml(schoolName)}</div>
                 </div>
               </div>
             </div>
@@ -8898,7 +8964,7 @@
         const thaiDateText = _formatIsoToThaiFullDate(dateIso);
         preloadOfficialReportAssets();
 
-        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        const logoSrc = cachedReportAssets.logo || getSchoolLogoUrl();
         const isSingle = names.length === 1;
         const safeContestFile = contestTitle.replace(/[\\/:*?"<>|]/g, '_');
 
@@ -8998,8 +9064,8 @@
                 <div class="cert-corner-br"></div>
 
                 <div class="cert-header-wrap">
-                  <img src="${logoSrc}" crossorigin="anonymous" alt="ตราโรงเรียนวัดหนองตะเฆ่" class="cert-logo-img">
-                  <div class="cert-school-title">โรงเรียนวัดหนองตะเฆ่</div>
+                  <img src="${logoSrc}" crossorigin="anonymous" alt="ตรา${_escReportHtml(getSchoolName())}" class="cert-logo-img">
+                  <div class="cert-school-title">${_escReportHtml(getSchoolName())}</div>
                   <div class="cert-doc-subtitle">เกียรติบัตรฉบับนี้ให้ไว้เพื่อแสดงว่า</div>
                 </div>
 
@@ -9013,7 +9079,7 @@
                 <div class="cert-footer-wrap">
                   <div class="cert-sig-block">
                     <div class="cert-sig-name">(นางสาวกันตนา จิตรบรรจง)</div>
-                    <div class="cert-sig-pos">ผู้อำนวยการโรงเรียนวัดหนองตะเฆ่</div>
+                    <div class="cert-sig-pos">ผู้อำนวยการ${_escReportHtml(getSchoolName())}</div>
                   </div>
                 </div>
               </div>
@@ -9052,7 +9118,7 @@
           count: studentList.length
         };
 
-        const logoSrc = cachedReportAssets.logo || 'https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png';
+        const logoSrc = cachedReportAssets.logo || getSchoolLogoUrl();
         let allHtml = '';
         studentList.forEach((st, idx) => {
           allHtml += _buildCertSheetHtml(st.name, st.grade, thaiDateText, logoSrc, idx === 0, { certType: 'reader' });

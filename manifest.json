@@ -1,7 +1,7 @@
 {
-  "name": "ระบบจัดการห้องสมุด โรงเรียนวัดหนองตะเฆ่",
-  "short_name": "ห้องสมุด WNTK",
-  "description": "ระบบจัดการห้องสมุดดิจิทัล โรงเรียนวัดหนองตะเฆ่",
+  "name": "Library System",
+  "short_name": "Library System",
+  "description": "ระบบจัดการห้องสมุดดิจิทัล",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
