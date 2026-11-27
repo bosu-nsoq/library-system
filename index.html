@@ -1386,7 +1386,7 @@
 
         <div class="icon-btn admin-only" id="btn-menu-card" onclick="openCardOrCertHubModal()" title="พิมพ์บัตรสมาชิกและเกียรติบัตร">🪪</div>
 
-        <div class="icon-btn admin-only" id="btn-menu-label" onclick="showBookBarcodeModal()" title="พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ">🏷️</div>
+        <div class="icon-btn admin-only" id="btn-menu-label" onclick="showBookBarcodeModal()" title="หนังสือ">🏷️</div>
 
         <div class="icon-btn" onclick="showBorrowedBooks()" title="หนังสือที่ถูกยืมอยู่ขณะนี้">📚</div>
 
@@ -1406,9 +1406,9 @@
 
         <button class="nav-btn active" onclick="switchTab('tab1', this)">ยืม-คืน</button>
 
-        <button class="nav-btn" onclick="switchTab('tab2', this)">เพิ่มหนังสือ</button>
+        <button class="nav-btn" id="btn-tab-addbook" onclick="switchTab('tab2', this)">เพิ่มหนังสือ</button>
 
-        <button class="nav-btn" onclick="switchTab('tab3', this)">แลกของ</button>
+        <button class="nav-btn admin-only" id="btn-tab-redeem" onclick="switchTab('tab3', this)">แลกรางวัล</button>
 
       </div>
 
@@ -1482,9 +1482,27 @@
 
         <div class="input-wrapper"><input type="text" id="n-author" class="modern-input" style="padding-left:15px; padding-right:15px; font-size:13.5px;" placeholder="ชื่อผู้แต่ง"></div>
 
+        <div class="input-wrapper" style="display:flex; gap:6px; align-items:center;">
+
+          <select id="n-category-select" class="modern-input" style="flex:1; min-width:0; width:auto; padding-left:14px; padding-right:10px; font-size:13.5px; text-align:left;" onchange="onSelectAddBookCategory(this.value)">
+
+            <option value="">-- เลือกหมวดหมู่หนังสือ --</option>
+
+          </select>
+
+          <button type="button" id="btn-toggle-new-book-cat" class="action-btn" style="flex:0 0 44px; width:44px; min-width:44px; max-width:44px; height:46px; padding:0; margin:0; border-radius:14px; background:#D8F3DC; color:#1B4332; box-shadow:none; font-size:18px; display:inline-flex; align-items:center; justify-content:center;" onclick="toggleNewBookCategoryInput()" title="เพิ่มหมวดหมู่ใหม่">+</button>
+
+        </div>
+
+        <div class="input-wrapper" id="n-category-new-wrap" style="display:none;">
+
+          <input type="text" id="n-category-input" class="modern-input" style="padding-left:15px; padding-right:15px; font-size:13.5px;" placeholder="พิมพ์ชื่อหมวดหมู่หนังสือใหม่">
+
+        </div>
+
         <div class="input-wrapper" style="display:flex; align-items:center; background:#F8F9FA; border:2px solid #E9ECEF; border-radius:16px; padding:6px 15px; box-sizing:border-box;">
 
-          <span style="font-weight:600; color:var(--text-main); font-size:14px; white-space:nowrap; margin-right:8px;">📚 จำนวนหนังสือ:</span>
+          <span style="font-weight:600; color:var(--text-main); font-size:14px; white-space:nowrap; margin-right:8px;">📚 จำนวน:</span>
 
           <input type="number" id="n-qty" class="modern-input" style="border:none; background:transparent; padding:8px 5px; text-align:center; font-size:18px; width:70px; flex:1;" min="1" value="1">
 
@@ -1892,24 +1910,24 @@
 
 
 
-    <!-- Modal พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ -->
+    <!-- Modal หนังสือและพิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ -->
     <div id="bookBarcodeModal" class="modal-overlay">
        <div class="modal-box" style="max-width: 520px; width: 92vw; max-height: 85vh; display: flex; flex-direction: column;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 10px;">
              <div style="font-weight: 700; font-size: 17px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
-                <span>🏷️</span> พิมพ์สติกเกอร์สันหนังสือ
+                <span>📚</span> หนังสือ
              </div>
              <div id="book-barcode-count-badge" style="background: #D8F3DC; color: var(--primary); font-weight: 700; font-size: 12px; padding: 3px 10px; border-radius: 20px;">
                 0 เรื่อง
              </div>
           </div>
 
-          <!-- ตัวกรองผู้แต่ง และปุ่มพิมพ์ (ไอคอนเท่านั้น) -->
+          <!-- ปุ่มตัวกรอง (เลือกทั้งหมด / ผู้แต่ง / หมวดหมู่) และปุ่มพิมพ์ (ไอคอนเท่านั้น) -->
           <div style="display: flex; gap: 6px; margin-bottom: 10px; align-items: center;">
-             <select id="book-category-filter" class="modern-input" style="padding: 8px 10px; font-size: 13px; flex: 1; min-width: 0;" onchange="onBookCategoryFilterChange(this)">
-                <option value="__select_all__">เลือกทั้งหมด</option>
-                <option value="all" selected>ผู้แต่ง</option>
-             </select>
+             <button type="button" id="btn-book-filter-picker" class="modern-input" style="flex: 1; min-width: 0; width: auto; padding: 8px 12px; font-size: 13px; text-align: left; cursor: pointer; background: #FFFFFF; display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 0;" onclick="openBookFilterChoiceModal()">
+                <span id="book-filter-label-text" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">🔍 ตัวกรอง: ทั้งหมด</span>
+                <span style="font-size: 11px; color: var(--text-sub); flex-shrink: 0;">▼</span>
+             </button>
              <button type="button" class="action-btn" style="flex: 0 0 38px; width: 38px; min-width: 38px; max-width: 38px; height: 38px; padding: 0; font-size: 17px; background: var(--primary); margin: 0; white-space: nowrap; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Mali', cursive, sans-serif !important;" onclick="printSelectedBookLabels()" title="สั่งพิมพ์สติ๊กเกอร์">
                 🖨️
              </button>
@@ -1917,7 +1935,7 @@
 
           <!-- ช่องค้นหา -->
           <div style="margin-bottom: 10px;">
-             <input type="text" id="book-label-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อเรื่อง, รหัส, หรือผู้แต่ง..." oninput="filterBookLabels()">
+             <input type="text" id="book-label-search-input" class="modern-input" style="padding: 8px 12px; font-size: 13px;" placeholder="🔍 ค้นหาชื่อเรื่อง, รหัส, ผู้แต่ง หรือหมวดหมู่..." oninput="filterBookLabels()">
           </div>
 
           <!-- รายการหนังสือ -->
@@ -1926,6 +1944,101 @@
           </div>
 
           <button class="action-btn" style="width: 100%; margin-top: 15px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-family: 'Mali', cursive, sans-serif !important;" onclick="document.getElementById('bookBarcodeModal').style.display='none'">ปิดหน้าต่าง</button>
+       </div>
+    </div>
+
+    <!-- Modal ตัวเลือกตัวกรองหนังสือ: เลือกทั้งหมด / ผู้แต่ง / หมวดหมู่ -->
+    <div id="bookFilterChoiceModal" class="modal-overlay" style="z-index: 2560;">
+       <div class="modal-box" style="max-width: 390px; width: 92vw; max-height: 82vh; display: flex; flex-direction: column;">
+          <div id="book-filter-main-view">
+             <div class="cute-icon-circle"><span>🏷️</span></div>
+             <div style="font-weight: 700; font-size: 17px; color: var(--text-main); margin-bottom: 6px;">เลือกตัวกรองหนังสือ</div>
+             <div style="font-size: 12.5px; color: var(--text-sub); margin-bottom: 14px;">กรุณาเลือกรายการที่ต้องการครับ</div>
+             <div style="display: flex; flex-direction: column; gap: 9px;">
+                <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 12px; border-radius: 14px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 14px;" onclick="selectAllMatchingBookLabelsFromModal()">
+                   ☑️ เลือกทั้งหมด
+                </button>
+                <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 12px; border-radius: 14px; background: linear-gradient(135deg, #0284C7, #0EA5E9); color: white; font-size: 14px;" onclick="showBookFilterSubList('author')">
+                   ✍️ ผู้แต่ง
+                </button>
+                <button type="button" class="action-btn" style="margin: 0; width: 100%; padding: 12px; border-radius: 14px; background: linear-gradient(135deg, #F59E0B, #D97706); color: white; font-size: 14px;" onclick="showBookFilterSubList('category')">
+                   📁 หมวดหมู่
+                </button>
+                <button type="button" class="action-btn" style="margin: 4px 0 0 0; width: 100%; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeBookFilterChoiceModal()">
+                   ปิดหน้าต่าง
+                </button>
+             </div>
+          </div>
+
+          <div id="book-filter-sub-view" style="display: none; flex-direction: column; max-height: 70vh;">
+             <div id="book-filter-sub-title" style="font-weight: 700; font-size: 16.5px; color: var(--primary); margin-bottom: 10px; text-align: left; border-bottom: 1.5px solid #EAEAEA; padding-bottom: 8px;"></div>
+             <div id="book-filter-sub-list" style="flex: 1; overflow-y: auto; max-height: 46vh; display: flex; flex-direction: column; gap: 6px; padding-right: 2px;"></div>
+             <div style="display: flex; gap: 8px; margin-top: 12px;">
+                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="backToBookFilterMainView()">
+                   ⬅️ ย้อนกลับ
+                </button>
+                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 14px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none; font-size: 13px;" onclick="closeBookFilterChoiceModal()">
+                   ปิดหน้าต่าง
+                </button>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal รายละเอียดหนังสือ + แก้ไขข้อมูลหนังสือ -->
+    <div id="bookDetailModal" class="modal-overlay" style="z-index: 2570;">
+       <div class="modal-box" style="max-width: 430px; width: 93vw; text-align: left;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid #D8F3DC; padding-bottom: 8px;">
+             <div style="font-weight: 700; font-size: 16.5px; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <span>📖</span> <span id="bd-modal-heading">รายละเอียดหนังสือ</span>
+             </div>
+             <div style="display: flex; gap: 6px; align-items: center;">
+                <button type="button" id="btn-bd-edit-toggle" onclick="toggleBookDetailEditMode()" title="แก้ไขข้อมูลหนังสือ" style="width: 34px; height: 34px; border: 1.5px solid #FDE68A; background: #FEF3C7; color: #92400E; border-radius: 10px; cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; padding: 0;">✏️</button>
+             </div>
+          </div>
+
+          <div id="bd-view-mode" style="font-size: 13.5px; color: var(--text-main); line-height: 1.75; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 12px 14px;">
+             <div><b>📖 ชื่อเรื่อง:</b> <span id="bd-view-name">-</span></div>
+             <div><b>🏷️ รหัสหนังสือ:</b> <span id="bd-view-id">-</span></div>
+             <div><b>✍️ ชื่อผู้แต่ง:</b> <span id="bd-view-author">-</span></div>
+             <div><b>📁 หมวดหมู่:</b> <span id="bd-view-category">-</span></div>
+             <div><b>📚 จำนวนทั้งหมด:</b> <span id="bd-view-qty">-</span></div>
+             <div><b>📌 สถานะ:</b> <span id="bd-view-status">-</span></div>
+          </div>
+
+          <div id="bd-edit-mode" style="display: none;">
+             <input type="hidden" id="bd-edit-id">
+             <div style="margin-bottom: 8px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 3px;">📖 ชื่อหนังสือ</label>
+                <input type="text" id="bd-edit-name" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 8px 12px; text-align: left;">
+             </div>
+             <div style="margin-bottom: 8px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 3px;">✍️ ชื่อผู้แต่ง</label>
+                <input type="text" id="bd-edit-author" class="modern-input" style="width: 100%; box-sizing: border-box; font-size: 13.5px; padding: 8px 12px; text-align: left;">
+             </div>
+             <div style="margin-bottom: 8px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 3px;">📁 หมวดหมู่</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                   <select id="bd-edit-category-select" class="modern-input" style="flex: 1; min-width: 0; width: auto; font-size: 13px; padding: 8px 10px; margin: 0; text-align: left;" onchange="onSelectEditBookCategory(this.value)">
+                      <option value="">-- เลือกหมวดหมู่ --</option>
+                   </select>
+                   <button type="button" id="btn-bd-toggle-new-cat" class="action-btn" style="flex: 0 0 38px; width: 38px; min-width: 38px; max-width: 38px; height: 38px; padding: 0; margin: 0; border-radius: 11px; background: #D8F3DC; color: #1B4332; box-shadow: none; font-size: 16px; display: inline-flex; align-items: center; justify-content: center;" onclick="toggleEditBookCategoryInput()" title="เพิ่มหมวดหมู่ใหม่">+</button>
+                </div>
+                <div id="bd-edit-category-new-wrap" style="display: none; margin-top: 6px;">
+                   <input type="text" id="bd-edit-category-input" class="modern-input" placeholder="พิมพ์ชื่อหมวดหมู่ใหม่" style="width: 100%; box-sizing: border-box; font-size: 13px; padding: 8px 12px; text-align: left;">
+                </div>
+             </div>
+             <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; margin-bottom: 3px;">📚 จำนวน (เล่ม)</label>
+                <input type="number" id="bd-edit-qty" class="modern-input" min="1" style="width: 100%; box-sizing: border-box; font-size: 14px; padding: 8px 12px; text-align: center;">
+             </div>
+             <div style="display: flex; gap: 8px;">
+                <button type="button" class="action-btn" style="flex: 1; margin: 0; padding: 10px; border-radius: 12px; background: #F1F5F9; color: #475569; box-shadow: none; font-size: 13px;" onclick="toggleBookDetailEditMode(false)">ยกเลิก</button>
+                <button type="button" class="action-btn" style="flex: 2; margin: 0; padding: 10px; border-radius: 12px; background: linear-gradient(135deg, #2D6A4F, #40916C); color: white; font-size: 13.5px;" onclick="saveEditedBookInfo()">💾 บันทึกการแก้ไข</button>
+             </div>
+          </div>
+
+          <button type="button" id="bd-close-btn" class="action-btn" style="width: 100%; margin-top: 12px; background: transparent; border: 1.5px solid #EAEAEA; color: var(--text-sub); box-shadow: none;" onclick="closeBookDetailModal()">ปิดหน้าต่าง</button>
        </div>
     </div>
 
@@ -1943,7 +2056,7 @@
 
           <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; text-align: left; font-size: 11.5px; color: #166534; line-height: 1.5;">
              💡 <b>สิทธิ์การใช้งานโหมดยุวบรรณารักษ์ (Staff):</b><br>
-             เข้าถึงได้เฉพาะ: ยืม-คืน, เพิ่มหนังสือ, แลกของ, ประวัติล่าสุด, หนังสือที่ถูกยืม และสถิติการใช้งาน
+             เข้าถึงได้เฉพาะ: ยืม-คืน, เพิ่มหนังสือ, ประวัติล่าสุด, หนังสือที่ถูกยืม และสถิติการใช้งาน
           </div>
 
           <div style="text-align: left; margin-bottom: 12px;">
@@ -2121,14 +2234,15 @@
           </div>
 
           <div style="margin-bottom: 12px;">
-             <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🖼️ เลือกรูปภาพ / ไฟล์สื่อ</label>
+             <label style="display: block; font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">🖼️ เลือกรูปภาพ / ไฟล์สื่อ (เลือกได้หลายไฟล์)</label>
              <button type="button" class="action-btn" style="width: 100%; margin: 0; padding: 10px; border-radius: 14px; background: #F0FFF4; color: #1B4332; border: 1.5px dashed #52B788; box-shadow: none; font-size: 13px;" onclick="document.getElementById('media-file-input').click()">
-                📷 กดเพื่อเลือกรูปภาพจากเครื่อง
+                📷 กดเพื่อเลือกรูปภาพ / ไฟล์จากเครื่อง
              </button>
-             <input type="file" id="media-file-input" accept="image/*,.pdf" style="display: none;" onchange="handleMediaFileSelect(this)">
+             <input type="file" id="media-file-input" accept="image/*,.pdf" multiple style="display: none;" onchange="handleMediaFileSelect(this)">
              <div id="media-file-preview-box" style="display: none; margin-top: 8px; text-align: center; background: #F8FAFC; padding: 8px; border-radius: 12px; border: 1px solid #E2E8F0;">
                 <img id="media-file-preview-img" src="" style="display: none; max-height: 140px; max-width: 100%; border-radius: 8px; margin: 0 auto 4px auto;">
                 <div id="media-file-preview-name" style="font-size: 11.5px; color: var(--primary); font-weight: 600;"></div>
+                <div id="media-file-preview-list" style="display: none; margin-top: 6px; max-height: 120px; overflow-y: auto; text-align: left; font-size: 11px; color: var(--text-main);"></div>
              </div>
           </div>
 
@@ -2749,7 +2863,7 @@
 
       let bookQueue = []; // คิวหนังสือสำหรับยืม/คืนหลายเล่ม
 
-      let localDB = { students: {}, books: {}, rewards: [], loaded: false };
+      let localDB = { students: {}, books: {}, rewards: [], redeemedThisMonthByStudent: {}, loaded: false };
 
       // ฟังก์ชันจัดการสิทธิ์การแสดงผลเมนูตามบทบาท (admin vs staff)
       function applyRolePermissions(role, userName) {
@@ -2770,11 +2884,17 @@
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(el => {
           if (currentUserRole === 'admin') {
-            el.style.display = 'flex';
+            el.style.display = el.classList.contains('nav-btn') ? '' : 'flex';
           } else {
             el.style.display = 'none';
           }
         });
+
+        const tab3 = document.getElementById('tab3');
+        if (currentUserRole !== 'admin' && tab3 && tab3.classList.contains('active')) {
+          const tab1Btn = document.querySelector('.nav-tabs .nav-btn');
+          if (tab1Btn) switchTab('tab1', tab1Btn);
+        }
       }
 
       // ⚡ ฟังก์ชันซิงก์ฐานข้อมูลทั้งหมดมาเก็บในเครื่อง เพื่อความเร็วสูงสุดระดับ 0.01 วินาที
@@ -2795,7 +2915,13 @@
 
             if (data.rewards) localDB.rewards = data.rewards;
 
+            if (data.redeemedThisMonthByStudent) localDB.redeemedThisMonthByStudent = data.redeemedThisMonthByStudent;
+
             localDB.loaded = true;
+
+            if (typeof _populateBookCategoryDropdowns === 'function') {
+              _populateBookCategoryDropdowns();
+            }
 
           }
 
@@ -3985,11 +4111,9 @@
 
                     } else {
 
-                       document.getElementById('b-name').innerText = "❌ ไม่พบรหัสหนังสือ";
+                       _renderMissingBookBox(bid);
 
-                       document.getElementById('b-status').innerText = "-";
-
-                       document.getElementById('box-book').classList.remove('active');
+                       promptMissingBookModal(bid);
 
                     }
 
@@ -4027,6 +4151,84 @@
       }
 
 
+
+      let _lastMissingPromptId = '';
+      let _lastMissingPromptAt = 0;
+
+      function _renderMissingBookBox(bid) {
+        const nameEl = document.getElementById('b-name');
+        const statusEl = document.getElementById('b-status');
+        const borrowerEl = document.getElementById('b-borrower');
+        const copiesEl = document.getElementById('b-copies');
+        const boxEl = document.getElementById('box-book');
+        if (nameEl) nameEl.innerText = "❌ ไม่พบรหัสหนังสือ (" + bid + ")";
+        if (statusEl) statusEl.innerText = "ยังไม่มีข้อมูลหนังสือเล่มนี้ในระบบ";
+        if (borrowerEl) { borrowerEl.innerText = ""; borrowerEl.style.display = "none"; }
+        if (copiesEl) {
+          const safeBid = String(bid || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          copiesEl.innerHTML = `<div style="margin-top:8px;"><button type="button" class="action-btn" style="margin:0; padding:6px 12px; font-size:12px; border-radius:10px; background:#D8F3DC; color:#1B4332; box-shadow:none;" onclick="goToAddBookWithId('${safeBid}')">+ เพิ่มหนังสือรหัสนี้</button></div>`;
+          copiesEl.style.display = 'block';
+        }
+        if (boxEl) boxEl.classList.remove('active');
+      }
+
+      function promptMissingBookModal(bid, queueIdx) {
+        const cleanBid = String(bid || '').trim();
+        if (!cleanBid) return;
+        const now = Date.now();
+        if (_lastMissingPromptId === cleanBid && (now - _lastMissingPromptAt) < 1800) return;
+        _lastMissingPromptId = cleanBid;
+        _lastMissingPromptAt = now;
+
+        const modal = document.getElementById('cuteDialogModal');
+        if (!modal) return;
+        document.getElementById('cd-icon').innerText = '📖';
+        _applyCuteIconTheme('🌸');
+        document.getElementById('cd-title').innerText = 'ไม่พบหนังสือในระบบ';
+        const msgEl = document.getElementById('cd-msg');
+        msgEl.innerText = `ไม่พบหนังสือรหัส "${cleanBid}" ในระบบ\nต้องการไปหน้าเพิ่มหนังสือและกรอกรหัสนี้เลยไหมครับ?`;
+        msgEl.style.display = 'block';
+        const inputsBox = document.getElementById('cd-inputs');
+        if (inputsBox) { inputsBox.style.display = 'none'; inputsBox.innerHTML = ''; }
+
+        const cancelBtn = document.getElementById('cd-btn-cancel');
+        const okBtn = document.getElementById('cd-btn-ok');
+        cancelBtn.style.display = 'block';
+        cancelBtn.innerText = 'ปิด';
+        okBtn.innerText = '➕ เพิ่มหนังสือ';
+
+        cancelBtn.onclick = function() {
+          modal.style.display = 'none';
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+        };
+        okBtn.onclick = function() {
+          modal.style.display = 'none';
+          if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+          goToAddBookWithId(cleanBid, queueIdx);
+        };
+        modal.style.display = 'flex';
+        if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
+      }
+
+      function goToAddBookWithId(bid, queueIdx) {
+        if (typeof queueIdx === 'number' && bookQueue[queueIdx] && bookQueue[queueIdx].notFound) {
+          bookQueue.splice(queueIdx, 1);
+          renderBookQueue();
+        }
+        const addBtn = document.getElementById('btn-tab-addbook') || document.querySelectorAll('.nav-tabs .nav-btn')[1];
+        if (addBtn) switchTab('tab2', addBtn);
+        if (typeof _populateBookCategoryDropdowns === 'function') _populateBookCategoryDropdowns();
+
+        const nBid = document.getElementById('n-bid');
+        const nName = document.getElementById('n-name');
+        const nAuthor = document.getElementById('n-author');
+        const nQty = document.getElementById('n-qty');
+        if (nBid) nBid.value = String(bid || '').trim();
+        if (nName) nName.value = '';
+        if (nAuthor) nAuthor.value = '';
+        if (nQty) nQty.value = '1';
+        setTimeout(() => { if (nName) nName.focus(); }, 60);
+      }
 
       function displayBookInfo(book) {
 
@@ -4183,6 +4385,17 @@
 
             displayBookInfo(data.book);
 
+          } else {
+
+            if (bookQueue[itemIndex] && bookQueue[itemIndex].id === bid) {
+              bookQueue[itemIndex].notFound = true;
+              bookQueue[itemIndex].name = "❌ ไม่พบหนังสือ";
+              bookQueue[itemIndex].status = "ไม่มีในระบบ";
+              renderBookQueue();
+            }
+            _renderMissingBookBox(bid);
+            promptMissingBookModal(bid, itemIndex);
+
           }
 
         }).getNames("", bid);
@@ -4315,7 +4528,10 @@
 
               </div>
 
-              <button class="queue-del-btn" onclick="removeBookFromQueue(${i})" title="ลบรายการนี้">🗑️</button>
+              <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+                ${b.notFound ? `<button type="button" onclick="goToAddBookWithId('${String(b.id || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', ${i})" title="ไปหน้าเพิ่มหนังสือ" style="border:none; background:#D8F3DC; color:#1B4332; width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:17px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; padding:0;">+</button>` : ''}
+                <button class="queue-del-btn" onclick="removeBookFromQueue(${i})" title="ลบรายการนี้">🗑️</button>
+              </div>
 
             </div>
 
@@ -4477,15 +4693,13 @@
 
       function _dispatchBorrowOrReturnTx(type, sid, bookIds, currentStudentName) {
 
-        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
-
-        document.getElementById('tx-loader').style.display = 'flex';
+        showLoadingPopup();
 
         
 
-        google.script.run.withSuccessHandler(res => { 
+        google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(res => { 
 
-           document.getElementById('tx-loader').style.display = 'none';
+           hideLoadingPopup();
 
            
 
@@ -4575,6 +4789,68 @@
 
 
 
+      function _collectAllBookCategories() {
+        const set = new Set(['ทั่วไป']);
+        if (localDB && localDB.books) {
+          for (const k in localDB.books) {
+            const c = String((localDB.books[k] && localDB.books[k].category) || '').trim();
+            if (c && c !== '-') set.add(c);
+          }
+        }
+        if (typeof cachedBookLabels !== 'undefined' && Array.isArray(cachedBookLabels)) {
+          cachedBookLabels.forEach(b => {
+            const c = String((b && b.category) || '').trim();
+            if (c && c !== '-') set.add(c);
+          });
+        }
+        return Array.from(set);
+      }
+
+      function _populateBookCategoryDropdowns() {
+        const cats = _collectAllBookCategories();
+        ['n-category-select', 'bd-edit-category-select'].forEach(selId => {
+          const sel = document.getElementById(selId);
+          if (!sel) return;
+          const prev = sel.value;
+          let html = '<option value="">-- เลือกหมวดหมู่หนังสือ --</option>';
+          cats.forEach(c => {
+            html += `<option value="${_escReportHtml(c)}">${_escReportHtml(c)}</option>`;
+          });
+          sel.innerHTML = html;
+          if (prev && cats.includes(prev)) sel.value = prev;
+        });
+      }
+
+      function onSelectAddBookCategory(val) {
+        const inp = document.getElementById('n-category-input');
+        const wrap = document.getElementById('n-category-new-wrap');
+        const btn = document.getElementById('btn-toggle-new-book-cat');
+        if (inp) inp.value = val || '';
+        if (val && wrap) {
+          wrap.style.display = 'none';
+          if (btn) btn.style.background = '#D8F3DC';
+        }
+      }
+
+      function toggleNewBookCategoryInput() {
+        const wrap = document.getElementById('n-category-new-wrap');
+        const inp = document.getElementById('n-category-input');
+        const sel = document.getElementById('n-category-select');
+        const btn = document.getElementById('btn-toggle-new-book-cat');
+        if (!wrap) return;
+        const isOpen = wrap.style.display === 'block';
+        if (isOpen) {
+          wrap.style.display = 'none';
+          if (btn) btn.style.background = '#D8F3DC';
+          if (inp) inp.value = (sel && sel.value) ? sel.value : '';
+        } else {
+          wrap.style.display = 'block';
+          if (btn) btn.style.background = '#B7E4C7';
+          if (sel) sel.value = '';
+          if (inp) { inp.value = ''; inp.focus(); }
+        }
+      }
+
       function addBook() {
 
         const id = document.getElementById('n-bid').value.trim(); 
@@ -4583,9 +4859,9 @@
 
         const author = document.getElementById('n-author').value.trim();
 
-        const qty = parseInt(document.getElementById('n-qty').value, 10) || 1;
+        const category = (document.getElementById('n-category-input')?.value || document.getElementById('n-category-select')?.value || '').trim() || 'ทั่วไป';
 
-        
+        const qty = parseInt(document.getElementById('n-qty').value, 10) || 1;
 
         if (id === "" || name === "" || author === "") {
             const missingFields = [];
@@ -4598,22 +4874,16 @@
               message: 'กรุณากรอกข้อมูลที่ยังขาดเพื่อบันทึกเข้าคลังห้องสมุด',
               fields: missingFields,
               confirmText: 'บันทึกหนังสือ ✨',
-              onSubmit: function() { saveNewBook(); }
+              onSubmit: function() { addBook(); }
             });
             return;
         }
 
+        showLoadingPopup();
 
+        google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(res => { 
 
-        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
-
-        document.getElementById('tx-loader').style.display = 'flex';
-
-
-
-        google.script.run.withSuccessHandler(res => { 
-
-            document.getElementById('tx-loader').style.display = 'none';
+            hideLoadingPopup();
 
             showModal(res); 
 
@@ -4625,37 +4895,63 @@
 
                 document.getElementById('n-author').value=""; 
 
+                const cSel = document.getElementById('n-category-select');
+                const cInp = document.getElementById('n-category-input');
+                const cWrap = document.getElementById('n-category-new-wrap');
+                const cBtn = document.getElementById('btn-toggle-new-book-cat');
+                if (cSel) cSel.value = '';
+                if (cInp) cInp.value = '';
+                if (cWrap) cWrap.style.display = 'none';
+                if (cBtn) cBtn.style.background = '#D8F3DC';
+
                 document.getElementById('n-qty').value="1";
 
                 syncLibraryData(); // อัปเดตหนังสือใหม่เข้าฐานข้อมูลในเครื่อง
 
             }
 
-        }).addNewBook(id, name, author, qty);
+        }).addNewBook(id, name, author, qty, category);
 
       }
 
 
 
-      function renderRewardsList(sid, score, rewards) {
+      function renderRewardsList(sid, score, rewards, redeemedThisMonthIds) {
 
         let html = ""; 
+        const redeemedSet = new Set((redeemedThisMonthIds || []).map(x => String(x)));
 
         if (rewards && rewards.length > 0) {
 
           rewards.forEach(r => {
 
-            let can = (score || 0) >= r.cost;
+            const alreadyRedeemed = redeemedSet.has(String(r.id));
+            const enoughScore = (score || 0) >= r.cost;
+            const can = !alreadyRedeemed && enoughScore;
+            const emoji = r.emoji || '🎁';
 
             let safeName = String(r.name || '').replace(/'/g, "\\'");
+            const blockedMsg = alreadyRedeemed
+              ? "นักเรียนแลกรางวัลชิ้นนี้ครบโควต้าเดือนนี้แล้ว (จำกัด 1 ชิ้น/อย่าง/เดือน)"
+              : "คะแนนสะสมไม่พอแลกรายการนี้ครับ";
+            const blockedTitle = alreadyRedeemed ? "แลกแล้วเดือนนี้" : "คะแนนไม่พอ";
+            const blockedIcon = alreadyRedeemed ? "⏳" : "🌟";
 
-            html += `<div class="redeem-card" style="background:${can?'linear-gradient(135deg, #ffffff, #f0fff4)':'#f8f9fa'}; padding: 15px; border-radius: 16px; border: 1.5px solid ${can?'#b7e4c7':'#e9ecef'}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`cuteAlert('คะแนนสะสมไม่พอแลกรายการนี้ครับ', 'คะแนนไม่พอ', '🌟')`}">
+            const cardBg = can ? 'linear-gradient(135deg, #ffffff, #f0fff4)' : '#CBD5E1';
+            const cardBorder = can ? '#b7e4c7' : '#94A3B8';
+            const titleColor = can ? 'var(--text-main)' : '#475569';
+            const badgeBg = can ? '#d8f3dc' : '#94A3B8';
+            const badgeColor = can ? 'var(--primary)' : '#F8FAFC';
 
-                        <div style="font-size: 24px; margin-bottom: 5px; opacity:${can?'1':'0.5'}">🎁</div>
+            html += `<div class="redeem-card" style="background:${cardBg}; padding: 15px; border-radius: 16px; border: 1.5px solid ${cardBorder}; text-align: center; cursor: ${can?'pointer':'not-allowed'}; box-shadow: ${can?'0 6px 14px rgba(45, 106, 79, 0.08)':'none'}; transform: ${can?'scale(1)':'scale(0.98)'}; opacity: ${can?'1':'0.76'}; transition: all 0.2s ease;" onclick="${can?`redeem('${sid}','${r.id}',${r.cost},'${safeName}')`:`cuteAlert('${blockedMsg}', '${blockedTitle}', '${blockedIcon}')`}">
 
-                        <b style="color:var(--text-main); font-size: 14px;">${r.name}</b><br>
+                        <div style="font-size: 26px; margin-bottom: 5px; opacity:${can?'1':'0.65'}">${emoji}</div>
 
-                        <div style="background:${can?'#d8f3dc':'#e9ecef'}; color:${can?'var(--primary)':'#6c757d'}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
+                        <b style="color:${titleColor}; font-size: 14px;">${_escReportHtml(r.name)}</b><br>
+
+                        <div style="background:${badgeBg}; color:${badgeColor}; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px;">${r.cost} P</div>
+
+                        ${alreadyRedeemed ? `<div style="margin-top:6px; font-size:10.5px; font-weight:700; color:#475569;">✅ แลกแล้วเดือนนี้</div>` : ''}
 
                      </div>`;
 
@@ -4693,7 +4989,8 @@
 
             if (localDB.rewards && localDB.rewards.length > 0) {
 
-              renderRewardsList(sid, st.score, localDB.rewards);
+              const cachedRedeemed = (localDB.redeemedThisMonthByStudent && localDB.redeemedThisMonthByStudent[sid]) || [];
+              renderRewardsList(sid, st.score, localDB.rewards, cachedRedeemed);
 
             }
 
@@ -4723,11 +5020,16 @@
 
             document.getElementById('rs-score').innerText = (data.score || 0) + " แต้ม";
 
+            if (!localDB.redeemedThisMonthByStudent) localDB.redeemedThisMonthByStudent = {};
+            if (Array.isArray(data.redeemedThisMonthIds)) {
+              localDB.redeemedThisMonthByStudent[sid] = data.redeemedThisMonthIds;
+            }
+
             if (data.rewards) {
 
               localDB.rewards = data.rewards;
 
-              renderRewardsList(sid, data.score, data.rewards);
+              renderRewardsList(sid, data.score, data.rewards, data.redeemedThisMonthIds || []);
 
             }
 
@@ -4753,17 +5055,23 @@
 
       function redeem(sid, rid, cost, name) { 
 
-         cuteConfirm(`ยืนยันการแลกของรางวัล: ${name} (ใช้ ${cost} แต้ม)?`, "แลกของรางวัล", "🎁").then(ok => { if(ok) {
+         cuteConfirm(`ยืนยันการแลกรางวัล: ${name} (ใช้ ${cost} แต้ม)?`, "แลกรางวัล", "🎁").then(ok => { if(ok) {
 
-            if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
+            showLoadingPopup();
 
-            document.getElementById('tx-loader').style.display = 'flex';
+            google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(res => { 
 
-            google.script.run.withSuccessHandler(res => { 
-
-                document.getElementById('tx-loader').style.display = 'none';
+                hideLoadingPopup();
 
                 showModal(res); 
+
+                if (res && res.includes('success')) {
+                  if (!localDB.redeemedThisMonthByStudent) localDB.redeemedThisMonthByStudent = {};
+                  if (!Array.isArray(localDB.redeemedThisMonthByStudent[sid])) localDB.redeemedThisMonthByStudent[sid] = [];
+                  if (!localDB.redeemedThisMonthByStudent[sid].includes(String(rid))) {
+                    localDB.redeemedThisMonthByStudent[sid].push(String(rid));
+                  }
+                }
 
                 syncLibraryData(() => {
 
@@ -5057,15 +5365,11 @@
         const borrowedModal = document.getElementById('borrowedBooksModal');
         if (borrowedModal) borrowedModal.style.display = 'none';
 
-        if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
-
-        document.getElementById('tx-loader').style.display = 'flex';
-
-
+        showLoadingPopup();
 
         google.script.run.withSuccessHandler(res => {
 
-          document.getElementById('tx-loader').style.display = 'none';
+          hideLoadingPopup();
 
           if (res && res.status === "success") {
 
@@ -5074,6 +5378,8 @@
               localDB = res.libraryData;
 
               localDB.loaded = true;
+
+              if (typeof _populateBookCategoryDropdowns === 'function') _populateBookCategoryDropdowns();
 
             }
 
@@ -5155,13 +5461,11 @@
          cuteConfirm("ต้องการลบรายการประวัตินี้ใช่หรือไม่?", "ลบรายการ", "🗑️").then(ok => { if(ok) {
              const histModal = document.getElementById('historyModal');
              if (histModal) histModal.style.display = 'none';
-             if (document.getElementById('tx-loader-text')) document.getElementById('tx-loader-text').innerText = 'กำลังโหลด...';
+             showLoadingPopup();
 
-             document.getElementById('tx-loader').style.display = 'flex';
+             google.script.run.withFailureHandler(() => { hideLoadingPopup(); }).withSuccessHandler(() => {
 
-             google.script.run.withSuccessHandler(() => {
-
-                document.getElementById('tx-loader').style.display = 'none';
+                hideLoadingPopup();
 
                 showHistory();
 
@@ -5266,15 +5570,23 @@
 
 
 
-      function showLoadingPopup() {
+      function showLoadingPopup(msg) {
+        // ปิดป๊อปอัพที่เปิดค้างอยู่ทั้งหมดเมื่อหน้าโหลดแสดงผล เพื่อไม่ให้เกิดหน้าต่างซ้อนทับ
+        document.querySelectorAll('.modal-overlay').forEach(m => {
+          if (m.id !== 'cameraModal' && m.style.display && m.style.display !== 'none') {
+            m.style.display = 'none';
+          }
+        });
+        if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
         const loader = document.getElementById('tx-loader');
         const txt = document.getElementById('tx-loader-text');
-        if (txt) txt.innerText = 'กำลังโหลด...';
+        if (txt) txt.innerText = msg || 'กำลังโหลด...';
         if (loader) loader.style.display = 'flex';
       }
       function hideLoadingPopup() {
         const loader = document.getElementById('tx-loader');
         if (loader) loader.style.display = 'none';
+        if (typeof updateBodyScrollLock === 'function') updateBodyScrollLock();
       }
 
       function showModal(msg, customTitle) {
@@ -5395,7 +5707,9 @@
         document.getElementById('cd-icon').innerText = icon;
         _applyCuteIconTheme(icon);
         document.getElementById('cd-title').innerText = cfg.title || 'กรุณากรอกข้อมูล';
-        document.getElementById('cd-msg').innerText = cfg.message || 'กรอกข้อมูลให้ครบถ้วนแล้วกดตกลงได้เลยครับ';
+        const cdMsgEl = document.getElementById('cd-msg');
+        cdMsgEl.innerText = cfg.message || 'กรอกข้อมูลให้ครบถ้วนแล้วกดตกลงได้เลยครับ';
+        cdMsgEl.style.display = 'block';
 
         const inputsBox = document.getElementById('cd-inputs');
         inputsBox.style.display = 'block';
@@ -6001,11 +6315,23 @@
         win.document.close();
       }
 
-      // 🏷️ ระบบพิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ
+      // 📚 ระบบจัดการหนังสือ & พิมพ์สติกเกอร์บาร์โค้ดติดสันหนังสือ
       let cachedBookLabels = [];
       let selectedBookLabelIds = new Set();
+      let bookFilterState = { type: 'all', value: 'all' };
+      let currentDetailBookId = '';
 
-      let _lastBookCategoryFilter = 'all';
+      function _updateBookFilterButtonLabel() {
+        const el = document.getElementById('book-filter-label-text');
+        if (!el) return;
+        if (bookFilterState.type === 'author' && bookFilterState.value !== 'all') {
+          el.innerText = '✍️ ผู้แต่ง: ' + bookFilterState.value;
+        } else if (bookFilterState.type === 'category' && bookFilterState.value !== 'all') {
+          el.innerText = '📁 หมวดหมู่: ' + bookFilterState.value;
+        } else {
+          el.innerText = '🔍 ตัวกรอง: ทั้งหมด';
+        }
+      }
 
       function showBookBarcodeModal() {
         if (currentUserRole !== 'admin') {
@@ -6015,9 +6341,8 @@
         const modal = document.getElementById('bookBarcodeModal');
 
         selectedBookLabelIds = new Set();
-        _lastBookCategoryFilter = 'all';
-        const catSelect = document.getElementById('book-category-filter');
-        if (catSelect) catSelect.value = 'all';
+        bookFilterState = { type: 'all', value: 'all' };
+        _updateBookFilterButtonLabel();
         const searchInput = document.getElementById('book-label-search-input');
         if (searchInput) searchInput.value = '';
 
@@ -6031,12 +6356,11 @@
               id: id,
               name: b.name || id,
               category: b.category || 'ทั่วไป',
-              author: b.author || b.category || 'ทั่วไป',
+              author: b.author || '-',
               totalQty: Math.max(1, Number(b.totalQty) || 1)
             });
           }
           cachedBookLabels = arr;
-          populateBookCategories(arr);
           filterBookLabels();
           if (modal) modal.style.display = 'flex';
         } else {
@@ -6055,11 +6379,11 @@
               data.forEach(b => {
                 if (!localDB.books[b.id]) localDB.books[b.id] = {};
                 localDB.books[b.id].name = b.name;
-                localDB.books[b.id].category = b.category;
-                localDB.books[b.id].author = b.author || b.category;
+                localDB.books[b.id].category = b.category || 'ทั่วไป';
+                localDB.books[b.id].author = b.author || '-';
                 localDB.books[b.id].totalQty = b.totalQty;
               });
-              populateBookCategories(data);
+              _populateBookCategoryDropdowns();
               filterBookLabels();
             } else if (!cachedBookLabels || cachedBookLabels.length === 0) {
               const listContainer = document.getElementById('book-labels-list');
@@ -6083,75 +6407,94 @@
           .getAllBooksForLabels();
       }
 
-      function populateBookCategories(list) {
-        const catSelect = document.getElementById('book-category-filter');
-        if (!catSelect) return;
-        let cats = [];
-        list.forEach(b => {
-          if (b.category && b.category !== '-' && !cats.includes(b.category)) {
-            cats.push(b.category);
-          }
-        });
-        let curVal = catSelect.value;
-        let html = '<option value="__select_all__">เลือกทั้งหมด</option><option value="all">ผู้แต่ง</option>';
-        cats.forEach(c => {
-          html += `<option value="${c}">${c}</option>`;
-        });
-        catSelect.innerHTML = html;
-        if (curVal && cats.includes(curVal)) {
-          catSelect.value = curVal;
-        } else {
-          catSelect.value = 'all';
-        }
-        _lastBookCategoryFilter = catSelect.value;
+      function openBookFilterChoiceModal() {
+        backToBookFilterMainView();
+        const m = document.getElementById('bookFilterChoiceModal');
+        if (m) m.style.display = 'flex';
       }
 
-      function onBookCategoryFilterChange(sel) {
-        if (!sel) return;
-        if (sel.value === '__select_all__') {
-          const restoreCat = _lastBookCategoryFilter || 'all';
-          sel.value = restoreCat;
-          const qEl = document.getElementById('book-label-search-input');
-          const q = String(qEl ? qEl.value : '').trim().toLowerCase();
-          const matching = (cachedBookLabels || []).filter(b => {
-            const matchCat = (restoreCat === 'all') || (b.category === restoreCat);
-            const matchQ = !q ||
-              (b.name && b.name.toLowerCase().includes(q)) ||
-              (b.id && String(b.id).toLowerCase().includes(q)) ||
-              (b.category && String(b.category).toLowerCase().includes(q)) ||
-              (b.author && String(b.author).toLowerCase().includes(q));
-            return matchCat && matchQ;
-          });
-          const allSelected = matching.length > 0 && matching.every(b => selectedBookLabelIds.has(b.id));
-          if (allSelected) {
-            matching.forEach(b => selectedBookLabelIds.delete(b.id));
-          } else {
-            matching.forEach(b => selectedBookLabelIds.add(b.id));
-          }
-          filterBookLabels();
-          return;
+      function closeBookFilterChoiceModal() {
+        const m = document.getElementById('bookFilterChoiceModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function backToBookFilterMainView() {
+        const mainV = document.getElementById('book-filter-main-view');
+        const subV = document.getElementById('book-filter-sub-view');
+        if (mainV) mainV.style.display = 'block';
+        if (subV) subV.style.display = 'none';
+      }
+
+      function _getFilteredBooksList() {
+        const qEl = document.getElementById('book-label-search-input');
+        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
+        return (cachedBookLabels || []).filter(b => {
+          const matchFilter =
+            (bookFilterState.type === 'all' || bookFilterState.value === 'all') ||
+            (bookFilterState.type === 'author' && (b.author || '-') === bookFilterState.value) ||
+            (bookFilterState.type === 'category' && (b.category || 'ทั่วไป') === bookFilterState.value);
+          const matchQ = !q ||
+            (b.name && b.name.toLowerCase().includes(q)) ||
+            (b.id && String(b.id).toLowerCase().includes(q)) ||
+            (b.category && String(b.category).toLowerCase().includes(q)) ||
+            (b.author && String(b.author).toLowerCase().includes(q));
+          return matchFilter && matchQ;
+        });
+      }
+
+      function selectAllMatchingBookLabelsFromModal() {
+        const matching = _getFilteredBooksList();
+        const allSelected = matching.length > 0 && matching.every(b => selectedBookLabelIds.has(b.id));
+        if (allSelected) {
+          matching.forEach(b => selectedBookLabelIds.delete(b.id));
+        } else {
+          matching.forEach(b => selectedBookLabelIds.add(b.id));
         }
-        _lastBookCategoryFilter = sel.value || 'all';
+        closeBookFilterChoiceModal();
+        filterBookLabels();
+      }
+
+      function showBookFilterSubList(mode) {
+        const mainV = document.getElementById('book-filter-main-view');
+        const subV = document.getElementById('book-filter-sub-view');
+        const titleEl = document.getElementById('book-filter-sub-title');
+        const listEl = document.getElementById('book-filter-sub-list');
+        if (!subV || !listEl) return;
+
+        if (titleEl) {
+          titleEl.innerText = mode === 'author' ? '✍️ เลือกผู้แต่ง' : '📁 เลือกหมวดหมู่หนังสือ';
+        }
+
+        const counts = {};
+        (cachedBookLabels || []).forEach(b => {
+          const key = mode === 'author' ? String(b.author || '-').trim() : String(b.category || 'ทั่วไป').trim();
+          if (!key || key === '-') return;
+          counts[key] = (counts[key] || 0) + 1;
+        });
+        const items = Object.keys(counts);
+
+        let html = `<button type="button" class="action-btn" style="margin:0; width:100%; padding:9px 12px; border-radius:12px; background:${bookFilterState.type === 'all' ? '#D8F3DC' : '#F8FAFC'}; color:#1B4332; border:1.5px solid #D8F3DC; box-shadow:none; font-size:13px; text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="applyBookFilterChoice('all', 'all')"><span>🌟 แสดงทั้งหมด</span><span style="font-size:11px; opacity:0.8;">${(cachedBookLabels || []).length}</span></button>`;
+
+        items.forEach(val => {
+          const isActive = bookFilterState.type === mode && bookFilterState.value === val;
+          const safeJs = val.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          html += `<button type="button" class="action-btn" style="margin:0; width:100%; padding:9px 12px; border-radius:12px; background:${isActive ? '#D8F3DC' : '#FFFFFF'}; color:var(--text-main); border:1.5px solid ${isActive ? '#52B788' : '#E2E8F0'}; box-shadow:none; font-size:13px; text-align:left; display:flex; justify-content:space-between; align-items:center;" onclick="applyBookFilterChoice('${mode}', '${safeJs}')"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${_escReportHtml(val)}</span><span style="font-size:11px; color:var(--primary); font-weight:700; margin-left:8px;">${counts[val]}</span></button>`;
+        });
+
+        listEl.innerHTML = html;
+        if (mainV) mainV.style.display = 'none';
+        subV.style.display = 'flex';
+      }
+
+      function applyBookFilterChoice(mode, value) {
+        bookFilterState = { type: mode || 'all', value: value || 'all' };
+        _updateBookFilterButtonLabel();
+        closeBookFilterChoiceModal();
         filterBookLabels();
       }
 
       function filterBookLabels() {
-        const catEl = document.getElementById('book-category-filter');
-        const catVal = catEl ? catEl.value : 'all';
-        const qEl = document.getElementById('book-label-search-input');
-        const q = String(qEl ? qEl.value : '').trim().toLowerCase();
-
-        let filtered = (cachedBookLabels || []).filter(b => {
-          const matchCat = (catVal === 'all') || (b.category === catVal);
-          const matchQ = !q || 
-            (b.name && b.name.toLowerCase().includes(q)) || 
-            (b.id && String(b.id).toLowerCase().includes(q)) || 
-            (b.category && String(b.category).toLowerCase().includes(q)) ||
-            (b.author && String(b.author).toLowerCase().includes(q));
-          return matchCat && matchQ;
-        });
-
-        renderBookLabelsList(filtered);
+        renderBookLabelsList(_getFilteredBooksList());
       }
 
       function renderBookLabelsList(list) {
@@ -6170,7 +6513,7 @@
           const isChecked = selectedBookLabelIds.has(b.id) ? "checked" : "";
           const safeName = String(b.name || '').replace(/'/g, "\\'");
           const safeCat = String(b.category || 'ทั่วไป').replace(/'/g, "\\'");
-          const safeAuthor = String(b.author || b.category || '-').replace(/'/g, "\\'");
+          const safeAuthor = String(b.author || '-').replace(/'/g, "\\'");
           const safeId = String(b.id || '').replace(/'/g, "\\'");
           const qty = Math.max(1, Number(b.totalQty) || 1);
 
@@ -6208,12 +6551,144 @@
           cuteAlert("ไม่พบข้อมูลรายละเอียดหนังสือครับ", "แจ้งเตือน", "📖");
           return;
         }
+        currentDetailBookId = String(bookId || '');
         const name = (b && b.name) || (localB && localB.name) || bookId;
-        const author = (b && (b.author || b.category)) || (localB && (localB.author || localB.category)) || '-';
+        const author = (b && b.author) || (localB && localB.author) || '-';
+        const category = (b && b.category) || (localB && localB.category) || 'ทั่วไป';
         const qty = Math.max(1, Number((b && b.totalQty) || (localB && localB.totalQty)) || 1);
         const status = (localB && localB.status) ? localB.status : `จำนวน ${qty} เล่ม`;
-        const msg = `📖 ชื่อเรื่อง: ${name}\n🏷️ รหัสหนังสือ: ${bookId}\n✍️ ผู้แต่ง/หมวดหมู่: ${author}\n📚 จำนวนทั้งหมด: ${qty} เล่ม\n📌 สถานะ: ${status}`;
-        cuteAlert(msg, "รายละเอียดหนังสือ", "📖");
+
+        document.getElementById('bd-view-name').innerText = name;
+        document.getElementById('bd-view-id').innerText = bookId;
+        document.getElementById('bd-view-author').innerText = author;
+        document.getElementById('bd-view-category').innerText = category;
+        document.getElementById('bd-view-qty').innerText = qty + ' เล่ม';
+        document.getElementById('bd-view-status').innerText = status;
+
+        _populateBookCategoryDropdowns();
+        document.getElementById('bd-edit-id').value = currentDetailBookId;
+        document.getElementById('bd-edit-name').value = name;
+        document.getElementById('bd-edit-author').value = author === '-' ? '' : author;
+        document.getElementById('bd-edit-qty').value = qty;
+
+        const catSel = document.getElementById('bd-edit-category-select');
+        const catInp = document.getElementById('bd-edit-category-input');
+        const catWrap = document.getElementById('bd-edit-category-new-wrap');
+        const catBtn = document.getElementById('btn-bd-toggle-new-cat');
+        if (catSel) {
+          const hasOption = Array.from(catSel.options).some(o => o.value === category);
+          catSel.value = hasOption ? category : '';
+        }
+        if (catInp) catInp.value = category;
+        if (catWrap) catWrap.style.display = 'none';
+        if (catBtn) catBtn.style.background = '#D8F3DC';
+
+        toggleBookDetailEditMode(false);
+        const m = document.getElementById('bookDetailModal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function closeBookDetailModal() {
+        const m = document.getElementById('bookDetailModal');
+        if (m) m.style.display = 'none';
+      }
+
+      function toggleBookDetailEditMode(forceState) {
+        const viewEl = document.getElementById('bd-view-mode');
+        const editEl = document.getElementById('bd-edit-mode');
+        const closeBtn = document.getElementById('bd-close-btn');
+        const headEl = document.getElementById('bd-modal-heading');
+        const toggleBtn = document.getElementById('btn-bd-edit-toggle');
+        if (!viewEl || !editEl) return;
+        const shouldEdit = (typeof forceState === 'boolean') ? forceState : (editEl.style.display === 'none');
+        viewEl.style.display = shouldEdit ? 'none' : 'block';
+        editEl.style.display = shouldEdit ? 'block' : 'none';
+        if (closeBtn) closeBtn.style.display = shouldEdit ? 'none' : 'block';
+        if (headEl) headEl.innerText = shouldEdit ? 'แก้ไขข้อมูลหนังสือ' : 'รายละเอียดหนังสือ';
+        if (toggleBtn) toggleBtn.style.background = shouldEdit ? '#FDE68A' : '#FEF3C7';
+      }
+
+      function onSelectEditBookCategory(val) {
+        const inp = document.getElementById('bd-edit-category-input');
+        const wrap = document.getElementById('bd-edit-category-new-wrap');
+        const btn = document.getElementById('btn-bd-toggle-new-cat');
+        if (inp) inp.value = val || '';
+        if (val && wrap) {
+          wrap.style.display = 'none';
+          if (btn) btn.style.background = '#D8F3DC';
+        }
+      }
+
+      function toggleEditBookCategoryInput() {
+        const wrap = document.getElementById('bd-edit-category-new-wrap');
+        const inp = document.getElementById('bd-edit-category-input');
+        const sel = document.getElementById('bd-edit-category-select');
+        const btn = document.getElementById('btn-bd-toggle-new-cat');
+        if (!wrap) return;
+        const isOpen = wrap.style.display === 'block';
+        if (isOpen) {
+          wrap.style.display = 'none';
+          if (btn) btn.style.background = '#D8F3DC';
+          if (inp) inp.value = (sel && sel.value) ? sel.value : '';
+        } else {
+          wrap.style.display = 'block';
+          if (btn) btn.style.background = '#B7E4C7';
+          if (sel) sel.value = '';
+          if (inp) { inp.value = ''; inp.focus(); }
+        }
+      }
+
+      function saveEditedBookInfo() {
+        const bookId = (document.getElementById('bd-edit-id')?.value || currentDetailBookId || '').trim();
+        const newName = (document.getElementById('bd-edit-name')?.value || '').trim();
+        const newAuthor = (document.getElementById('bd-edit-author')?.value || '').trim();
+        const newCategory = (document.getElementById('bd-edit-category-input')?.value || document.getElementById('bd-edit-category-select')?.value || '').trim() || 'ทั่วไป';
+        const newQty = Math.max(1, parseInt(document.getElementById('bd-edit-qty')?.value, 10) || 1);
+
+        if (!newName) {
+          cuteAlert('กรุณากรอกชื่อหนังสือก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '📖');
+          return;
+        }
+
+        closeBookDetailModal();
+        showLoadingPopup('กำลังบันทึก...');
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            hideLoadingPopup();
+            if (res && res.status === 'success') {
+              const updated = res.book || { id: bookId, name: newName, author: newAuthor || '-', category: newCategory, totalQty: newQty };
+              if (!localDB.books) localDB.books = {};
+              if (!localDB.books[bookId]) localDB.books[bookId] = {};
+              localDB.books[bookId].name = updated.name;
+              localDB.books[bookId].author = updated.author;
+              localDB.books[bookId].category = updated.category;
+              localDB.books[bookId].totalQty = updated.totalQty;
+              if (updated.status) localDB.books[bookId].status = updated.status;
+              if (updated.available !== undefined) localDB.books[bookId].available = updated.available;
+
+              const idx = (cachedBookLabels || []).findIndex(item => String(item.id) === String(bookId));
+              if (idx !== -1) {
+                cachedBookLabels[idx].name = updated.name;
+                cachedBookLabels[idx].author = updated.author;
+                cachedBookLabels[idx].category = updated.category;
+                cachedBookLabels[idx].totalQty = updated.totalQty;
+              }
+              if (typeof dataCache !== 'undefined' && dataCache.book && dataCache.book[bookId]) {
+                delete dataCache.book[bookId];
+              }
+              _populateBookCategoryDropdowns();
+              filterBookLabels();
+              cuteAlert('', 'บันทึกสำเร็จ', '✅');
+            } else {
+              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถแก้ไขข้อมูลหนังสือได้ครับ', 'เกิดข้อผิดพลาด', '❌');
+            }
+          })
+          .withFailureHandler(function(err) {
+            hideLoadingPopup();
+            cuteAlert('เกิดข้อผิดพลาด: ' + err, 'เกิดข้อผิดพลาด', '❌');
+          })
+          .updateBookInfo(bookId, newName, newAuthor || '-', newCategory, newQty);
       }
 
       function toggleBookLabelSelection(id, checked) {
@@ -8328,6 +8803,8 @@
         if (!box) return;
         if (box.style.display === 'none' || !box.style.display) {
           _ensureCertStudentsLoaded(function() {
+            const cModal = document.getElementById('contestCertModal');
+            if (cModal) cModal.style.display = 'flex';
             const s = document.getElementById('contest-student-search');
             if (s) s.value = '';
             filterContestPickStudents();
@@ -8716,7 +9193,7 @@
 
       let cachedLearningMediaItems = [];
       let cachedLearningMediaCategories = [];
-      let pendingMediaUploadFile = null;
+      let pendingMediaUploadFiles = [];
 
       function openDocumentHubModal() {
         if (currentUserRole !== 'admin') {
@@ -8859,7 +9336,7 @@
 
       function openAddLearningMediaModal() {
         _populateMediaCategorySelects();
-        pendingMediaUploadFile = null;
+        pendingMediaUploadFiles = [];
         const titleEl = document.getElementById('media-title-input');
         const catSel = document.getElementById('media-existing-category');
         const catInput = document.getElementById('media-category-input');
@@ -8868,6 +9345,8 @@
         const fileEl = document.getElementById('media-file-input');
         const prevBox = document.getElementById('media-file-preview-box');
         const prevImg = document.getElementById('media-file-preview-img');
+        const prevName = document.getElementById('media-file-preview-name');
+        const prevList = document.getElementById('media-file-preview-list');
         if (titleEl) titleEl.value = '';
         if (catSel) catSel.value = '';
         if (catInput) catInput.value = '';
@@ -8876,6 +9355,8 @@
         if (fileEl) fileEl.value = '';
         if (prevBox) prevBox.style.display = 'none';
         if (prevImg) { prevImg.src = ''; prevImg.style.display = 'none'; }
+        if (prevName) prevName.innerText = '';
+        if (prevList) { prevList.innerHTML = ''; prevList.style.display = 'none'; }
 
         const m = document.getElementById('addLearningMediaModal');
         if (m) m.style.display = 'flex';
@@ -8919,63 +9400,106 @@
         }
       }
 
-      function handleMediaFileSelect(input) {
-        const file = input && input.files ? input.files[0] : null;
-        if (!file) return;
+      function _readSingleMediaFile(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const dataUrl = e.target.result;
+            if (file.type && file.type.startsWith('image/')) {
+              const img = new Image();
+              img.onload = function() {
+                const maxSide = 1800;
+                let w = img.width, h = img.height;
+                if (w > maxSide || h > maxSide) {
+                  const ratio = Math.min(maxSide / w, maxSide / h);
+                  w = Math.round(w * ratio);
+                  h = Math.round(h * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve({
+                  fileName: file.name,
+                  baseTitle: file.name.replace(/\.[^.]+$/, ''),
+                  mimeType: 'image/jpeg',
+                  base64Data: canvas.toDataURL('image/jpeg', 0.9),
+                  isImage: true
+                });
+              };
+              img.onerror = function() { resolve(null); };
+              img.src = dataUrl;
+            } else {
+              resolve({
+                fileName: file.name,
+                baseTitle: file.name.replace(/\.[^.]+$/, ''),
+                mimeType: file.type || 'application/pdf',
+                base64Data: dataUrl,
+                isImage: false
+              });
+            }
+          };
+          reader.onerror = function() { resolve(null); };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function handleMediaFileSelect(input) {
+        const files = (input && input.files) ? Array.from(input.files) : [];
+        if (files.length === 0) return;
+
         const prevBox = document.getElementById('media-file-preview-box');
         const prevImg = document.getElementById('media-file-preview-img');
         const prevName = document.getElementById('media-file-preview-name');
+        const prevList = document.getElementById('media-file-preview-list');
         const titleEl = document.getElementById('media-title-input');
-        if (titleEl && !titleEl.value.trim()) {
-          titleEl.value = file.name.replace(/\.[^.]+$/, '');
+
+        const results = (await Promise.all(files.map(_readSingleMediaFile))).filter(Boolean);
+        pendingMediaUploadFiles = results;
+        if (results.length === 0) return;
+
+        if (results.length === 1 && titleEl && !titleEl.value.trim()) {
+          titleEl.value = results[0].baseTitle;
         }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const dataUrl = e.target.result;
-          if (file.type && file.type.startsWith('image/')) {
-            const img = new Image();
-            img.onload = function() {
-              const maxSide = 1800;
-              let w = img.width, h = img.height;
-              if (w > maxSide || h > maxSide) {
-                const ratio = Math.min(maxSide / w, maxSide / h);
-                w = Math.round(w * ratio);
-                h = Math.round(h * ratio);
-              }
-              const canvas = document.createElement('canvas');
-              canvas.width = w;
-              canvas.height = h;
-              canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-              const outUrl = canvas.toDataURL('image/jpeg', 0.9);
-              pendingMediaUploadFile = {
-                fileName: file.name,
-                mimeType: 'image/jpeg',
-                base64Data: outUrl
-              };
-              if (prevImg) { prevImg.src = outUrl; prevImg.style.display = 'block'; }
-              if (prevName) prevName.innerText = file.name;
-              if (prevBox) prevBox.style.display = 'block';
-            };
-            img.src = dataUrl;
-          } else {
-            pendingMediaUploadFile = {
-              fileName: file.name,
-              mimeType: file.type || 'application/pdf',
-              base64Data: dataUrl
-            };
-            if (prevImg) prevImg.style.display = 'none';
-            if (prevName) prevName.innerText = '📄 ' + file.name;
-            if (prevBox) prevBox.style.display = 'block';
+        if (results.length === 1) {
+          const one = results[0];
+          if (prevImg) {
+            if (one.isImage) { prevImg.src = one.base64Data; prevImg.style.display = 'block'; }
+            else prevImg.style.display = 'none';
           }
-        };
-        reader.readAsDataURL(file);
+          if (prevName) prevName.innerText = (one.isImage ? '' : '📄 ') + one.fileName;
+          if (prevList) { prevList.innerHTML = ''; prevList.style.display = 'none'; }
+        } else {
+          if (prevImg) prevImg.style.display = 'none';
+          if (prevName) prevName.innerText = `📂 เลือกไว้ทั้งหมด ${results.length} ไฟล์`;
+          if (prevList) {
+            prevList.innerHTML = results.map((f, i) => `<div style="padding:2px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i + 1}. ${f.isImage ? '🖼️' : '📄'} ${_escReportHtml(f.fileName)}</div>`).join('');
+            prevList.style.display = 'block';
+          }
+        }
+        if (prevBox) prevBox.style.display = 'block';
       }
 
-      function submitAddLearningMedia() {
-        const title = (document.getElementById('media-title-input')?.value || '').trim();
+      function _uploadSingleMediaAsync(payload) {
+        return new Promise((resolve) => {
+          google.script.run
+            .withSuccessHandler(function(res) { resolve(res || { status: 'error' }); })
+            .withFailureHandler(function(err) { resolve({ status: 'error', msg: String(err) }); })
+            .saveLearningMediaToDrive(payload);
+        });
+      }
+
+      async function submitAddLearningMedia() {
+        const baseTitle = (document.getElementById('media-title-input')?.value || '').trim();
         const category = (document.getElementById('media-category-input')?.value || document.getElementById('media-existing-category')?.value || '').trim();
-        if (!title) {
+        const files = pendingMediaUploadFiles || [];
+
+        if (files.length === 0) {
+          cuteAlert('กรุณาเลือกรูปภาพหรือไฟล์สื่อก่อนบันทึกครับ', 'ยังไม่ได้เลือกไฟล์', '📷');
+          return;
+        }
+        if (files.length === 1 && !baseTitle) {
           cuteAlert('กรุณาตั้งชื่อสื่อการเรียนรู้ก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '📝');
           return;
         }
@@ -8983,36 +9507,44 @@
           cuteAlert('กรุณาเลือกหรือระบุหมวดหมู่ก่อนนะครับ', 'กรอกข้อมูลไม่ครบ', '📁');
           return;
         }
-        if (!pendingMediaUploadFile || !pendingMediaUploadFile.base64Data) {
-          cuteAlert('กรุณาเลือกรูปภาพหรือไฟล์สื่อก่อนบันทึกครับ', 'ยังไม่ได้เลือกไฟล์', '📷');
-          return;
-        }
 
         closeAddLearningMediaModal();
-        showLoadingPopup();
+        showLoadingPopup('กำลังบันทึก...');
 
-        google.script.run
-          .withSuccessHandler(function(res) {
-            hideLoadingPopup();
-            if (res && res.status === 'success') {
-              cuteAlert('', 'บันทึกสำเร็จ', '✅').then(() => {
-                showLearningMediaModal();
-              });
-            } else {
-              cuteAlert((res && res.msg) ? res.msg : 'ไม่สามารถบันทึกสื่อได้ครับ', 'เกิดข้อผิดพลาด', '❌');
-            }
-          })
-          .withFailureHandler(function(err) {
-            hideLoadingPopup();
-            cuteAlert('เกิดข้อผิดพลาดในการบันทึกสื่อ: ' + err, 'เกิดข้อผิดพลาด', '❌');
-          })
-          .saveLearningMediaToDrive({
-            title: title,
+        let successCount = 0;
+        let lastErr = '';
+        for (let i = 0; i < files.length; i++) {
+          const f = files[i];
+          const loaderTxt = document.getElementById('tx-loader-text');
+          if (loaderTxt && files.length > 1) {
+            loaderTxt.innerText = `กำลังอัปโหลดไฟล์ที่ ${i + 1}/${files.length}...`;
+          }
+          const itemTitle = files.length === 1
+            ? baseTitle
+            : (baseTitle ? `${baseTitle} (${i + 1})` : (f.baseTitle || `สื่อการเรียนรู้ (${i + 1})`));
+
+          const res = await _uploadSingleMediaAsync({
+            title: itemTitle,
             category: category,
-            fileName: pendingMediaUploadFile.fileName,
-            mimeType: pendingMediaUploadFile.mimeType,
-            base64Data: pendingMediaUploadFile.base64Data
+            fileName: f.fileName,
+            mimeType: f.mimeType,
+            base64Data: f.base64Data
           });
+          if (res && res.status === 'success') {
+            successCount++;
+          } else {
+            lastErr = (res && res.msg) ? res.msg : 'ไม่สามารถบันทึกสื่อได้ครับ';
+          }
+        }
+
+        hideLoadingPopup();
+        if (successCount > 0) {
+          cuteAlert('', 'บันทึกสำเร็จ', '✅').then(() => {
+            showLearningMediaModal();
+          });
+        } else {
+          cuteAlert(lastErr || 'ไม่สามารถบันทึกสื่อได้ครับ', 'เกิดข้อผิดพลาด', '❌');
+        }
       }
 
       function printLearningMediaItem(fileId, title, category, previewUrl, fileType) {
@@ -9104,9 +9636,9 @@
         });
       }
 
-      // ✨ Cute Library Book Screensaver (เริ่มทำงานเมื่อไม่มีการใช้งาน 1 นาที — เฉพาะแตะหน้าจอ คลิก หรือกดแป้นพิมพ์)
+      // ✨ Cute Library Book Screensaver (เริ่มทำงานเมื่อไม่มีการใช้งาน 45 วินาที — เฉพาะแตะหน้าจอ คลิก หรือกดแป้นพิมพ์)
       (function initLibraryScreensaver() {
-        const IDLE_LIMIT_MS = 60 * 1000;
+        const IDLE_LIMIT_MS = 45 * 1000;
         const BOOK_ICONS = ['📖', '📘', '📗', '📙', '📕', '📚'];
         const DECO_EMOJIS = ['📚', '📖', '✨', '🌟', '🦉', '🌱', '🔖', '🌼', '💫', '🦋', '🍀', '✏️'];
         const PILL_THEMES = ['ss-theme-mint', 'ss-theme-gold', 'ss-theme-sky', 'ss-theme-rose', 'ss-theme-lav'];
