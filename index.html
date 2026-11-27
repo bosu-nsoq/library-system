@@ -9561,24 +9561,51 @@
         const win = window.open('', '_blank');
         if (win) {
           const html = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'
-            + '<title>' + _escReportHtml(title || 'สื่อการเรียนรู้') + '</title>'
-            + '<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">'
-            + '<style>'
-            + '*, *::before, *::after { box-sizing: border-box; font-family: "Sarabun", sans-serif !important; }'
-            + '@page { size: auto; margin: 10mm; }'
-            + 'body { margin: 0; padding: 0; background: #f1f5f9; text-align: center; }'
-            + '.bar { display: flex; justify-content: center; gap: 10px; padding: 10px; background: #1B4332; position: sticky; top: 0; }'
+            + '<title>' + _escReportHtml(title || 'ใบความรู้') + '</title>'
+            + '<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">'
+            + '<style id="base-print-style">'
+            + '*, *::before, *::after { box-sizing: border-box; font-family: "Mali", sans-serif !important; }'
+            + '@page { size: auto; margin: 0; }'
+            + 'html, body { margin: 0; padding: 0; background: #f1f5f9; width: 100%; height: 100%; }'
+            + '.bar { display: flex; justify-content: center; gap: 10px; padding: 10px; background: #1B4332; position: sticky; top: 0; z-index: 10; }'
             + '.bar button { border: none; border-radius: 10px; padding: 8px 18px; font-size: 15px; cursor: pointer; color: #fff; background: #40916C; }'
             + '.bar button.cls { background: #64748B; }'
-            + '.sheet { max-width: 960px; margin: 16px auto; background: #fff; padding: 16px; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }'
-            + '.sheet img { max-width: 100%; max-height: 85vh; object-fit: contain; display: block; margin: 0 auto; }'
-            + '.caption { margin-top: 8px; font-size: 16px; font-weight: 700; color: #1B4332; }'
-            + '@media print { .bar { display: none !important; } body { background: #fff; } .sheet { margin: 0; padding: 0; box-shadow: none; } .sheet img { max-height: 92vh; } }'
-            + '</style></head><body>'
-            + '<div class="bar"><button onclick="window.print()">🖨️ พิมพ์เอกสาร</button><button class="cls" onclick="window.close()">✕ ปิด</button></div>'
-            + '<div class="sheet"><img id="m-print-img" src="' + _escReportHtml(primarySrc) + '" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'' + _escReportHtml(fallbackSrc) + '\';}" alt="">'
-            + '<div class="caption">' + _escReportHtml(title || '') + (category ? ' (' + _escReportHtml(category) + ')' : '') + '</div></div>'
-            + '<' + 'script>window.addEventListener("load", function(){ setTimeout(function(){ window.print(); }, 500); });<' + '/script>'
+            + '.sheet { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 54px); padding: 12px; }'
+            + '.sheet img { max-width: 100%; max-height: 90vh; width: auto; height: auto; object-fit: contain; display: block; margin: 0 auto; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }'
+            + '@media print {'
+            + '  .bar { display: none !important; }'
+            + '  html, body { background: #fff !important; width: 100%; height: 100%; margin: 0 !important; padding: 0 !important; }'
+            + '  .sheet { min-height: 0; width: 100vw; height: 100vh; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; page-break-inside: avoid; }'
+            + '  .sheet img { max-width: 100vw; max-height: 100vh; width: auto; height: auto; box-shadow: none !important; }'
+            + '}'
+            + '</style>'
+            + '<style id="dyn-page-orientation"></style>'
+            + '</head><body>'
+            + '<div class="bar"><button onclick="window.print()">🖨️ พิมพ์เอกสาร</button><button class="cls" onclick="try{if(window.opener){window.opener.focus();}}catch(e){} window.close()">✕ ปิด</button></div>'
+            + '<div class="sheet"><img id="m-print-img" src="' + _escReportHtml(primarySrc) + '" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'' + _escReportHtml(fallbackSrc) + '\';}" alt=""></div>'
+            + '<' + 'script>'
+            + '(function(){'
+            + '  var img = document.getElementById("m-print-img");'
+            + '  var printed = false;'
+            + '  function applyOrientAndPrint() {'
+            + '    if (!img) return;'
+            + '    var isLandscape = (img.naturalWidth || 0) > (img.naturalHeight || 0);'
+            + '    var dyn = document.getElementById("dyn-page-orientation");'
+            + '    if (dyn) {'
+            + '      dyn.textContent = "@page { size: " + (isLandscape ? "A4 landscape" : "A4 portrait") + "; margin: 0; }";'
+            + '    }'
+            + '    if (!printed) {'
+            + '      printed = true;'
+            + '      setTimeout(function(){ window.print(); }, 250);'
+            + '    }'
+            + '  }'
+            + '  if (img) {'
+            + '    img.addEventListener("load", applyOrientAndPrint);'
+            + '    if (img.complete && img.naturalWidth > 0) applyOrientAndPrint();'
+            + '  }'
+            + '  setTimeout(function(){ if (!printed) { printed = true; window.print(); } }, 3500);'
+            + '})();'
+            + '<' + '/script>'
             + '</body></html>';
           win.document.open();
           win.document.write(html);
@@ -9589,7 +9616,7 @@
         // Synchronous Fallback กรณี popup ถูกบล็อก
         const printContainer = document.getElementById('print-only-report-container');
         if (!printContainer) return;
-        printContainer.innerHTML = `<div class="a4-sheet" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px;"><img src="${_escReportHtml(primarySrc)}" style="max-width:100%; max-height:92%; object-fit:contain;"><div style="margin-top:10px; font-size:18px; font-weight:700;">${_escReportHtml(title || '')}</div></div>`;
+        printContainer.innerHTML = `<div class="a4-sheet" style="display:flex; align-items:center; justify-content:center; padding:0;"><img src="${_escReportHtml(primarySrc)}" style="max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain;"></div>`;
         document.documentElement.classList.add('printing-activity-report');
         document.body.classList.add('printing-activity-report');
         const cleanupMediaPrint = function() {
